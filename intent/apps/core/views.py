@@ -10,7 +10,7 @@ from intent import settings
 
 def home(request):
     if request.user.is_authenticated():
-        return HttpResponseRedirect(reverse('reminders:recent-reminders'))
+        return HttpResponseRedirect(reverse('query:recent-queries'))
     else:
         return TemplateResponse(request, 'core/home.html', {})
 
