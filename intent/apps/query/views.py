@@ -28,15 +28,16 @@ from .models import *
 
 @login_required
 def recent_queries(request):
-    #return TemplateResponse(request, 'reminders/recent_reminders.html', {'reminders': Reminder.objects.all()})
     return render_to_response("query/recent_queries.html",
-        {'reminders': Query.objects.all(),},
+        {'queries': Query.objects.all(),
+         'status_choices' : dict(Query.STATUS_CHOICES)},
         RequestContext(request))
 
 @login_required
 def query_index(request):
     return render_to_response('query/query_index.html',
-            {'query_list': Query.objects.filter(created_by=request.user),},
+            {'query_list': Query.objects.filter(created_by=request.user),
+             'status_choices' : dict(Query.STATUS_CHOICES)},
             context_instance=RequestContext(request))
 
 @login_required

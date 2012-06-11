@@ -6,17 +6,27 @@
     <h1>Queries</h1>
         <table class="table table-striped table-bordered table-condensed">
             <thead><tr>
-                <th width='20%'>Query</th>
-                <th width='20%'>Last run</th>
-                <th width='30%'>Tweets analyzed</th>
-                <th width='30%'>Results</th>
+                <th width='15%'>Query</th>
+                <th width='15%'>State</th>
+                <th width='15%'>Created on</th>
+                <th width='15%'>Last run</th>
+                <th width='15%'>Tweets analyzed</th>
+                <th width='15%'>Results</th>
             </tr></thead>
             <tbody>
             {% for query in query_list %}
                 <tr>
                     <td><a href='edit/{{query.id}}'>{{ query.query }}</a></td>
+                    <td>
+                        {% for k, v in status_choices.items %}
+                            {% ifequal k|stringformat:"s" query.state|stringformat:"s" %}
+                                {{ v }}
+                            {% endifequal %}
+                        {% endfor %}
+                    </td>
+                    <td>{{ query.created_on }}</td>
                     <td>{{ query.last_run }}</td>
-                    <td>tbd</td>
+                    <td>0</td>
                     <td>tbd</td>
                 </tr>
             {% endfor %}

@@ -19,9 +19,20 @@ from django import forms
 from django.contrib.admin.widgets import AdminDateWidget
 import datetime
 from .models import *
-from django.contrib.localflavor.us.forms import USPhoneNumberField
+from django.utils.safestring import mark_safe
 
 class QueryForm(forms.ModelForm):
+
+    sample_queries = [
+        'starbucks coffee containing both "starbucks" and "coffee"<br>',
+        '<b>kindle fire</b> containing the exact phrase "kindle fire"<br>',
+        '<b>coffee OR donut</b> containing either "coffee" or "donut" (or both)<br>',
+        '<b>coffee -donut</b> containing "coffee" but not "donut"<br>',
+        '<b>#coffee</b> containing the hashtag "coffee"<br>',
+        '<b>from:starbucks</b> sent from the user @starbucks<br>',
+        '<b>@starbucks</b> mentioning @starbucks',
+    ]
+    query = forms.CharField(help_text=mark_safe(''.join(sample_queries)))
 
     class Meta:
         model = Query
