@@ -1,0 +1,14 @@
+# requirements/common.txt
+Django==1.4
+django-cache-machine==0.6
+django-celery==2.5.5
+django-dajaxice==0.2
+django-guardian==1.0.4
+django-kombu==0.9.4
+django-pagination==1.0.7
+django-sorting==0.1
+django-tastypie==0.9.11
+Fabric==1.4.1
+South==0.7.4
+django-sentry
+django-registration

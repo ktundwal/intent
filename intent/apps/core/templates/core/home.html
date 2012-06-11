@@ -1,0 +1,158 @@
+{% load new_pin %}
+{% load new_reminder %}
+
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/html">
+    <head>
+        <title>Cruxly - understand intent</title>
+
+        {% if debug %}
+        <link rel="stylesheet" href="/static/vendor/bootstrap/2.0.3/css/bootstrap.css">
+        <link rel="stylesheet" href="/static/vendor/fancybox/2.0.6/jquery.fancybox.css">
+        {% else %}
+        <link rel="stylesheet" href="/static/vendor/bootstrap/2.0.3/css/bootstrap.min.css">
+        <link rel="stylesheet" href="/static/vendor/fancybox/2.0.6/jquery.fancybox.css">
+        {% endif %}
+
+        <link href="/static/vendor/bootstrap/2.0.3/css/docs.css" rel="stylesheet">
+        <link rel="stylesheet" href="http://fonts.googleapis.com/css?family=Fredericka+the+Great">
+        <link rel="stylesheet" href="http://fonts.googleapis.com/css?family=Righteous">
+
+        <link rel="stylesheet" href="/static/core/css/reminderpin.css">
+    </head>
+    <body data-spy="scroll" data-target=".subnav" data-offset="50">
+
+        <!-- Navbar
+        ================================================== -->
+        <div class="navbar navbar-fixed-top">
+            <div class="navbar-inner">
+                <a href="{% url core:home %}" class="brand">Cruxly</a>
+
+                <ul class="nav pull-right">
+                    {% if user.is_authenticated %}
+                    <li><a href="#new-pin" data-toggle="modal">New Pin</a></li>
+                    <li><a href="#new-reminder" data-toggle="modal">New Reminder</a></li>
+                    <li><a href="{% url core:logout %}">Logout {{ user.username }}</a></li>
+                    {% else %}
+                    <li><a href="{% url core:login %}">Login</a></li>
+                    <li><a href="{% url core:register %}">Register</a></li>
+                    {% endif %}
+                </ul>
+            </div>
+        </div>
+
+        <div class="container">
+            <!-- Masthead
+           ================================================== -->
+            <header class="jumbotron masthead">
+                <div class="inner">
+                    <h1>Understand intent</h1>
+                    <p>What if you could find who all are ready to buy on twitter? And what if you could find who is requesting help via facebook?</p>
+                    <p class="download-info">
+                        <a href="/register/" class="btn btn-primary btn-large">Register</a>
+                    </p>
+                </div>
+
+                <div class="bs-links">
+                    <ul class="quick-links">
+                        <li><a href="http://intent.cruxly.com/">Demo</a></li>
+                        <li><a href="mailto:bot@cruxly.com">Email Bot</a></li>
+                        <li><a href="https://twitter.com/Cruxly" class="twitter-follow-button" data-link-color="#0069D6" data-show-count="true">Follow @Cruxly</a></li>
+                        <li><a href="https://twitter.com/share" class="twitter-share-button" data-url="http://Cruxly.com" data-count="horizontal" data-via="Cruxly" data-related="mdo:Creator of Cruxly">Tweet</a></li>
+                    </ul>
+                </div>
+            </header>
+
+            <div class="row-fluid">
+                <div class="span6">
+                    <h2>Why?</h2>
+                    <p>Cruxly understands if tweets, facebook updates & email messages you receive are actionable. Using proprietary data analytics with no training required, Cruxly can identify the intent behind the message including buying intent, question and request, or a promise. Businesses benefit significantly from Cruxly’s services for increasing efficiency in their sales, support, and marketing initiatives.</p>
+                </div><!--/span-->
+                <div class="span6">
+                    <h2>Patented technology</h2>
+                    <p>Cruxly analyzes the content of any online communications using real-time patented natural language processing to detect questions, promises and buying intents. Cruxly team has more than 50 years of language analytics experience collectively and founders hold +45 patents in related fields. </p>
+                </div>
+            </div>
+
+            <hr class="soften">
+
+            <div class="marketing">
+                <h1>Designed for social media</h1>
+                <p class="marketing-byline">Available in various flavors</p>
+                <div class="row">
+                    <div class="span4">
+                        <img class="bs-icon" src="http://twitter.github.com/bootstrap/assets/img/glyphicons/glyphicons_042_group.png">
+                        <h2>HTTP API</h2>
+                        <p>The easiest and most common usage is to call our HTTP API from your application that receives or send messages. The API will process the message body you provide and return JSON with actionable text, questions or commitments.                            .</p>
+                    </div>
+                    <div class="span4">
+                        <img class="bs-icon" src="http://twitter.github.com/bootstrap/assets/img/glyphicons/glyphicons_079_podium.png">
+                        <h2>Android library</h2>
+                        <p>Worried about security? Integrate Cruxly's core library from your Android app and dont worry about sending personal data to any servers.</p>
+                    </div>
+                    <div class="span4">
+                        <img class="bs-icon" src="http://twitter.github.com/bootstrap/assets/img/glyphicons/glyphicons_163_iphone.png">
+                        <h2>.Net library</h2>
+                        <p>Leverage Cruxly's detection logic by embedding it within your desktop application. To prove it, we are shipping a standalone <a href=="http://www.cruxly.com/technology/clkn/http/www.cruxly.com/clkn/http/cruxly-public.s3.amazonaws.com/installer/alpha/ol-companion/setup.exe">Microsoft Outlook add-in</a> that requires no communication with Cruxly servers.</p>
+                    </div>
+                </div><!--/row-->
+
+                <hr class="soften">
+
+                <h1>Using Cruxly.</h1>
+                <p class="marketing-byline">For even more companies using Cruxly, <a href="http://tundwal.com/" target="_blank">visit our blog</a>.</p>
+                <ul class="thumbnails example-sites">
+                    <li class="span3">
+                        <a class="thumbnail" href="http://soundready.fm/" target="_blank">
+                            <img src="http://twitter.github.com/bootstrap/assets/img/example-sites/soundready.png" alt="SoundReady.fm">
+                        </a>
+                    </li>
+                    <li class="span3">
+                        <a class="thumbnail" href="http://kippt.com/" target="_blank">
+                            <img src="http://twitter.github.com/bootstrap/assets/img/example-sites/kippt.png" alt="Kippt">
+                        </a>
+                    </li>
+                    <li class="span3">
+                        <a class="thumbnail" href="http://www.fleetio.com/" target="_blank">
+                            <img src="http://twitter.github.com/bootstrap/assets/img/example-sites/fleetio.png" alt="Fleetio">
+                        </a>
+                    </li>
+                    <li class="span3">
+                        <a class="thumbnail" href="http://www.jshint.com/" target="_blank">
+                            <img src="http://twitter.github.com/bootstrap/assets/img/example-sites/jshint.png" alt="JS Hint">
+                        </a>
+                    </li>
+                </ul>
+
+            </div><!-- /.marketing -->
+
+            <!-- Footer
+           ================================================== -->
+            <footer class="footer">
+                <p class="pull-right"><a href="#">Back to top</a></p>
+                &copy; Cruxly 2012. Designed and developed in Boulder, Colorado
+            </footer>
+        </div><!-- /container -->
+
+        {% new_pin %}
+
+        {% new_reminder %}
+
+        {% if debug %}
+            <script src="/static/vendor/jquery/1.7.2/jquery.js"></script>
+            <script src="/static/vendor/bootstrap/2.0.3/js/bootstrap.js"></script>
+            <script src="/static/vendor/wookmark/0.5/jquery.wookmark.js"></script>
+            <script src="/static/vendor/fancybox/2.0.6/jquery.fancybox.js"></script>
+            <script src="/static/vendor/imagesloaded/2.0.1/jquery.imagesloaded.js"></script>
+        {% else %}
+            <script src="/static/vendor/jquery/1.7.2/jquery.min.js"></script>
+            <script src="/static/vendor/bootstrap/2.0.3/js/bootstrap.min.js"></script>
+            <script src="/static/vendor/wookmark/0.5/jquery.wookmark.min.js"></script>
+            <script src="/static/vendor/fancybox/2.0.6/jquery.fancybox.pack.js"></script>
+            <script src="/static/vendor/imagesloaded/2.0.1/jquery.imagesloaded.min.js"></script>
+        {% endif %}
+
+        <script src="/static/core/js/reminderpin.js"></script>
+        <script src="/static/core/js/messages.js"></script>
+    </body>
+</html>

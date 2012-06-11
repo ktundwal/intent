@@ -1,0 +1,17 @@
+{% extends 'core/base.html' %}
+
+{% block title %}Recent Reminders{% endblock %}
+
+{% block yield %}
+    {% for reminder in reminders %}
+        <p>{{ reminder.patient_name }}</p>
+    {% endfor %}
+    <div id="reminders"></div>
+    <div id="loader" class="container">
+        <div class="row">
+            <div class="span2 offset5">
+                <img src="/static/core/img/loader.gif" alt="Loader">
+            </div>
+        </div>
+    </div>
+{% endblock %}

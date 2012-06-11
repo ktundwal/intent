@@ -1,0 +1,101 @@
+{% load new_pin %}
+{% load new_reminder %}
+{% load new_query %}
+
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Cruxly - {% block title %}{% endblock %}</title>
+
+        {% if debug %}
+            <link rel="stylesheet" href="/static/vendor/bootstrap/2.0.3/css/bootstrap.css">
+            <link rel="stylesheet" href="/static/vendor/bootstrap/2.0.3/css/datepicker.css">
+            <link rel="stylesheet" href="/static/vendor/bootstrap/2.0.3/css/timepicker.css">
+            <link rel="stylesheet" href="/static/vendor/fancybox/2.0.6/jquery.fancybox.css">
+        {% else %}
+            <link rel="stylesheet" href="/static/vendor/bootstrap/2.0.3/css/bootstrap.min.css">
+            <link rel="stylesheet" href="/static/vendor/bootstrap/2.0.3/css/datepicker.css">
+            <link rel="stylesheet" href="/static/vendor/bootstrap/2.0.3/css/timepicker.css">
+            <link rel="stylesheet" href="/static/vendor/fancybox/2.0.6/jquery.fancybox.css">
+        {% endif %}
+
+        <link rel="stylesheet" href="http://fonts.googleapis.com/css?family=Fredericka+the+Great">
+        <link rel="stylesheet" href="http://fonts.googleapis.com/css?family=Righteous">
+
+        <link rel="stylesheet" href="/static/core/css/reminderpin.css">
+    </head>
+    <body>
+        <div class="navbar navbar-fixed-top">
+            <div class="navbar-inner">
+                <a href="{% url core:home %}" class="brand">Cruxly</a>
+
+                <ul class="nav pull-right">
+                    {% if user.is_authenticated %}
+                        <li><a href="#new-query" data-toggle="modal">New Query</a></li>
+                        <li><a href="{% url core:logout %}">Logout {{ user.username }}</a></li>
+                    {% else %}
+                        <li><a href="{% url core:login %}">Login</a></li>
+                        <li><a href="{% url core:register %}">Register</a></li>
+                    {% endif %}
+                </ul>
+            </div>
+        </div>
+
+        <div class="container">
+            {% if messages %}
+                <ul class="messages">
+                    {% for message in messages %}
+                        <li {% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
+                    {% endfor %}
+                </ul>
+            {% endif %}
+
+            <div class="container" style='padding: 20px; margin-bottom: 30px; background-color: #eeeeee; -webkit-border-radius: 6px; -moz-border-radius: 6px; border-radius: 6px;'>
+                {% block yield %}{% endblock %}
+            </div><!-- /container -->
+
+
+            <!-- Footer
+            ================================================== -->
+            <footer class="footer">
+                <p class="pull-right"><a href="#">Back to top</a></p>
+                &copy; Cruxly 2012. Designed and developed in Boulder, Colorado
+            </footer>
+
+        </div><!-- /container -->
+
+        {% new_pin %}
+
+        {% new_reminder %}
+
+        {% new_query %}
+
+        {% if debug %}
+            <script src="/static/vendor/jquery/1.7.2/jquery.js"></script>
+            <script src="/static/vendor/bootstrap/2.0.3/js/bootstrap.js"></script>
+            <script src="/static/vendor/bootstrap/2.0.3/js/bootstrap-datepicker.js"></script>
+            <script src="/static/vendor/bootstrap/2.0.3/js/bootstrap-timepicker.js"></script>
+            <script src="/static/vendor/wookmark/0.5/jquery.wookmark.js"></script>
+            <script src="/static/vendor/fancybox/2.0.6/jquery.fancybox.js"></script>
+            <script src="/static/vendor/imagesloaded/2.0.1/jquery.imagesloaded.js"></script>
+        {% else %}
+            <script src="/static/vendor/jquery/1.7.2/jquery.min.js"></script>
+            <script src="/static/vendor/bootstrap/2.0.3/js/bootstrap.min.js"></script>
+            <script src="/static/vendor/bootstrap/2.0.3/js/bootstrap-datepicker.js"></script>
+            <script src="/static/vendor/bootstrap/2.0.3/js/bootstrap-timepicker.js"></script>
+            <script src="/static/vendor/wookmark/0.5/jquery.wookmark.min.js"></script>
+            <script src="/static/vendor/fancybox/2.0.6/jquery.fancybox.pack.js"></script>
+            <script src="/static/vendor/imagesloaded/2.0.1/jquery.imagesloaded.min.js"></script>
+        {% endif %}
+
+        <script src="/static/core/js/reminderpin.js"></script>
+        <script src="/static/core/js/messages.js"></script>
+
+        <script type="text/javascript">
+            $(function() {
+                $( ".datePicker" ).datepicker();
+                $( ".timePicker" ).timepicker();
+            });
+        </script>
+    </body>
+</html>

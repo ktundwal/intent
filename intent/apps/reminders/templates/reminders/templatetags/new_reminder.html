@@ -1,0 +1,18 @@
+{% load bootstrap_field %}
+
+<div class="modal fade" id="new-reminder">
+    <div class="modal-header">
+        <h3>{% if instance %}Update{% else %}Add{% endif %} Reminder</h3>
+    </div>
+    <form action="{% url reminders:new-reminder %}" method="post" class="form-horizontal">{% csrf_token %}
+        <div class="modal-body">
+            {% for field in form %}
+                {% bootstrap_field field %}
+            {% endfor %}
+        </div>
+        <div class="modal-footer">
+            <button type="submit" class="btn btn-primary">{% if instance %}Update{% else %}Add{% endif %}</button>
+            <a href="#new-reminder" data-toggle="modal" class="btn">Cancel</a>
+        </div>
+    </form>
+</div>

@@ -1,0 +1,32 @@
+{% extends 'core/base.html' %}
+
+{% block title %}Queries{% endblock %}
+
+{% block yield %}
+    <h1>Queries</h1>
+        <table class="table table-striped table-bordered table-condensed">
+            <thead><tr>
+                <th width='20%'>Query</th>
+                <th width='20%'>Last run</th>
+                <th width='30%'>Tweets analyzed</th>
+                <th width='30%'>Results</th>
+            </tr></thead>
+            <tbody>
+            {% for query in query_list %}
+                <tr>
+                    <td><a href='edit/{{query.id}}'>{{ query.query }}</a></td>
+                    <td>{{ query.last_run }}</td>
+                    <td>tbd</td>
+                    <td>tbd</td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    <div id="loader" class="container">
+        <div class="row">
+            <div class="span2 offset5">
+                <img src="/static/core/img/loader.gif" alt="Loader">
+            </div>
+        </div>
+    </div>
+{% endblock %}

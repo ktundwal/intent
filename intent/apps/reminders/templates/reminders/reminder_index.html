@@ -1,0 +1,40 @@
+{% extends 'core/base.html' %}
+
+{% block title %}Reminders{% endblock %}
+
+{% block yield %}
+    <h1>Reminders</h1>
+        <table class="table table-striped table-bordered table-condensed">
+            <thead><tr>
+                <th width='20%'>Patient name</th>
+                <th width='20%'>Cell phone</th>
+                <th width='30%'>Appointment</th>
+                <th width='30%'>Reminder</th>
+            </tr></thead>
+            <tbody>
+            {% for reminder in reminder_list %}
+                <tr>
+                    <td>{{ reminder.patient_name }}</td>
+                    <td>{{ reminder.patient_cell }}</td>
+                    <td><a href='edit/{{reminder.id}}'>{{ reminder.appointment_date|date:"F j, Y" }} {{ reminder.appointment_time }}</a></td>
+                    <td>
+                        {% for reminder in reminder.reminders %}
+                            {% for k, v in reminder_choices.items %}
+                                {% ifequal k|stringformat:"s" reminder|stringformat:"s" %}
+                                    {{ v }}<br>
+                                {% endifequal %}
+                            {% endfor %}
+                        {% endfor %}
+                    </td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    <div id="loader" class="container">
+        <div class="row">
+            <div class="span2 offset5">
+                <img src="/static/core/img/loader.gif" alt="Loader">
+            </div>
+        </div>
+    </div>
+{% endblock %}
