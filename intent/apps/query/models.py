@@ -36,6 +36,7 @@ class Query(models.Model):
 
     class Meta:
         ordering = ['-created_on']
+        verbose_name = "Querie"
 
 class RunningState(models.Model):
     state = models.CharField(max_length=40, blank=False, null=False)
