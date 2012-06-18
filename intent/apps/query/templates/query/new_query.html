@@ -11,6 +11,14 @@
                 <h1>{% if instance %}New{% else %}Edit{% endif %} Query</h1>
                 <form action="" method="post" class="form-horizontal">
                     {% csrf_token %}
+                    <p class="help-block">Ex: <b>starbucks coffee</b> containing both "starbucks" and "coffee"<br>
+                        <b>"kindle fire"</b>	containing the exact phrase "kindle fire"<br>
+                        <b>coffee OR donut</b> containing either "coffee" or "donut" (or both)<br>
+                        <b>coffee -donut</b> containing "coffee" but not "donut"<br>
+                        <b>#coffee</b> containing the hashtag "coffee"<br>
+                        <b>from:starbucks</b> sent from the user @starbucks<br>
+                        <b>@starbucks</b> mentioning @starbucks<br>
+                    </p>
                     {% for field in form %}
                         {% bootstrap_field field %}
                     {% endfor %}
