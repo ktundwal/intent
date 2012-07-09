@@ -8,7 +8,7 @@ DEBUG = False
 #import dj_database_url
 #DATABASES = {'default': dj_database_url.config(default='postgres://localhost')}
 
-if ENVIRONMENT == 'prod':
+if ENVIRONMENT == 'staging':
     from postgresify import postgresify
     DATABASES = postgresify()
 
