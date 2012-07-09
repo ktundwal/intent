@@ -1,7 +1,7 @@
 # requirements/common.txt
 Django==1.4
 django-cache-machine==0.6
-django-celery=3.0.0
+django-celery==3.0.0
 django-dajaxice==0.2
 django-guardian==1.0.4
 django-kombu==0.9.4
