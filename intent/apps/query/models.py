@@ -15,6 +15,28 @@ from django.db import models
 from django.contrib.auth.models import User
 from decimal import *
 
+class Rule(models.Model):
+    WANT_GRAMMAR = 1
+    QUESTION_GRAMMAR = 2
+    PROMISE_GRAMMAR = 3
+    GRAMMAR_CHOICES = (
+        (WANT_GRAMMAR, 'want'),
+        (QUESTION_GRAMMAR, 'question'),
+        (PROMISE_GRAMMAR, 'promise'),
+        )
+
+    grammar = models.IntegerField(choices=GRAMMAR_CHOICES)
+    grammar_version = models.DecimalField(max_digits=2, decimal_places=1)
+    rule = models.CharField(max_length=100, blank=True)
+    confidence = models.DecimalField(max_digits=2, decimal_places=1, default=1.0)
+
+    def __unicode__(self):
+        return '%d-%s' % (self.grammar, self.rule)
+
+    class Meta:
+        verbose_name_plural = "Rules"
+
+
 class Query(models.Model):
     INACTIVE_STATUS = 0
     RUNNING_STATUS = 1
@@ -44,6 +66,9 @@ class Query(models.Model):
     longitude = models.CharField(max_length=40, blank=True, null=True)
     radius = models.CharField(max_length=40, blank=True, null=True)
 
+    num_times_run = models.IntegerField(default = 0)
+    query_exception = models.CharField(max_length=200, blank=True, null=True)
+
     def __unicode__(self):
         return self.query
 
@@ -51,7 +76,7 @@ class Query(models.Model):
         ordering = ['-created_on']
         verbose_name_plural = "Queries"
 
-class QueryResult(models.Model):
+class Document(models.Model):
 
     TWITTER_SOURCE = 1
     FACEBOOK_SOURCE = 3
@@ -62,18 +87,8 @@ class QueryResult(models.Model):
 
     NOT_ANALYZED = -1
     NO_INTENT = 0
-    BUY_INTENT = 1
-    QUESTION_INTENT = 2
-    COMMITMENT_INTENT = 3
-    INTENT_CHOICES = (
-        (NOT_ANALYZED, 'Not analyzed'),
-        (NO_INTENT, 'None'),
-        (BUY_INTENT, 'Buy'),
-        (QUESTION_INTENT, 'Question'),
-        (COMMITMENT_INTENT, 'Commitment'),
-    )
 
-    result_of = models.ForeignKey(Query)
+    result_of = models.ForeignKey(Query, related_name='results', blank=True)
 
     source = models.IntegerField(choices=SOURCE_CHOICES, default=TWITTER_SOURCE)
 
@@ -85,9 +100,12 @@ class QueryResult(models.Model):
     language = models.CharField(max_length=20, blank=False, null=False)
     source_id = models.CharField(max_length=40, blank=False, null=False)
 
-    intent = models.IntegerField(choices=INTENT_CHOICES, default=NOT_ANALYZED)
-    cruxly_api_version = models.CharField(max_length=20)
-    cruxly_rule_used = models.CharField(max_length=200)
+    analyzed = models.BooleanField(default=False)
+
+    want_rule = models.ForeignKey(Rule, related_name='wants', blank=True)
+    question_rule = models.ForeignKey(Rule, related_name='questions', blank=True)
+    promise_rule = models.ForeignKey(Rule, related_name='promises', blank=True)
+    dislike_rule = models.ForeignKey(Rule, related_name='dislikes', blank=True)
 
     # http://www.clips.ua.ac.be/pages/pattern-en
 
@@ -104,10 +122,10 @@ class QueryResult(models.Model):
         (SUBJUNCTIVE_MOOD, 'Subjunctive'),
     )
 
-    polarity = models.DecimalField(max_digits=1, decimal_places=1,default=Decimal("0"))
-    subjectivity = models.DecimalField(max_digits=1, decimal_places=1,default=Decimal("0"))
+    polarity = models.DecimalField(max_digits=2, decimal_places=1,default=Decimal("0"))
+    subjectivity = models.DecimalField(max_digits=2, decimal_places=1,default=Decimal("0"))
     intent = models.IntegerField(choices=MOOD_CHOICES, default=NOT_ANALYZED)
-    modality = models.DecimalField(max_digits=1, decimal_places=1,default=Decimal("0"))
+    modality = models.DecimalField(max_digits=2, decimal_places=1,default=Decimal("0"))
 
     def __unicode__(self):
         return '%s-%s' % (self.query, self.source_id)
