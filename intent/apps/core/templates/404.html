@@ -1,15 +1,17 @@
 {% extends 'core/base.html' %}
 
+{% load bootstrap_field %}
 
-{% block title %}404{% endblock %}
+
+{% block title %}404 - Page not found{% endblock %}
 
 {% block yield %}
-    <div class="container">
-        <div class="row">
-            <div id="form" class="span6 offset3">
-                <h1>404</h1>
-                <p>This page does not exist.</p>
-            </div>
+<div class="container">
+    <div class="row">
+        <div id="form" class="span6 offset3">
+            <h1>Page not found - 404</h1>
+            <p>We cant find the page you are looking for, but can certainly <a href="/">find the intent in tweets</a></p>
         </div>
     </div>
+</div>
 {% endblock %}
