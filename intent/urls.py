@@ -11,7 +11,7 @@ Hello, intent users! This is just a dummy response.
 
 urlpatterns = patterns('',
     url(r'', include('intent.apps.core.urls', namespace='core')),
-    url(r'^queries/', include('intent.apps.query.urls', namespace='query')),
+    url(r'^query/', include('intent.apps.query.urls', namespace='query')),
     url(r'^reminders/', include('intent.apps.reminders.urls', namespace='reminders')),
     url(r'^pins/', include('intent.apps.pins.urls', namespace='pins')),
     url(r'^api/', include('intent.apps.api.urls', namespace='api')),

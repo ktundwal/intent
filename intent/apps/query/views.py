@@ -29,7 +29,12 @@ from django.http import Http404
 
 from .forms import QueryForm
 from .models import *
+from .utils import *
+
+from intent.apps.core.utils import *
+
 from pattern import web    # for twitter search
+from pattern.text.en import wordnet, parse, tag, Text, sentiment, modality, mood    # for sentence breaking
 
 @login_required
 def recent_queries(request):
@@ -68,37 +73,6 @@ def new_query(request, query_id = None):
     return render_to_response("query/new_query.html",
         context, context_instance=RequestContext(request))
 
-def search_twitter(query, query_count):
-    """
-    search twitter
-    """
-    # We'll query for tweets on each candidate.
-    # Twitter can handle 150+ queries per hour (actual amount is undisclosed).
-    # There are 2078 candidates.
-    # Let's do one run in ten hours.
-    # That means: 207.8 queries per hour, or 17.3 seconds between each query.
-    #delay = 3600.0 / len(candidates) * 10 # 10 means 10 hours
-    delay = 1 # Disable the timer for testing purposes.
-    engine = web.Twitter(throttle=delay, language='en')
-    # If twitter is not responding, lay off and try again in 10 minutes.
-    # Otherwise, fail for this candidate.
-    try: tweets = engine.search(query, start=1, count=query_count) # 100 tweets per query.
-    except Exception, e:
-        time.sleep(5)
-        try: tweets = engine.search(query, start=1, count=query_count)
-        except Exception, ex:
-            app.logger.error("error" + web.bytestring(query))
-            log_exception("Exception during twitter search")
-            tweets = []
-    return tweets
-
-def clean_tweet(tweet):
-    txt1 = web.plaintext(tweet)
-    txt1 = txt1.replace("#", "# ").replace("  ", " ") # Clean twitter hashtags
-    txt1 = txt1.replace("\n", " ").replace("  ", " ")
-    txt1 = txt1.replace("\t", " ").replace("  ", " ")
-    return txt1
-
 @login_required
 def download(request, query_id = None):
     query = None
@@ -120,3 +94,67 @@ def download(request, query_id = None):
         return response
     else:
         raise Http404
+
+SAMPLE_KEYWORD = "starbucks"
+DEFAULT_QUERY_COUNT = '200'
+
+def demo(request):
+    """Analyze text"""
+
+    context = {}
+    error = ''
+
+    if request.method == 'GET':
+        try: query = request.GET.get('q')
+        except Exception: error = 'Invalid query'
+        try: query_count = int(request.GET.get('count'))
+        except Exception: query_count = int(DEFAULT_QUERY_COUNT)
+    else:
+        form = QueryForm(data=request.POST)
+        if form.is_valid():
+            query = form.save(commit=False) # returns unsaved instance
+            query_count = int(DEFAULT_QUERY_COUNT)
+        else:
+            error = 'Invalid query'
+
+    if not error:
+        try:
+            tweets = search_twitter(query, query_count)
+
+            analyzed_tweet_dict_list = []
+            for tweet in tweets:
+                cleaned_tweet = clean_tweet(tweet.description)
+                #cleaned_tweet = Text(parse(clean_tweet(tweet.desciption))).string
+                analyzed_tweet_dict = dict(
+                    content = cleaned_tweet,    # 'content' key is what cruxly api looks for
+                    author = tweet.author,
+                    image = tweet.profile,
+                    url = "".join(['http://twitter.com/', tweet.author, '/status/', tweet.tweet_id]),
+                    date = pretty_date(get_timestamp_from_twitter_date(tweet.date)),
+                )
+                analyzed_tweet_dict_list.append(analyzed_tweet_dict)
+
+            if len(analyzed_tweet_dict_list) > 0:
+                analyzed_tweet_dict_list = insert_intents(analyzed_tweet_dict_list)
+
+            wants = len([tweet for tweet in analyzed_tweet_dict_list if 'want' in tweet['intents']]) * 100 / len(analyzed_tweet_dict_list) if len(analyzed_tweet_dict_list) > 0 else 1
+            questions = len([tweet for tweet in analyzed_tweet_dict_list if 'question' in tweet['intents']]) * 100 / len(analyzed_tweet_dict_list) if len(analyzed_tweet_dict_list) > 0 else 1
+            promises = len([tweet for tweet in analyzed_tweet_dict_list if 'promise' in tweet['intents']]) * 100 / len(analyzed_tweet_dict_list) if len(analyzed_tweet_dict_list) > 0 else 1
+            logger.info('Demo Request: %s' % query)
+
+            context = {
+                    'form': QueryForm(),
+                    'tweets': analyzed_tweet_dict_list,
+                    'query': query,
+                    'count': query_count,
+                    'stats': {'wants' : wants, 'promises' : promises, 'questions' : questions},
+                }
+
+        except Exception, e:
+            log_exception()
+            context['error'] = 'Unexpected error! %s' % e.message,
+    else:
+        context['error'] = error
+
+    return render_to_response("query/demo.html", context,
+        context_instance=RequestContext(request))

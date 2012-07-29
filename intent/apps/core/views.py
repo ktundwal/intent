@@ -43,5 +43,5 @@ def send_invite_email(recipient_name, recipient_email):
     and credentials in the settings files.
     '''
     subject = 'Thanks for signing up at Cruxly'
-    body = ('Welcome ' + recipient_name + ', Please login at http://intent.herokuapp.com/login with your username and password. Do let us know if you run into a bug. Thx -Kapil @ Cruxly')
+    body = ('Welcome ' + recipient_name + ', Please login at http://www.cruxly.com/login with your username and password. Do let us know if you run into a bug. Thx -Aloke @ Cruxly')
     send_mail(subject, body, settings.DEFAULT_FROM_EMAIL, [recipient_email])

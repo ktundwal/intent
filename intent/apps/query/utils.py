@@ -1,58 +1,18 @@
 from pattern import web    # for twitter search
+from patternliboverrides import *   # for twitter class override in pattern lib
 from urllib2 import Request, urlopen, URLError, HTTPError
 import socket
 
 import json
 import time # to sleep if twitter raises an exception
+from time import gmtime, strftime
 
 from intent.apps.core.utils import *
+from .decorators import *
+
+from datetime import datetime
 
 CRUXLY_API = 'http://detectintent.appspot.com/v1/api/detect'
-
-import time
-
-def retry(ExceptionToCheck, tries=4, delay=3, backoff=2, logger=None):
-    """Retry calling the decorated function using an exponential backoff.
-
-    http://www.saltycrane.com/blog/2009/11/trying-out-retry-decorator-python/
-    original from: http://wiki.python.org/moin/PythonDecoratorLibrary#Retry
-
-    :param ExceptionToCheck: the exception to check. may be a tuple of
-        excpetions to check
-    :type ExceptionToCheck: Exception or tuple
-    :param tries: number of times to try (not retry) before giving up
-    :type tries: int
-    :param delay: initial delay between retries in seconds
-    :type delay: int
-    :param backoff: backoff multiplier e.g. value of 2 will double the delay
-        each retry
-    :type backoff: int
-    :param logger: logger to use. If None, print
-    :type logger: logging.Logger instance
-    """
-    def deco_retry(f):
-        def f_retry(*args, **kwargs):
-            mtries, mdelay = tries, delay
-            try_one_last_time = True
-            while mtries > 1:
-                try:
-                    return f(*args, **kwargs)
-                    try_one_last_time = False
-                    break
-                except ExceptionToCheck, e:
-                    msg = "%s, Retrying in %d seconds..." % (str(e), mdelay)
-                    if logger:
-                        logger.warning(msg)
-                    else:
-                        print msg
-                    time.sleep(mdelay)
-                    mtries -= 1
-                    mdelay *= backoff
-            if try_one_last_time:
-                return f(*args, **kwargs)
-            return
-        return f_retry  # true decorator
-    return deco_retry
 
 @retry(web.SearchEngineLimitError, tries=4, delay=3, backoff=2)
 def search_twitter(query, query_count):
@@ -69,7 +29,7 @@ def search_twitter(query, query_count):
     socket.setdefaulttimeout(60)
 
     delay = 1 # Disable the timer for testing purposes.
-    engine = web.Twitter(throttle=delay, language='en')
+    engine = TwitterEx(throttle=delay, language='en')
     # If twitter is not responding, lay off and try again in 10 minutes.
     # Otherwise, fail for this candidate.
     try: tweets = engine.search(query, start=1, count=query_count) # 100 tweets per query.
@@ -132,3 +92,54 @@ def insert_intents(tweets):
         raise type(e)('Cruxly API under heavy load. Please try again later.')
 
     return response
+
+
+def trunc(f, n):
+    '''Truncates/pads a float f to n decimal places without rounding'''
+    slen = len('%.*f' % (n, f))
+    return str(f)[:slen]
+
+def get_timestamp_from_twitter_date(twitter_date):
+    return datetime.strptime(twitter_date, '%a, %d %b  %Y %H:%M:%S +0000')
+
+def pretty_date(time=False):
+    """
+    Get a datetime object or a int() Epoch timestamp and return a
+    pretty string like 'an hour ago', 'Yesterday', '3 months ago',
+    'just now', etc
+    """
+    now = datetime.now()
+    if type(time) is int:
+        diff = now - datetime.fromtimestamp(time)
+    elif isinstance(time,datetime):
+        diff = now - time
+    elif not time:
+        diff = now - now
+    second_diff = diff.seconds
+    day_diff = diff.days
+
+    if day_diff < 0:
+        return ''
+
+    if day_diff == 0:
+        if second_diff < 10:
+            return "just now"
+        if second_diff < 60:
+            return str(second_diff) + " seconds ago"
+        if second_diff < 120:
+            return  "a minute ago"
+        if second_diff < 3600:
+            return str( second_diff / 60 ) + " minutes ago"
+        if second_diff < 7200:
+            return "an hour ago"
+        if second_diff < 86400:
+            return str( second_diff / 3600 ) + " hours ago"
+    if day_diff == 1:
+        return "Yesterday"
+    if day_diff < 7:
+        return str(day_diff) + " days ago"
+    if day_diff < 31:
+        return str(day_diff/7) + " weeks ago"
+    if day_diff < 365:
+        return str(day_diff/30) + " months ago"
+    return str(day_diff/365) + " years ago"

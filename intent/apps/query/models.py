@@ -50,7 +50,7 @@ class Query(models.Model):
     )
 
     created_by = models.ForeignKey(User)
-    query = models.CharField(max_length=200, blank=False, null=False)
+    query = models.CharField(max_length=200, blank=False)
     created_on = models.DateTimeField(auto_now_add=True)
 
     status = models.IntegerField(choices=STATUS_CHOICES, default=WAITING_TO_RUN_STATUS)
@@ -62,12 +62,12 @@ class Query(models.Model):
 
     throttle = models.FloatField(default=0.5)
 
-    latitude = models.CharField(max_length=40, blank=True, null=True)
-    longitude = models.CharField(max_length=40, blank=True, null=True)
-    radius = models.CharField(max_length=40, blank=True, null=True)
+    latitude = models.CharField(max_length=40, blank=True)
+    longitude = models.CharField(max_length=40, blank=True)
+    radius = models.CharField(max_length=40, blank=True)
 
     num_times_run = models.IntegerField(default = 0)
-    query_exception = models.CharField(max_length=200, blank=True, null=True)
+    query_exception = models.CharField(max_length=200, blank=True)
 
     def __unicode__(self):
         return self.query
@@ -103,7 +103,8 @@ class Document(models.Model):
     author = models.ManyToManyField(Author)
 
     # Tweet id which will allow us to show actual tweet is user wants it
-    source_id = models.CharField(max_length=40, blank=False)
+    source_id = models.CharField(max_length=40, unique=True, blank=False)
+    date = models.DateTimeField(auto_now_add=True)
 
     # This will be used to query what all needs analysis in background task
     analyzed = models.BooleanField(default=False)

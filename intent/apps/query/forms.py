@@ -36,4 +36,4 @@ class QueryForm(forms.ModelForm):
 
     class Meta:
         model = Query
-        exclude = ['created_by']
+        exclude = ['created_by', 'count', 'interval', 'num_times_run', 'status', 'throttle']

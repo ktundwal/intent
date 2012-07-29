@@ -160,10 +160,10 @@ TEMPLATE_CONTEXT_PROCESSORS = (
 ACCOUNT_ACTIVATION_DAYS = 7 # One-week activation window; you may, of course, use a different value.
 EMAIL_USE_TLS = True
 EMAIL_HOST = 'smtp.gmail.com'
-EMAIL_HOST_USER = 'indraworks@gmail.com'
-EMAIL_HOST_PASSWORD = 'Denver123'
+EMAIL_HOST_USER = 'support@cruxly.com'
+EMAIL_HOST_PASSWORD = 'fixemail'
 EMAIL_PORT = 587
-DEFAULT_FROM_EMAIL = 'Cruxly <support@cruxly.com>'
+DEFAULT_FROM_EMAIL = 'Cruxly Support <support@cruxly.com>'
 
 # A sample logging configuration. The only tangible logging
 # performed by this configuration is to send an email to

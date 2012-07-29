@@ -48,6 +48,24 @@
                 <div class="inner">
                     <h1>Understand intent</h1>
                     <p>What if you could find who all are ready to buy on twitter? And what if you could find who is requesting help via facebook?</p>
+
+                    <div class="container">
+                        <div class="row">
+                            <div class="span12" style="text-align:center; margin: 0 auto;">
+                                <form action="{% url query:demo %}" method=post class="form-horizontal"> {% csrf_token %}
+                                    <fieldset>
+                                        <div class="control-group">
+                                            <div class="controls" style="text-align:center; margin: 0 auto;">
+                                                <input id="query" name="query" type="text" value="starbucks"/>
+                                                <button class="btn" type="submit">Try</button>
+                                            </div>
+                                        </div> <!-- /clearfix -->
+                                    </fieldset>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+
                     <p class="download-info">
                         <a href="/register/" class="btn btn-primary btn-large">Register</a>
                     </p>
@@ -55,7 +73,6 @@
 
                 <div class="bs-links">
                     <ul class="quick-links">
-                        <li><a href="http://intent.cruxly.com/">Demo</a></li>
                         <li><a href="mailto:bot@cruxly.com">Email Bot</a></li>
                         <li><a href="https://twitter.com/Cruxly" class="twitter-follow-button" data-link-color="#0069D6" data-show-count="true">Follow @Cruxly</a></li>
                         <li><a href="https://twitter.com/share" class="twitter-share-button" data-url="http://Cruxly.com" data-count="horizontal" data-via="Cruxly" data-related="mdo:Creator of Cruxly">Tweet</a></li>
