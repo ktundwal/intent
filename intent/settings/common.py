@@ -21,7 +21,7 @@ TWILIO_CALLER_ID   = '+13036471071'
 # timezone as the operating system.
 # If running in a Windows environment this must be set to the same as your
 # system time zone.
-TIME_ZONE = 'America/Chicago'
+#TIME_ZONE = 'America/Chicago'
 
 # Language code for this installation. All choices can be found here:
 # http://www.i18nguy.com/unicode/language-identifiers.html
@@ -129,11 +129,7 @@ INSTALLED_APPS = (
     'kombu.transport.django',
     'intent.apps.vendor',
     'intent.apps.core',
-    'intent.apps.pins',
     'intent.apps.query',
-    'intent.apps.reminders',
-    'intent.apps.api',
-    'registration',
     'djcelery',
     'django.contrib.humanize',
     # 'indexer',

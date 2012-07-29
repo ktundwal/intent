@@ -20,4 +20,5 @@ urlpatterns = patterns('intent.apps.query.views',
     url(r'^edit/(?P<query_id>\d+)', 'new_query', name='edit-query'),
     url(r'^download/(?P<query_id>\d+)', 'download', name='download-query'),
     url(r'^demo/$', 'demo', name='demo'),
+    url(r'^process/$', 'process', name='process'),
 )

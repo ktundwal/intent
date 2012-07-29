@@ -3,65 +3,8 @@
 
     <!--Load the AJAX API-->
     <script type="text/javascript" src="https://www.google.com/jsapi"></script>
-    <script type="text/javascript">
-
-        // Load the Visualization API and the piechart package.
-        google.load('visualization', '1.0', {'packages':['corechart']});
-
-        // Callback that creates and populates a data table,
-        // instantiates the pie chart, passes in the data and
-        // draws it.
-        function drawChart() {
-
-            // Create the data table.
-            var data = new google.visualization.DataTable();
-            data.addColumn('string', 'Type');
-            data.addColumn('number', 'Rest');
-            data.addRows([
-                ['Purchase Intent', 299],
-                ['Rest', 1000],
-            ]);
-
-            // Set chart options
-            var options = {
-                'width':200,
-                'height':200,
-                'is3D': true,
-                'legend': 'none'};
-
-            // Instantiate and draw our chart, passing in some options.
-            var chart = new google.visualization.PieChart(document.getElementById('chart_div'));
-            chart.draw(data, options);
-        }
-
-        // https://code.google.com/apis/ajax/playground/?type=visualization#line_chart
-        function drawLineChart() {
-            // Create and populate the data table.
-            var data = google.visualization.arrayToDataTable([
-                ['x',      'Starbucks', 'Caribou', 'Coffee'],
-                ['Jun 24', 36,          14,        45],
-                ['Jun 25', 34,          17,        50],
-                ['Jun 26', 33,          19,        45],
-                ['Jun 27', 30,          22,        44],
-                ['Jun 28', 24,          15,        41],
-                ['Jun 29', 26,          16,        44],
-                ['Jun 30', 28,          11,        39],
-                ['Jul 1', 26,          14,        35]
-            ]);
-
-            // Create and draw the visualization.
-            new google.visualization.LineChart(document.getElementById('chart_div')).
-                    draw(data, {curveType: "function",
-                        width: 500, height: 400,
-                        vAxis: {maxValue: 10}}
-            );
-        }
-
-        // Set a callback to run when the Google Visualization API is loaded.
-        google.setOnLoadCallback(drawLineChart);
-
-    </script>
 {% endblock %}
+
 {% block title %}Queries{% endblock %}
 
 {% block yield %}
@@ -82,14 +25,14 @@
                     <td><a href='edit/{{query.id}}'>{{ query.query }}</a></td>
                     <td>
                         {% for k, v in status_choices.items %}
-                            {% ifequal k|stringformat:"s" query.state|stringformat:"s" %}
+                            {% ifequal k|stringformat:"s" query.status|stringformat:"s" %}
                                 {{ v }}
                             {% endifequal %}
                         {% endfor %}
                     </td>
                     <td>{{ query.created_on }}</td>
                     <td>{{ query.last_run }}</td>
-                    <td>0</td>
+                    <td>{{ query.results.count }}</td>
                     <td>
                         <!--Div that will hold the pie chart-->
                         <div id="chart_div"></div>

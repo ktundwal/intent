@@ -8,6 +8,7 @@ import time # to sleep if twitter raises an exception
 from time import gmtime, strftime
 
 from intent.apps.core.utils import *
+from intent.apps.query.models import Rule
 from .decorators import *
 
 from datetime import datetime
@@ -143,3 +144,83 @@ def pretty_date(time=False):
     if day_diff < 365:
         return str(day_diff/30) + " months ago"
     return str(day_diff/365) + " years ago"
+
+def run_and_analyze_query(query, query_count):
+    """
+    Input query, query_count
+    Output processed tweets, % wants, % questions, % promises
+    """
+    tweets = search_twitter(query, query_count)
+    processed_tweets = []
+    for tweet in tweets:
+        cleaned_tweet = clean_tweet(tweet.description)
+        #cleaned_tweet = Text(parse(clean_tweet(tweet.desciption))).string
+        analyzed_tweet_dict = dict(
+            content = cleaned_tweet,    # 'content' key is what cruxly api looks for
+            author = tweet.author,
+            image = tweet.profile,
+            url = "".join(['http://twitter.com/', tweet.author, '/status/', tweet.tweet_id]),
+            date = pretty_date(get_timestamp_from_twitter_date(tweet.date)),
+            tweet_id = tweet.tweet_id,
+        )
+        processed_tweets.append(analyzed_tweet_dict)
+
+    if len(processed_tweets) > 0:
+        processed_tweets = insert_intents(processed_tweets)
+
+    wants = len([tweet for tweet in processed_tweets if 'want' in tweet['intents']]) * 100 / len(processed_tweets) if len(processed_tweets) > 0 else 1
+    questions = len([tweet for tweet in processed_tweets if 'question' in tweet['intents']]) * 100 / len(processed_tweets) if len(processed_tweets) > 0 else 1
+    promises = len([tweet for tweet in processed_tweets if 'promise' in tweet['intents']]) * 100 / len(processed_tweets) if len(processed_tweets) > 0 else 1
+
+    return processed_tweets, wants, questions, promises
+
+def lookup_rules_in_db_for_intents(intents):
+
+    want_rule = None
+    promise_rule = None
+    question_rule = None
+    dislike_rule = None
+
+    if 'want' in intents:
+        grammar_rule = "Unknown"
+        grammar_version = "1.7"
+        confidence = 1.0
+        want_rule, created = Rule.objects.get_or_create(
+            grammar=Rule.WANT_GRAMMAR,
+            grammar_version=grammar_version,
+            rule=grammar_rule,
+            confidence=confidence)
+    elif 'promise' in intents:
+        grammar_rule = "Unknown"
+        grammar_version = "0.8"
+        confidence = 1.0
+        promise_rule, created = Rule.objects.get_or_create(
+            grammar=Rule.PROMISE_GRAMMAR,
+            grammar_version=grammar_version,
+            rule=grammar_rule,
+            confidence=confidence)
+    elif 'question' in intents:
+        grammar_rule = "Unknown"
+        grammar_version = "0.8"
+        confidence = 1.0
+        question_rule, created = Rule.objects.get_or_create(
+            grammar=Rule.QUESTION_GRAMMAR,
+            grammar_version=grammar_version,
+            rule=grammar_rule,
+            confidence=confidence)
+    elif 'dislike' in intents:
+        grammar_rule = "Unknown"
+        grammar_version = "0.1"
+        confidence = 1.0
+        dislike_rule, created = Rule.objects.get_or_create(
+            grammar=Rule.DISLIKE_GRAMMAR,
+            grammar_version=grammar_version,
+            rule=grammar_rule,
+            confidence=confidence)
+
+    return {
+        'want_rule': want_rule,
+        'promise_rule': promise_rule,
+        'question_rule': question_rule,
+        'dislike_rule': dislike_rule
+    }

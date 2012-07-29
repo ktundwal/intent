@@ -3,63 +3,90 @@ from celery.task import periodic_task
 from django.core.cache import cache
 from time import sleep
 
-from datetime import timedelta
-from celery.decorators import task, periodic_task
+from datetime import timedelta, datetime
+from celery.decorators import periodic_task
+
+from django.utils import timezone
+from django.utils.timezone import utc
+
+from .utils import run_and_analyze_query, lookup_rules_in_db_for_intents
+from intent.apps.query.models import Rule, Author, Query, Document
 
 from intent.apps.core.utils import *
-
-from .models import *
 
 # Run this
 # python manage.py celeryd -E -B --loglevel=INFO
 
-def single_instance_task(timeout):
-    def task_exc(func):
-        def wrapper(*args, **kwargs):
-            lock_id = "celery-single-instance-" + func.__name__
-            acquire_lock = lambda: cache.add(lock_id, "true", timeout)
-            release_lock = lambda: cache.delete(lock_id)
-            if acquire_lock():
-                try:
-                    func(*args, **kwargs)
-                finally:
-                    release_lock()
-        return wrapper
-    return task_exc
+def log_exception(logger, message=''):
+    '''
+    logs stacktrace with function name.
+    usage:
+        import traceback
+        log_exception(message='some message goes here')
+    '''
+    exc_type, exc_value, exc_traceback = sys.exc_info()
+    lines = traceback.format_exception(exc_type, exc_value, exc_traceback)
+    lines.append(message)
+    logger.error(''.join('!! ' + line for line in lines))  # Log it or whatever here
 
-@periodic_task(run_every=timedelta(seconds=2))
-#@single_instance_task(60*10)
-def add_to_count():
-    logger = add_to_count.get_logger()
+@periodic_task(run_every=timedelta(minutes=1))
+def run_and_analyze_queries():
     try:
-        sc = SampleCount.objects.get(pk = 1)
-        if sc:
-            sc.num += 1
-            sc.save()
-            logger.info("Incremented %s" % (sc.num))
-        else:
-            logger.error("Unable to get pk=1 for SampleCount")
+        task_logger = run_and_analyze_queries.get_logger()
+
+        queries = [query for query in Query.objects.filter(status=Query.WAITING_TO_RUN_STATUS)]
+        task_logger.info("    Queries to run = %d" % len(queries))
+        for query in queries:
+            try:
+                task_logger.info("    Running query %s for user %s" % (query.query, query.created_by))
+                query.status = Query.RUNNING_STATUS
+                query.save()
+                tweets, wants, questions, promises = run_and_analyze_query(query.query, query.count)
+
+                # For each analyzed tweet, add a document
+                for tweet in tweets:
+
+                    try:
+                        document = Document.objects.get(source_id = tweet['tweet_id'])
+                    except Document.DoesNotExist:
+                        document = None
+
+                    if not document:
+                        author = Author.objects.create(twitter_handle=tweet['author'], name='')
+                        author.save()
+                        rules = lookup_rules_in_db_for_intents(tweet['intents'])
+
+                        document = Document.objects.create(
+                            result_of=query,
+                            source=Document.TWITTER_SOURCE,
+                            author=author,
+                            source_id = tweet['tweet_id'],
+                            date=tweet['date'],
+                            analyzed=True,
+                            want_rule=rules['want_rule'],
+                            promise_rule=rules['promise_rule'],
+                            question_rule=rules['question_rule'],
+                            dislike_rule=rules['dislike_rule'],
+                        )
+                        document.save()
+                    else:
+                        # We have already analyzed this tweeet. may be we ran soon. SKIP
+                        task_logger.info("    already analyzed tweeet. may be we ran soon. SKIPPING (%s)" % tweet['content'])
+
+                query.status = Query.WAITING_TO_RUN_STATUS
+                query.last_run = datetime.utcnow().replace(tzinfo=utc)
+                query.num_times_run += 1
+                query.save()
+
+            except Exception, e:
+                log_exception(task_logger, "Exception while processing query %s for user %s" % (query.query, query.created_by))
+                query.status = Query.WAITING_TO_RUN_STATUS
+                query.last_run = datetime.utcnow().replace(tzinfo=utc)
+                query.num_times_run += 1
+                query.query_exception = e.message
+                query.save()
+
+            task_logger.info("    Processed query %s for user %s" % (query.query, query.created_by))
     except Exception, e:
-        logger.error("Exception while executing add_to_count task asynchronously. %s" % e)
+        log_exception(task_logger, "Exception while executing run_and_analyze_queries task asynchronously. %s" % e)
         raise e
-
-LOCK_EXPIRE = 60 * 5 # Lock expires in 5 minutes
-@periodic_task(run_every = timedelta(seconds=2))
-def test():
-    lock_id = "lock"
-
-    # cache.add fails if if the key already exists
-    acquire_lock = lambda: cache.add(lock_id, "true", LOCK_EXPIRE)
-    # memcache delete is very slow, but we have to use it to take
-    # advantage of using add() for atomic locking
-    release_lock = lambda: cache.delete(lock_id)
-
-    if acquire_lock():
-        try:
-            print 'pre'
-            sleep(20)
-            print 'post'
-        finally:
-            release_lock()
-        return
-    print 'already in use...'

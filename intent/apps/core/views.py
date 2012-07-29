@@ -7,12 +7,15 @@ from django.contrib import messages
 from intent.apps.core.forms import UserCreationFormWithEmail
 from django.core.mail import send_mail
 from intent import settings
+from intent.apps.query.models import Document, Rule
 
 def home(request):
     if request.user.is_authenticated():
         return HttpResponseRedirect(reverse('query:recent-queries'))
     else:
-        return TemplateResponse(request, 'core/home.html', {})
+        return TemplateResponse(request, 'core/home.html', {
+            'total_documents_processed': Document.objects.count(),
+        })
 
 
 def register(request):

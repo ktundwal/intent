@@ -30,6 +30,8 @@ from django.http import Http404
 from .forms import QueryForm
 from .models import *
 from .utils import *
+from .tasks import *
+from django.utils import simplejson
 
 from intent.apps.core.utils import *
 
@@ -158,3 +160,19 @@ def demo(request):
 
     return render_to_response("query/demo.html", context,
         context_instance=RequestContext(request))
+
+def process(request):
+    """run background process task once"""
+    start_time = time.time()
+    try:
+        run_and_analyze_queries()
+        return HttpResponse(simplejson.dumps(
+                {'result': 'success',
+                 "time_taken": time.time() - start_time
+                }), mimetype='application/json')
+    except Exception, e:
+        return HttpResponse(simplejson.dumps(
+                {'result': 'error',
+                 'reason': e.message,
+                 "time_taken": time.time() - start_time
+                }), mimetype='application/json')

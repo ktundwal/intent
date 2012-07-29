@@ -19,10 +19,12 @@ class Rule(models.Model):
     WANT_GRAMMAR = 1
     QUESTION_GRAMMAR = 2
     PROMISE_GRAMMAR = 3
+    DISLIKE_GRAMMAR = 3
     GRAMMAR_CHOICES = (
         (WANT_GRAMMAR, 'want'),
         (QUESTION_GRAMMAR, 'question'),
         (PROMISE_GRAMMAR, 'promise'),
+        (DISLIKE_GRAMMAR, 'dislike'),
         )
 
     grammar = models.IntegerField(choices=GRAMMAR_CHOICES)
@@ -39,9 +41,9 @@ class Rule(models.Model):
 
 class Query(models.Model):
     INACTIVE_STATUS = 0
-    RUNNING_STATUS = 1
     WAITING_TO_RUN_STATUS = 1
-    HOLD_STATUS = 2
+    RUNNING_STATUS = 2
+    HOLD_STATUS = 3
     STATUS_CHOICES = (
         (WAITING_TO_RUN_STATUS, 'In queue'),
         (RUNNING_STATUS, 'Running'),
@@ -80,6 +82,12 @@ class Author(models.Model):
     twitter_handle = models.CharField(max_length=40, blank=False)
     name = models.CharField(max_length=40, blank=False)
 
+def get_anonymous_author():
+    return Author.objects.get_or_create(
+        twitter_handle='unknown',
+        name='unknown'
+    )
+
 class Document(models.Model):
 
     TWITTER_SOURCE = 1
@@ -100,7 +108,7 @@ class Document(models.Model):
     source = models.IntegerField(choices=SOURCE_CHOICES, default=TWITTER_SOURCE)
 
     # author, we will use
-    author = models.ManyToManyField(Author)
+    author = models.ForeignKey(Author, related_name='documents')
 
     # Tweet id which will allow us to show actual tweet is user wants it
     source_id = models.CharField(max_length=40, unique=True, blank=False)
@@ -110,10 +118,10 @@ class Document(models.Model):
     analyzed = models.BooleanField(default=False)
 
     # we point to an entry in separate table to look for analytics
-    want_rule = models.ForeignKey(Rule, related_name='wants', blank=True)
-    question_rule = models.ForeignKey(Rule, related_name='questions', blank=True)
-    promise_rule = models.ForeignKey(Rule, related_name='promises', blank=True)
-    dislike_rule = models.ForeignKey(Rule, related_name='dislikes', blank=True)
+    want_rule = models.ForeignKey(Rule, related_name='wants', blank=True, null=True)
+    question_rule = models.ForeignKey(Rule, related_name='questions', blank=True, null=True)
+    promise_rule = models.ForeignKey(Rule, related_name='promises', blank=True, null=True)
+    dislike_rule = models.ForeignKey(Rule, related_name='dislikes', blank=True, null=True)
 
     # http://www.clips.ua.ac.be/pages/pattern-en
 
@@ -136,7 +144,7 @@ class Document(models.Model):
     modality = models.DecimalField(max_digits=2, decimal_places=1,default=Decimal("0"))
 
     def __unicode__(self):
-        return '%s-%s' % (self.query, self.source_id)
+        return '%s-%s' % (self.result_of.query, self.source_id)
 
     class Meta:
         ordering = ['-date']
