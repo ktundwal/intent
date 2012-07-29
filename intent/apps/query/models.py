@@ -76,6 +76,10 @@ class Query(models.Model):
         ordering = ['-created_on']
         verbose_name_plural = "Queries"
 
+class Author(models.Model):
+    twitter_handle = models.CharField(max_length=40, blank=False)
+    name = models.CharField(max_length=40, blank=False)
+
 class Document(models.Model):
 
     TWITTER_SOURCE = 1
@@ -88,20 +92,23 @@ class Document(models.Model):
     NOT_ANALYZED = -1
     NO_INTENT = 0
 
+    # This is unoptimized since a Document may have expressed multiple wants for different query
+    # we are tracking, but what are the chances that this will have in tweets?
     result_of = models.ForeignKey(Query, related_name='results', blank=True)
 
+    # Twitter? Facebook?
     source = models.IntegerField(choices=SOURCE_CHOICES, default=TWITTER_SOURCE)
 
-    url = models.URLField()
-    description = models.CharField(max_length=200, blank=False, null=False)
-    date = models.DateTimeField(auto_now_add=True)
-    author = models.CharField(max_length=40, blank=False, null=False)
-    profile = models.URLField()
-    language = models.CharField(max_length=20, blank=False, null=False)
-    source_id = models.CharField(max_length=40, blank=False, null=False)
+    # author, we will use
+    author = models.ManyToManyField(Author)
 
+    # Tweet id which will allow us to show actual tweet is user wants it
+    source_id = models.CharField(max_length=40, blank=False)
+
+    # This will be used to query what all needs analysis in background task
     analyzed = models.BooleanField(default=False)
 
+    # we point to an entry in separate table to look for analytics
     want_rule = models.ForeignKey(Rule, related_name='wants', blank=True)
     question_rule = models.ForeignKey(Rule, related_name='questions', blank=True)
     promise_rule = models.ForeignKey(Rule, related_name='promises', blank=True)
