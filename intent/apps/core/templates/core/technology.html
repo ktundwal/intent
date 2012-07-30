@@ -1,0 +1,60 @@
+{% extends 'core/base.html' %}
+
+{% block title %}Technology{% endblock %}
+
+{% block yield %}
+
+    <h3>Why Cruxly?</h3>
+    To better understand developing scenarios even as the growing volume of content creates challenges in sifting, filtering and identifying actionable information about the future.
+    Examples of intent
+    <ul>
+        <li>in any text (or transcribed text) question (e.g., <em>Will this work with my older laptop.</em>)</li>
+        <li>an order (e.g., <em>Send me the new quote.</em>)</li>
+        <li>a commitment or promise (e.g., <em>I will be at the meeting.</em>)</li>
+        <li>give thanks, offer apologies, etc..</li>
+        <li>Special cases can we tell there is a intent to buy or purchase (e.g., <em>I am trying out this new Android phone by Samsung</em>. <em>Like the new menu at Shangri-La</em>.</li>
+    </ul>
+    Example of an event: e.g., an action about a named entity (subject) is described and may involve another named entity (object). E.g., <em>Joe has arrived in Denver</em>.
+
+    <p></p>
+    <h3>Who would be interested in knowing about these intents?</h3>
+    <ul>
+        <li>if you are developer building next generation productivity tool, you can detect things to do</li>
+        <li>if you are a brand which just launched a campaign, you can go beyond sentiment analysis and find out people who has expressed buying intent</li>
+    </ul>
+
+    <p></p>
+    <h3>Existing and possible approaches</h3>
+    <ul>
+        <li>Specific keyword(s) detection</li>
+        <li>Detecting sentiment – i.e., positive sentiment is indicator of purchase</li>
+        <li>Detecting increased frequency of comments by same blogger about the an entity</li>
+        <li>High degree of mentions by key influencers of an entity – and inferring that the followers of the influencer will buy</li>
+        <li>Machine learning classifiers of specific patterns of text</li>
+        <li>Full-scale NLP (such as including POS tagging, entity extraction and semantic understanding of the full text)</li>
+    </ul>
+
+    <p></p>
+    <h3>Limitations of current approaches</h3>
+    There is a reason why there are very few intent detection solutions around. It is not an easy problem to solve. There have been attempts made in the email area to prioritize important emails but most of them have been based on finding most frequently used content and conversation patterns to find important emails. There have been some attempt at using NLP solutions they are not common or well-known.
+    Of the intent detection approaches, primary limitations are:
+    <ul>
+        <li>Specific keywords are simply not reliable to detect intent. They are good to detect mentions and then associated sentiment.</li>
+        <li>Positive sentiment is definitely a directional indicator of purchase but not sufficient. A simple example is a review on a blog that may like a new product but does not mean the blogger is going to purchase the product.</li>
+        <li>Increased mentions of a product on a website, esp. by a blogger or tweeter, are a catalyst for buys. However, as in the case of (ii), it influences potential buyers but it is not an indicator of a buyer.</li>
+        <li>Increased mentions of a product on any blog site by an influencer have effectively the same consequences as in (iii): it influences potential buyers only. A vendor who is monitoring its Facebook posts will not infer that a mention is the same as a purchase intent.</li>
+        <li>Machine learning of patterns for intent detection is not a failsafe method for intent detection. For example, if we assume that the intent to purchase is indicated by “buying X”, then we cannot disambiguate <em>Joe is buying X from Jim</em> from <em>I am buying X tomorrow.</em> Further, machine learning requires prior training from a large corpus that may not be easily accessible.</li>
+    </ul>
+
+    Most importantly, the above approaches do not comprehend grammar and language which we believe is what is required for intent detection.
+    Full-scale NLP is probably the most complete method for detecting intent. However, there are many challenges. They are many ambiguities in name entity extraction, understanding the sentence after POS tagging, etc. and ensuring that the analysis can be completed in real time.
+
+    <p></p>
+    <h3>Our approach</h3>
+    Cruxly applies a combination of NLP techniques that results in a general purpose commonly sought intent detection in real-time. Key features are:
+    <ul>
+        <li>Detect if the text satisfies predefined linguistic grammar rules. The grammar rules are derived from the specific event or event class being defined.</li>
+        <li>Shallow parsing – without having the penalty of processing time for full-scale NLP, the text is parsed efficiently and checked to see a match against one or more grammar rules has occurred.</li>
+        <li>As grammar rules are defined based on common language constructs of the intent, the approach is more language and grammar dependent and not totally dependent on size of a training corpus. So no prior training is required for a semantic intent detection unlike in the case of email prioritization.</li>
+    </ul>
+{% endblock %}

@@ -17,6 +17,17 @@ def home(request):
             'total_documents_processed': Document.objects.count(),
         })
 
+def terms(request):
+    return TemplateResponse(request, 'core/terms.html', {})
+
+def privacy(request):
+    return TemplateResponse(request, 'core/privacy.html', {})
+
+def technology(request):
+    return TemplateResponse(request, 'core/technology.html', {})
+
+def company(request):
+    return TemplateResponse(request, 'core/company.html', {})
 
 def register(request):
     if request.method == 'POST':
@@ -30,7 +41,6 @@ def register(request):
     else:
         form = UserCreationFormWithEmail()
     return TemplateResponse(request, 'core/register.html', {'form': form})
-
 
 @login_required
 def logout_user(request):

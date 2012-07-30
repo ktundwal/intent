@@ -49,6 +49,8 @@
 
     </head>
     <body>
+        <!-- Navbar
+        ================================================== -->
         <div class="navbar navbar-fixed-top">
             <div class="navbar-inner">
                 <a href="{% url core:home %}" class="brand">Cruxly</a>
@@ -74,7 +76,7 @@
                 </ul>
             {% endif %}
 
-            <div class="container" style='padding: 20px; margin-bottom: 30px; background-color: #eeeeee; -webkit-border-radius: 6px; -moz-border-radius: 6px; border-radius: 6px;'>
+            <div class="container" >
                 {% block yield %}{% endblock %}
             </div><!-- /container -->
 
@@ -82,7 +84,11 @@
             <!-- Footer
             ================================================== -->
             <footer class="footer">
-                <p class="pull-right"><a href="#">Back to top</a></p>
+                <p class="pull-right"><a href="{% url core:company %}" class="brand">Company</a>
+                    <a href="{% url core:terms %}" class="brand">Terms</a>
+                    <a href="{% url core:privacy %}" class="brand">Privacy</a>
+                    <a href="{% url core:technology %}" class="brand">Technology</a>
+                </p>
                 &copy; Cruxly 2012. Designed and developed in Boulder, Colorado
             </footer>
 

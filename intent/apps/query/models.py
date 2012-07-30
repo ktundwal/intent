@@ -82,6 +82,12 @@ class Author(models.Model):
     twitter_handle = models.CharField(max_length=40, blank=False)
     name = models.CharField(max_length=40, blank=False)
 
+    def __unicode__(self):
+        return self.twitter_handle
+
+    class Meta:
+        verbose_name_plural = "Authors"
+
 def get_anonymous_author():
     return Author.objects.get_or_create(
         twitter_handle='unknown',

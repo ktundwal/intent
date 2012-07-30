@@ -16,11 +16,10 @@
                 <th width='15%'>Created on</th>
                 <th width='15%'>Last run</th>
                 <th width='5%'>Tweets analyzed</th>
-                <th width='5%'>Results</th>
-                <th width='40%'>Action</th>
+                <th width='35%'>Results</th>
             </tr></thead>
             <tbody>
-            {% for query in query_list %}
+            {% for query in queries %}
                 <tr>
                     <td><a href='edit/{{query.id}}'>{{ query.query }}</a></td>
                     <td>
@@ -32,11 +31,11 @@
                     </td>
                     <td>{{ query.created_on }}</td>
                     <td>{{ query.last_run }}</td>
-                    <td>{{ query.results.count }}</td>
+                    <td>{{ query.total_tweets }}</td>
                     <td>
-                        <!--Div that will hold the pie chart-->
-                        <div id="chart_div"></div>
+                        {{ query.want_percentage }}% wants, {{ query.promise_percentage }}% promises, {{ query.question_percentage }}% questions,
                     </td>
+                    <!--
                     <td>
                         <form action="download/{{query.id}}" method="get">
                             {% csrf_token %}
@@ -45,6 +44,7 @@
                             </div>
                         </form>
                     </td>
+                    -->
                 </tr>
             {% endfor %}
             </tbody>

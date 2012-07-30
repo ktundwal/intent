@@ -4,3 +4,4 @@ from .models import *
 admin.site.register(Query)
 admin.site.register(Document)
 admin.site.register(Rule)
+admin.site.register(Author)
