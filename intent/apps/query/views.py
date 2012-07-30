@@ -50,15 +50,16 @@ def query_index(request):
     queries = []
     for query in Query.objects.filter(created_by=request.user):
         docs = Document.objects.filter(result_of=query)
+        docs_count = docs.count() if docs.count() > 0 else 1
         queries.append({
             'query': query.query,
             'last_run': query.last_run,
             'status': query.status,
             'created_on': query.created_on,
             'total_tweets': docs.count(),
-            'want_percentage': docs.filter(want_rule__isnull=False).count() * 100 / docs.count(),
-            'promise_percentage': docs.filter(promise_rule__isnull=False).count() * 100 / docs.count(),
-            'question_percentage': docs.filter(question_rule__isnull=False).count() * 100 / docs.count()
+            'want_percentage': docs.filter(want_rule__isnull=False).count() * 100 / docs_count,
+            'promise_percentage': docs.filter(promise_rule__isnull=False).count() * 100 / docs_count,
+            'question_percentage': docs.filter(question_rule__isnull=False).count() * 100 / docs_count
         })
     return render_to_response('query/query_index.html',
             {'queries': queries,
