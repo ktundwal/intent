@@ -79,6 +79,66 @@
                 title:'Promises',
                 backgroundColor: { fill:'transparent' },
                 colors: ['0191C8', '74C2E1']});
+
+            // Create the data table.
+            var buy_data = new google.visualization.DataTable();
+            buy_data.addColumn('string', 'Buy');
+            buy_data.addColumn('number', 'Rest');
+            buy_data.addRows([
+                ['Buy', {{ stats.buys }}],
+                ['Rest', 100 - {{ stats.buys }}],
+            ]);
+
+            // Instantiate and draw our chart, passing in some options.
+            var buy_chart = new google.visualization.PieChart(document.getElementById('buy_chart_div'));
+            buy_chart.draw(buy_data, {
+                'width':300,
+                'height':200,
+                'is3D': false,
+                legend:'none',
+                title:'Buy',
+                backgroundColor: { fill:'transparent' },
+                colors: ['0191C8', '74C2E1']});
+
+            // Create the data table.
+            var like_data = new google.visualization.DataTable();
+            like_data.addColumn('string', 'Like');
+            like_data.addColumn('number', 'Rest');
+            like_data.addRows([
+                ['Like', {{ stats.likes }}],
+                ['Rest', 100 - {{ stats.likes }}],
+            ]);
+
+            // Instantiate and draw our chart, passing in some options.
+            var like_chart = new google.visualization.PieChart(document.getElementById('like_chart_div'));
+            like_chart.draw(like_data, {
+                'width':300,
+                'height':200,
+                'is3D': false,
+                legend:'none',
+                title:'Like',
+                backgroundColor: { fill:'transparent' },
+                colors: ['0191C8', '74C2E1']});
+
+            // Create the data table.
+            var try_data = new google.visualization.DataTable();
+            try_data.addColumn('string', 'Try');
+            try_data.addColumn('number', 'Rest');
+            try_data.addRows([
+                ['Try', {{ stats.tries }}],
+                ['Rest', 100 - {{ stats.tries }}],
+            ]);
+
+            // Instantiate and draw our chart, passing in some options.
+            var try_chart = new google.visualization.PieChart(document.getElementById('try_chart_div'));
+            try_chart.draw(try_data, {
+                'width':300,
+                'height':200,
+                'is3D': false,
+                legend:'none',
+                title:'Try',
+                backgroundColor: { fill:'transparent' },
+                colors: ['0191C8', '74C2E1']});
         }
 
         // Set a callback to run when the Google Visualization API is loaded.
@@ -138,6 +198,9 @@
                     <div class="span3" id="want_chart_div"></div>
                     <div class="span3" id="promise_chart_div"></div>
                     <div class="span3" id="question_chart_div"></div>
+                    <div class="span3" id="buy_chart_div"></div>
+                    <div class="span3" id="like_chart_div"></div>
+                    <div class="span3" id="try_chart_div"></div>
                 </div>
 
                 <table class="table table-striped table-bordered table-condensed">
