@@ -153,11 +153,11 @@ def demo(request):
             if len(analyzed_tweet_dict_list) > 0:
                 analyzed_tweet_dict_list = insert_intents(analyzed_tweet_dict_list)
 
-            wants = len([tweet for tweet in analyzed_tweet_dict_list if 'want' in tweet['intents']]) * 100 / len(analyzed_tweet_dict_list) if len(analyzed_tweet_dict_list) > 0 else 1
-            questions = len([tweet for tweet in analyzed_tweet_dict_list if 'question' in tweet['intents']]) * 100 / len(analyzed_tweet_dict_list) if len(analyzed_tweet_dict_list) > 0 else 1
-            promises = len([tweet for tweet in analyzed_tweet_dict_list if 'promise' in tweet['intents']]) * 100 / len(analyzed_tweet_dict_list) if len(analyzed_tweet_dict_list) > 0 else 1
-            buys = len([tweet for tweet in analyzed_tweet_dict_list if 'buy' in tweet['intents']]) * 100 / len(analyzed_tweet_dict_list) if len(analyzed_tweet_dict_list) > 0 else 1
-            likes = len([tweet for tweet in analyzed_tweet_dict_list if 'like' in tweet['intents']]) * 100 / len(analyzed_tweet_dict_list) if len(analyzed_tweet_dict_list) > 0 else 1
+            question = len([tweet for tweet in analyzed_tweet_dict_list if 'question' in tweet['intents']]) * 100 / len(analyzed_tweet_dict_list) if len(analyzed_tweet_dict_list) > 0 else 1
+            recommendation = len([tweet for tweet in analyzed_tweet_dict_list if 'recommendation' in tweet['intents']]) * 100 / len(analyzed_tweet_dict_list) if len(analyzed_tweet_dict_list) > 0 else 1
+            commitment = len([tweet for tweet in analyzed_tweet_dict_list if 'commitment' in tweet['intents']]) * 100 / len(analyzed_tweet_dict_list) if len(analyzed_tweet_dict_list) > 0 else 1
+            buy = len([tweet for tweet in analyzed_tweet_dict_list if 'buy' in tweet['intents']]) * 100 / len(analyzed_tweet_dict_list) if len(analyzed_tweet_dict_list) > 0 else 1
+            like = len([tweet for tweet in analyzed_tweet_dict_list if 'like' in tweet['intents']]) * 100 / len(analyzed_tweet_dict_list) if len(analyzed_tweet_dict_list) > 0 else 1
             tries = len([tweet for tweet in analyzed_tweet_dict_list if 'try' in tweet['intents']]) * 100 / len(analyzed_tweet_dict_list) if len(analyzed_tweet_dict_list) > 0 else 1
             logger.info('Demo Request: %s' % query)
 
@@ -166,7 +166,12 @@ def demo(request):
                     'tweets': analyzed_tweet_dict_list,
                     'query': query,
                     'count': query_count,
-                    'stats': {'wants' : wants, 'promises' : promises, 'questions' : questions, 'buys' : buys, 'likes' : likes, 'tries' : tries},
+                    'stats': {'question' : question,
+                              'recommendation' : recommendation,
+                              'commitment' : commitment,
+                              'buy' : buy,
+                              'like' : like,
+                              'tries' : tries},
                 }
 
         except Exception, e:

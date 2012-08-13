@@ -27,19 +27,19 @@
         function drawCharts() {
 
             // Create the data table.
-            var want_data = new google.visualization.DataTable();
-            want_data.addColumn('string', 'Want');
-            want_data.addColumn('number', 'Rest');
-            want_data.addRows([
-                ['Want', {{ stats.wants }}],
-                ['Rest', 100 - {{ stats.wants }}],
+            var recommendation_data = new google.visualization.DataTable();
+            recommendation_data.addColumn('string', 'Recommendation');
+            recommendation_data.addColumn('number', 'Rest');
+            recommendation_data.addRows([
+                ['Recommendation', {{ stats.recommendation }}],
+                ['Rest', 100 - {{ stats.recommendation }}],
             ]);
 
             // Instantiate and draw our chart, passing in some options.
-            var want_chart = new google.visualization.PieChart(document.getElementById('want_chart_div'));
-            want_chart.draw(want_data, {
+            var recommendation_chart = new google.visualization.PieChart(document.getElementById('recommendation_chart_div'));
+            recommendation_chart.draw(recommendation_data, {
                 'width':300, 'height':200, 'is3D': false, legend : 'none',
-                title : 'Wants',
+                title : 'Recommendation',
                 backgroundColor: { fill:'transparent' },
                 colors: ['0191C8', '74C2E1']});
 
@@ -48,8 +48,8 @@
             question_data.addColumn('string', 'Question');
             question_data.addColumn('number', 'Rest');
             question_data.addRows([
-                ['Questions', {{ stats.questions }}],
-                ['Rest', 100 - {{ stats.questions }}],
+                ['Questions', {{ stats.question }}],
+                ['Rest', 100 - {{ stats.question }}],
             ]);
 
             // Instantiate and draw our chart, passing in some options.
@@ -61,22 +61,22 @@
                 colors: ['0191C8', '74C2E1']});
 
             // Create the data table.
-            var promise_data = new google.visualization.DataTable();
-            promise_data.addColumn('string', 'Question');
-            promise_data.addColumn('number', 'Rest');
-            promise_data.addRows([
-                ['Promises', {{ stats.promises }}],
-                ['Rest', 100 - {{ stats.promises }}],
+            var commitment_data = new google.visualization.DataTable();
+            commitment_data.addColumn('string', 'Commitment');
+            commitment_data.addColumn('number', 'Rest');
+            commitment_data.addRows([
+                ['Commitment', {{ stats.commitment }}],
+                ['Rest', 100 - {{ stats.commitment }}],
             ]);
 
             // Instantiate and draw our chart, passing in some options.
-            var promise_chart = new google.visualization.PieChart(document.getElementById('promise_chart_div'));
-            promise_chart.draw(promise_data, {
+            var commitment_chart = new google.visualization.PieChart(document.getElementById('commitment_chart_div'));
+            commitment_chart.draw(commitment_data, {
                 'width':300,
                 'height':200,
                 'is3D': false,
                 legend:'none',
-                title:'Promises',
+                title:'Commitment',
                 backgroundColor: { fill:'transparent' },
                 colors: ['0191C8', '74C2E1']});
 
@@ -85,8 +85,8 @@
             buy_data.addColumn('string', 'Buy');
             buy_data.addColumn('number', 'Rest');
             buy_data.addRows([
-                ['Buy', {{ stats.buys }}],
-                ['Rest', 100 - {{ stats.buys }}],
+                ['Buy', {{ stats.buy }}],
+                ['Rest', 100 - {{ stats.buy }}],
             ]);
 
             // Instantiate and draw our chart, passing in some options.
@@ -105,8 +105,8 @@
             like_data.addColumn('string', 'Like');
             like_data.addColumn('number', 'Rest');
             like_data.addRows([
-                ['Like', {{ stats.likes }}],
-                ['Rest', 100 - {{ stats.likes }}],
+                ['Like', {{ stats.like }}],
+                ['Rest', 100 - {{ stats.like }}],
             ]);
 
             // Instantiate and draw our chart, passing in some options.
@@ -178,7 +178,7 @@
                     <div class="form-actions">
                         <button class="btn btn-primary btn-large" type="submit">Search and detect intent</button>
                         <a href="/register/" class="btn btn-large">Register</a>
-                        <em class="pull-right">API last updated on July 15th 2012 (version 1.7)</em>
+                        <em class="pull-right">API last updated on Aug 10th 2012 (version 2.0)</em>
                     </div>
                 </fieldset>
             </form>
@@ -195,9 +195,9 @@
 
                 <div class="container" align="center">
                     <!--Div that will hold the pie chart-->
-                    <div class="span3" id="want_chart_div"></div>
-                    <div class="span3" id="promise_chart_div"></div>
+                    <div class="span3" id="recommendation_chart_div"></div>
                     <div class="span3" id="question_chart_div"></div>
+                    <div class="span3" id="commitment_chart_div"></div>
                     <div class="span3" id="buy_chart_div"></div>
                     <div class="span3" id="like_chart_div"></div>
                     <div class="span3" id="try_chart_div"></div>
