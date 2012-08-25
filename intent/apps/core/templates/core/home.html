@@ -4,14 +4,14 @@
         <title>Cruxly - understand intent</title>
 
         {% if debug %}
-        <link rel="stylesheet" href="/static/vendor/bootstrap/2.0.3/css/bootstrap.css">
+        <link rel="stylesheet" href="/static/vendor/bootstrap/2.1.0/css/bootstrap.css">
         <link rel="stylesheet" href="/static/vendor/fancybox/2.0.6/jquery.fancybox.css">
         {% else %}
-        <link rel="stylesheet" href="/static/vendor/bootstrap/2.0.3/css/bootstrap.min.css">
+        <link rel="stylesheet" href="/static/vendor/bootstrap/2.1.0/css/bootstrap.min.css">
         <link rel="stylesheet" href="/static/vendor/fancybox/2.0.6/jquery.fancybox.css">
         {% endif %}
 
-        <link href="/static/vendor/bootstrap/2.0.3/css/docs.css" rel="stylesheet">
+        <link href="/static/vendor/bootstrap/2.1.0/css/docs.css" rel="stylesheet">
         <link rel="stylesheet" href="http://fonts.googleapis.com/css?family=Fredericka+the+Great">
         <link rel="stylesheet" href="http://fonts.googleapis.com/css?family=Righteous">
 
@@ -23,7 +23,7 @@
         ================================================== -->
         <div class="navbar navbar-fixed-top">
             <div class="navbar-inner">
-                <a href="{% url core:home %}" class="brand">Cruxly</a>
+                <a href="{% url core:home %}" class="brand"><img width="73px" src="/static/core/img/cruxly-logo-4x2.png"></a>
 
                 <ul class="nav pull-right">
                     {% if user.is_authenticated %}
@@ -156,13 +156,13 @@
 
         {% if debug %}
             <script src="/static/vendor/jquery/1.7.2/jquery.js"></script>
-            <script src="/static/vendor/bootstrap/2.0.3/js/bootstrap.js"></script>
+            <script src="/static/vendor/bootstrap/2.1.0/js/bootstrap.js"></script>
             <script src="/static/vendor/wookmark/0.5/jquery.wookmark.js"></script>
             <script src="/static/vendor/fancybox/2.0.6/jquery.fancybox.js"></script>
             <script src="/static/vendor/imagesloaded/2.0.1/jquery.imagesloaded.js"></script>
         {% else %}
             <script src="/static/vendor/jquery/1.7.2/jquery.min.js"></script>
-            <script src="/static/vendor/bootstrap/2.0.3/js/bootstrap.min.js"></script>
+            <script src="/static/vendor/bootstrap/2.1.0/js/bootstrap.min.js"></script>
             <script src="/static/vendor/wookmark/0.5/jquery.wookmark.min.js"></script>
             <script src="/static/vendor/fancybox/2.0.6/jquery.fancybox.pack.js"></script>
             <script src="/static/vendor/imagesloaded/2.0.1/jquery.imagesloaded.min.js"></script>
