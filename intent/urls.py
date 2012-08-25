@@ -1,5 +1,6 @@
 from django.conf.urls import patterns, include, url
 from django.conf import settings
+from django.views.generic.base import RedirectView
 
 # Uncomment the next two lines to enable the admin:
 from django.contrib import admin
@@ -28,4 +29,6 @@ urlpatterns = patterns('',
 
     url(r'^static/(?P<path>.*)$', 'django.views.static.serve',
             {'document_root': settings.STATIC_ROOT}),
+
+    url(r'^favicon\.ico$', RedirectView.as_view(url='/static/core/img/favicon.ico')),
 )
