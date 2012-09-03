@@ -22,6 +22,7 @@ class Rule(models.Model):
     COMMITMENT_GRAMMAR      = 4
     LIKE_GRAMMAR            = 5
     DISLIKE_GRAMMAR         = 6
+    TRY_GRAMMAR             = 6
     GRAMMAR_CHOICES = (
         (BUY_GRAMMAR,               'buy'),
         (RECOMMENDATION_GRAMMAR,    'recommendation'),
@@ -29,6 +30,7 @@ class Rule(models.Model):
         (COMMITMENT_GRAMMAR,        'commitment'),
         (LIKE_GRAMMAR,              'like'),
         (DISLIKE_GRAMMAR,           'dislike'),
+        (TRY_GRAMMAR,               'try'),
         )
 
     grammar = models.IntegerField(choices=GRAMMAR_CHOICES)
@@ -135,6 +137,7 @@ class Document(models.Model):
     commitment_rule     = models.ForeignKey(Rule, related_name='commitments',       blank=True, null=True)
     like_rule           = models.ForeignKey(Rule, related_name='likes',             blank=True, null=True)
     dislike_rule        = models.ForeignKey(Rule, related_name='dislikes',          blank=True, null=True)
+    try_rule            = models.ForeignKey(Rule, related_name='tries',             blank=True, null=True)
 
     # http://www.clips.ua.ac.be/pages/pattern-en
 

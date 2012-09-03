@@ -67,6 +67,7 @@ def query_index(request):
             'commitment_percentage': docs.filter(commitment_rule__isnull=False).count() * 100 / docs_count,
             'like_percentage': docs.filter(like_rule__isnull=False).count() * 100 / docs_count,
             'dislike_percentage': docs.filter(dislike_rule__isnull=False).count() * 100 / docs_count,
+            'try_percentage': docs.filter(try_rule__isnull=False).count() * 100 / docs_count,
         })
     return render_to_response('query/query_index.html',
             {'queries': queries,
@@ -84,6 +85,11 @@ def build_context_from_intent(docs, docs_count, intent):
         return {
             'tweets': docs.filter(recommendation_rule__isnull=False),
             'recommendation_percentage': docs.filter(recommendation_rule__isnull=False).count() * 100 / docs_count,
+            }
+    elif intent == 'like':
+        return {
+            'tweets': docs.filter(try_rule__isnull=False),
+            'try_percentage': docs.filter(try_rule__isnull=False).count() * 100 / docs_count,
             }
     elif intent == 'question':
         return {
@@ -104,6 +110,11 @@ def build_context_from_intent(docs, docs_count, intent):
         return {
             'tweets': docs.filter(dislike_rule__isnull=False),
             'dislike_percentage': docs.filter(dislike_rule__isnull=False).count() * 100 / docs_count,
+            }
+    elif intent == 'try':
+        return {
+            'tweets': docs.filter(try_rule__isnull=False),
+            'try_percentage': docs.filter(try_rule__isnull=False).count() * 100 / docs_count,
             }
 
 @login_required

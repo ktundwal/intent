@@ -71,6 +71,7 @@ def run_and_analyze_queries():
                             commitment_rule     = create_unknown_rule(tweet['intents'], 'commitment',       Rule.COMMITMENT_GRAMMAR),
                             like_rule           = create_unknown_rule(tweet['intents'], 'like',             Rule.LIKE_GRAMMAR),
                             dislike_rule        = create_unknown_rule(tweet['intents'], 'dislike',          Rule.DISLIKE_GRAMMAR),
+                            try_rule            = create_unknown_rule(tweet['intents'], 'tries',            Rule.TRY_GRAMMAR),
                         )
                         document.save()
                     else:
