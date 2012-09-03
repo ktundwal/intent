@@ -9,51 +9,50 @@
 
 {% block yield %}
     <h1>Queries</h1>
-        <table class="table table-striped table-bordered table-condensed">
-            <thead><tr>
-                <th width='15%'>Query</th>
-                <th width='5%'>State</th>
-                <th width='15%'>Created on</th>
-                <th width='15%'>Last run</th>
-                <th width='5%'>Tweets analyzed</th>
-                <th width='35%'>Results</th>
-            </tr></thead>
-            <tbody>
-            {% for query in queries %}
-                <tr>
-                    <td><a href='edit/{{query.id}}'>{{ query.query }}</a></td>
-                    <td>
-                        {% for k, v in status_choices.items %}
-                            {% ifequal k|stringformat:"s" query.status|stringformat:"s" %}
-                                {{ v }}
-                            {% endifequal %}
-                        {% endfor %}
-                    </td>
-                    <td>{{ query.created_on }}</td>
-                    <td>{{ query.last_run }}</td>
-                    <td>{{ query.total_tweets }}</td>
-                    <td>
-                        {{ query.want_percentage }}% wants, {{ query.promise_percentage }}% promises, {{ query.question_percentage }}% questions,
-                    </td>
-                    <!--
-                    <td>
-                        <form action="download/{{query.id}}" method="get">
-                            {% csrf_token %}
-                            <div align='center'>
-                                <button type="submit" class="btn">Download latest 100 tweets without analysis</button>
-                            </div>
-                        </form>
-                    </td>
-                    -->
-                </tr>
-            {% endfor %}
-            </tbody>
-        </table>
-    <div id="loader" class="container">
-        <div class="row">
-            <div class="span2 offset5">
-                <img src="/static/core/img/loader.gif" alt="Loader">
-            </div>
-        </div>
-    </div>
+    <table class="table table-striped table-bordered table-condensed">
+        <thead><tr>
+            <th width='15%'>Query</th>
+            <th width='5%'>State</th>
+            <th width='15%'>Created on</th>
+            <th width='15%'>Last run</th>
+            <th width='5%'>Tweets analyzed</th>
+            <th width='35%'>Results</th>
+        </tr></thead>
+        <tbody>
+        {% for query in queries %}
+            <tr>
+                <td><a href='edit/{{query.id}}'>{{ query.query }}</a></td>
+                <td>
+                    {% for k, v in status_choices.items %}
+                        {% ifequal k|stringformat:"s" query.status|stringformat:"s" %}
+                            {{ v }}
+                        {% endifequal %}
+                    {% endfor %}
+                </td>
+                <td>{{ query.created_on }}</td>
+                <td>{{ query.last_run }}</td>
+                <td>{{ query.total_tweets }}</td>
+                <td>
+                    <a href="results/{{query.id}}?intent=buy">{{ query.buy_percentage }}% buy intents</a><br>
+                    <a href="results/{{query.id}}?intent=recommendation">{{ query.recommendation_percentage }}% recommendations</a><br>
+                    <a href="results/{{query.id}}?intent=question">{{ query.question_percentage }}% questions/requests</a><br>
+                    <a href="results/{{query.id}}?intent=commitment">{{ query.commitment_percentage }}% commitments</a><br>
+                    <a href="results/{{query.id}}?intent=like">{{ query.like_percentage }}% likes</a><br>
+                    <a href="results/{{query.id}}?intent=dislike">{{ query.dislike_percentage }}% dislikes</a><br>
+                </td>
+                <!--
+                <td>
+                    <form action="download/{{query.id}}" method="get">
+                        {% csrf_token %}
+                        <div align='center'>
+                            <button type="submit" class="btn">Download latest 100 tweets without analysis</button>
+                        </div>
+                    </form>
+                </td>
+                -->
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+
 {% endblock %}

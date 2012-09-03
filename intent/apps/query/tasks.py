@@ -9,7 +9,7 @@ from celery.decorators import periodic_task
 from django.utils import timezone
 from django.utils.timezone import utc
 
-from .utils import run_and_analyze_query, lookup_rules_in_db_for_intents
+from .utils import run_and_analyze_query, create_unknown_rule
 from intent.apps.query.models import Rule, Author, Query, Document
 
 from intent.apps.core.utils import *
@@ -41,7 +41,7 @@ def run_and_analyze_queries():
                 task_logger.info("    Running query %s for user %s" % (query.query, query.created_by))
                 query.status = Query.RUNNING_STATUS
                 query.save()
-                tweets, wants, questions, promises = run_and_analyze_query(query.query, query.count)
+                tweets = run_and_analyze_query(query.query, query.count)
 
                 # For each analyzed tweet, add a document
                 for tweet in tweets:
@@ -54,19 +54,23 @@ def run_and_analyze_queries():
                     if not document:
                         author = Author.objects.create(twitter_handle=tweet['author'], name='')
                         author.save()
-                        rules = lookup_rules_in_db_for_intents(tweet['intents'])
 
                         document = Document.objects.create(
-                            result_of=query,
-                            source=Document.TWITTER_SOURCE,
-                            author=author,
-                            source_id = tweet['tweet_id'],
-                            date=tweet['date'],
-                            analyzed=True,
-                            want_rule=rules['want_rule'],
-                            promise_rule=rules['promise_rule'],
-                            question_rule=rules['question_rule'],
-                            dislike_rule=rules['dislike_rule'],
+                            result_of           = query,
+                            source              = Document.TWITTER_SOURCE,
+                            author              = author,
+                            source_id           = tweet['tweet_id'],
+                            date                = tweet['date'],
+                            text                = tweet['content'],
+                            analyzed            = True,
+
+                            # for now we are not saving any rules. Just unknowns
+                            buy_rule            = create_unknown_rule(tweet['intents'], 'buy',              Rule.BUY_GRAMMAR),
+                            recommendation_rule = create_unknown_rule(tweet['intents'], 'recommendation',   Rule.RECOMMENDATION_GRAMMAR),
+                            question_rule       = create_unknown_rule(tweet['intents'], 'question',         Rule.QUESTION_GRAMMAR),
+                            commitment_rule     = create_unknown_rule(tweet['intents'], 'commitment',       Rule.COMMITMENT_GRAMMAR),
+                            like_rule           = create_unknown_rule(tweet['intents'], 'like',             Rule.LIKE_GRAMMAR),
+                            dislike_rule        = create_unknown_rule(tweet['intents'], 'dislike',          Rule.DISLIKE_GRAMMAR),
                         )
                         document.save()
                     else:

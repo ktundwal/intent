@@ -170,59 +170,19 @@ def run_and_analyze_query(query, query_count):
     if len(processed_tweets) > 0:
         processed_tweets = insert_intents(processed_tweets)
 
-    wants = len([tweet for tweet in processed_tweets if 'want' in tweet['intents']]) * 100 / len(processed_tweets) if len(processed_tweets) > 0 else 1
-    questions = len([tweet for tweet in processed_tweets if 'question' in tweet['intents']]) * 100 / len(processed_tweets) if len(processed_tweets) > 0 else 1
-    promises = len([tweet for tweet in processed_tweets if 'promise' in tweet['intents']]) * 100 / len(processed_tweets) if len(processed_tweets) > 0 else 1
+    return processed_tweets
 
-    return processed_tweets, wants, questions, promises
+def create_unknown_rule(intents, intent_str, intent_id):
+    rule = None
 
-def lookup_rules_in_db_for_intents(intents):
-
-    want_rule = None
-    promise_rule = None
-    question_rule = None
-    dislike_rule = None
-
-    if 'want' in intents:
+    if intent_str in intents:
         grammar_rule = "Unknown"
         grammar_version = "1.7"
         confidence = 1.0
-        want_rule, created = Rule.objects.get_or_create(
-            grammar=Rule.WANT_GRAMMAR,
-            grammar_version=grammar_version,
-            rule=grammar_rule,
-            confidence=confidence)
-    elif 'promise' in intents:
-        grammar_rule = "Unknown"
-        grammar_version = "0.8"
-        confidence = 1.0
-        promise_rule, created = Rule.objects.get_or_create(
-            grammar=Rule.PROMISE_GRAMMAR,
-            grammar_version=grammar_version,
-            rule=grammar_rule,
-            confidence=confidence)
-    elif 'question' in intents:
-        grammar_rule = "Unknown"
-        grammar_version = "0.8"
-        confidence = 1.0
-        question_rule, created = Rule.objects.get_or_create(
-            grammar=Rule.QUESTION_GRAMMAR,
-            grammar_version=grammar_version,
-            rule=grammar_rule,
-            confidence=confidence)
-    elif 'dislike' in intents:
-        grammar_rule = "Unknown"
-        grammar_version = "0.1"
-        confidence = 1.0
-        dislike_rule, created = Rule.objects.get_or_create(
-            grammar=Rule.DISLIKE_GRAMMAR,
+        rule, created = Rule.objects.get_or_create(
+            grammar=intent_id,
             grammar_version=grammar_version,
             rule=grammar_rule,
             confidence=confidence)
 
-    return {
-        'want_rule': want_rule,
-        'promise_rule': promise_rule,
-        'question_rule': question_rule,
-        'dislike_rule': dislike_rule
-    }
+    return rule

@@ -1,0 +1,14 @@
+{% load endless %}
+{% load twitter_tags %}
+
+{% paginate tweets %}
+{% for tweet in tweets %}
+{# your code to show the entry #}
+<div>
+    <div>{{ tweet.text|tweet }}</div>
+    {% yfrog_images tweet.text 1 'fancybox' %}
+    {% twitpic_images tweet.text 1 'fancybox' %}
+
+</div>
+{% endfor %}
+{% show_more %}

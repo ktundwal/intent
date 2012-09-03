@@ -5,6 +5,7 @@ from django.shortcuts import render_to_response
 
 from intent.apps.query.forms import QueryForm
 
+# set up Django's template tag registry
 register = Library()
 
 @register.simple_tag()

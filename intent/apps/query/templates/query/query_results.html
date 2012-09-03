@@ -1,0 +1,23 @@
+{% extends 'core/base.html' %}
+
+{% block javascript %}
+{{ block.super }}
+
+<!--Load the AJAX API-->
+<script type="text/javascript" src="https://www.google.com/jsapi"></script>
+
+
+<script src="/static/vendor/jquery/1.7.2/jquery.js" type="text/javascript" charset="utf-8"></script>
+<script src="/static/vendor/endless_pagination/1.1/endless.js" type="text/javascript" charset="utf-8"></script>
+
+{% endblock %}
+
+{% block title %}{{ intent|capfirst }} intents for {{ query.query }}{% endblock %}
+
+{% block yield %}
+
+<h3>{{ intent|capfirst }} intents for {{ query.query }}</h3>
+
+{% include page_template %}
+
+{% endblock %}

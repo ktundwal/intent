@@ -16,15 +16,19 @@ from django.contrib.auth.models import User
 from decimal import *
 
 class Rule(models.Model):
-    WANT_GRAMMAR = 1
-    QUESTION_GRAMMAR = 2
-    PROMISE_GRAMMAR = 3
-    DISLIKE_GRAMMAR = 3
+    BUY_GRAMMAR             = 1
+    RECOMMENDATION_GRAMMAR  = 2
+    QUESTION_GRAMMAR        = 3
+    COMMITMENT_GRAMMAR      = 4
+    LIKE_GRAMMAR            = 5
+    DISLIKE_GRAMMAR         = 6
     GRAMMAR_CHOICES = (
-        (WANT_GRAMMAR, 'want'),
-        (QUESTION_GRAMMAR, 'question'),
-        (PROMISE_GRAMMAR, 'promise'),
-        (DISLIKE_GRAMMAR, 'dislike'),
+        (BUY_GRAMMAR,               'buy'),
+        (RECOMMENDATION_GRAMMAR,    'recommendation'),
+        (QUESTION_GRAMMAR,          'question'),
+        (COMMITMENT_GRAMMAR,        'commitment'),
+        (LIKE_GRAMMAR,              'like'),
+        (DISLIKE_GRAMMAR,           'dislike'),
         )
 
     grammar = models.IntegerField(choices=GRAMMAR_CHOICES)
@@ -116,18 +120,21 @@ class Document(models.Model):
     # author, we will use
     author = models.ForeignKey(Author, related_name='documents')
 
-    # Tweet id which will allow us to show actual tweet is user wants it
+    # Tweet id
     source_id = models.CharField(max_length=40, unique=True, blank=False)
     date = models.DateTimeField(auto_now_add=True)
+    text = models.CharField(max_length=140, blank=True, default='')
 
     # This will be used to query what all needs analysis in background task
     analyzed = models.BooleanField(default=False)
 
     # we point to an entry in separate table to look for analytics
-    want_rule = models.ForeignKey(Rule, related_name='wants', blank=True, null=True)
-    question_rule = models.ForeignKey(Rule, related_name='questions', blank=True, null=True)
-    promise_rule = models.ForeignKey(Rule, related_name='promises', blank=True, null=True)
-    dislike_rule = models.ForeignKey(Rule, related_name='dislikes', blank=True, null=True)
+    buy_rule            = models.ForeignKey(Rule, related_name='buys',              blank=True, null=True)
+    recommendation_rule = models.ForeignKey(Rule, related_name='recommendations',   blank=True, null=True)
+    question_rule       = models.ForeignKey(Rule, related_name='questions',         blank=True, null=True)
+    commitment_rule     = models.ForeignKey(Rule, related_name='commitments',       blank=True, null=True)
+    like_rule           = models.ForeignKey(Rule, related_name='likes',             blank=True, null=True)
+    dislike_rule        = models.ForeignKey(Rule, related_name='dislikes',          blank=True, null=True)
 
     # http://www.clips.ua.ac.be/pages/pattern-en
 
