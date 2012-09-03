@@ -126,7 +126,7 @@ class Document(models.Model):
     # Tweet id
     source_id = models.CharField(max_length=40, unique=True, blank=False)
     date = models.DateTimeField(auto_now_add=True)
-    text = models.CharField(max_length=140, blank=True, default='')
+    text = models.CharField(max_length=200, blank=True, default='')
 
     # This will be used to query what all needs analysis in background task
     analyzed = models.BooleanField(default=False)
