@@ -202,7 +202,7 @@ LOGGING = {
     'loggers': {
         'django.request': {
             'handlers': ['mail_admins', 'console'],
-            'level': 'ERROR',
+            'level': 'INFO',
             'propagate': True,
             },
         'django': {
@@ -210,15 +210,15 @@ LOGGING = {
             'propagate': True,
             'level':'INFO',
             },
-        'intent': {
-            'handlers':['console'],
+        'intent.apps.query.tasks.run_and_analyze_queries': {
+            'handlers':['console', 'mail_admins'],
             'propagate': True,
-            'level':'INFO',
+            'level':'DEBUG',
             },
         'intent': {
-            'handlers':['mail_admins'],
+            'handlers':['console', 'mail_admins'],
             'propagate': True,
-            'level':'ERROR',
+            'level':'DEBUG',
             },
         }
 }

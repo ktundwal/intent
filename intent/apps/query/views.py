@@ -22,6 +22,7 @@ from django.http import HttpResponseRedirect
 from django.core.urlresolvers import reverse
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
+from django.db.models import Count
 
 from io import BytesIO
 from django.http import HttpResponse
@@ -52,22 +53,41 @@ def recent_queries(request):
 def query_index(request):
     queries = []
     for query in Query.objects.filter(created_by=request.user):
-        docs = Document.objects.filter(result_of=query)
-        docs_count = docs.count() if docs.count() > 0 else 1
+
+        daily_stats = DailyStat.objects.filter(stat_of=query)
+
+        buy_all_count = 0
+        recommendation_all_count = 0
+        question_all_count = 0
+        commitment_all_count = 0
+        like_all_count = 0
+        dislike_all_count = 0
+        try_all_count = 0
+
+        for daily_stat in daily_stats:
+            buy_all_count += daily_stat.buy_count
+            recommendation_all_count += daily_stat.recommendation_count
+            question_all_count += daily_stat.question_count
+            commitment_all_count += daily_stat.commitment_count
+            like_all_count += daily_stat.like_count
+            dislike_all_count += daily_stat.dislike_count
+            try_all_count += daily_stat.try_count
+
         queries.append({
             'query': query.query,
             'id': query.id,
             'last_run': query.last_run,
             'status': query.status,
             'created_on': query.created_on,
-            'total_tweets': docs.count(),
-            'buy_percentage': docs.filter(buy_rule__isnull=False).count() * 100 / docs_count,
-            'recommendation_percentage': docs.filter(recommendation_rule__isnull=False).count() * 100 / docs_count,
-            'question_percentage': docs.filter(question_rule__isnull=False).count() * 100 / docs_count,
-            'commitment_percentage': docs.filter(commitment_rule__isnull=False).count() * 100 / docs_count,
-            'like_percentage': docs.filter(like_rule__isnull=False).count() * 100 / docs_count,
-            'dislike_percentage': docs.filter(dislike_rule__isnull=False).count() * 100 / docs_count,
-            'try_percentage': docs.filter(try_rule__isnull=False).count() * 100 / docs_count,
+            'count': query.count,
+            'daily_stats': daily_stats,
+            'buy_percentage': buy_all_count * 100 / query.count,
+            'recommendation_percentage': recommendation_all_count * 100 / query.count,
+            'question_percentage': question_all_count * 100 / query.count,
+            'commitment_percentage': commitment_all_count * 100 / query.count,
+            'like_percentage': like_all_count * 100 / query.count,
+            'dislike_percentage': dislike_all_count * 100 / query.count,
+            'try_percentage': try_all_count * 100 / query.count,
         })
     return render_to_response('query/query_index.html',
             {'queries': queries,
@@ -293,14 +313,14 @@ def process(request):
     """run background process task once"""
     start_time = time.time()
     try:
-        run_and_analyze_queries()
-        return HttpResponse(simplejson.dumps(
-                {'result': 'success',
+        response = run_and_analyze_queries()
+        return HttpResponse(content = simplejson.dumps(
+                {'result': 'success' if response is None else 'failure: %s' % response,
                  "time_taken": time.time() - start_time
-            }), mimetype='application/json')
+            }), mimetype='application/json', status=200 if response is None else 500)
     except Exception, e:
-        return HttpResponse(simplejson.dumps(
-                {'result': 'error',
+        return HttpResponse(content = simplejson.dumps(
+                {'result': 'failure: %s' % e,
                  'reason': e.message,
                  "time_taken": time.time() - start_time
-            }), mimetype='application/json')
+            }), mimetype='application/json', status=500)

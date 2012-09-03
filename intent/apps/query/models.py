@@ -14,6 +14,7 @@ __status__      = "Development"
 from django.db import models
 from django.contrib.auth.models import User
 from decimal import *
+from django.utils.timezone import datetime
 
 class Rule(models.Model):
     BUY_GRAMMAR             = 1
@@ -59,7 +60,7 @@ class Query(models.Model):
 
     created_by = models.ForeignKey(User)
     query = models.CharField(max_length=200, blank=False)
-    created_on = models.DateTimeField(auto_now_add=True)
+    created_on = models.DateTimeField(auto_now_add=True, default = datetime.now)
 
     status = models.IntegerField(choices=STATUS_CHOICES, default=WAITING_TO_RUN_STATUS)
 
@@ -139,28 +140,20 @@ class Document(models.Model):
     dislike_rule        = models.ForeignKey(Rule, related_name='dislikes',          blank=True, null=True)
     try_rule            = models.ForeignKey(Rule, related_name='tries',             blank=True, null=True)
 
-    # http://www.clips.ua.ac.be/pages/pattern-en
-
-    INDICATIVE_MOOD = 1
-    IMPERATIVE_MOOD = 2
-    CONDITIONAL_MOOD = 3
-    SUBJUNCTIVE_MOOD = 4
-
-    MOOD_CHOICES = (
-        (NOT_ANALYZED, 'Not analyzed'),
-        (INDICATIVE_MOOD, 'Indicative'),
-        (IMPERATIVE_MOOD, 'Imperative'),
-        (CONDITIONAL_MOOD, 'Conditional'),
-        (SUBJUNCTIVE_MOOD, 'Subjunctive'),
-    )
-
-    polarity = models.DecimalField(max_digits=2, decimal_places=1,default=Decimal("0"))
-    subjectivity = models.DecimalField(max_digits=2, decimal_places=1,default=Decimal("0"))
-    intent = models.IntegerField(choices=MOOD_CHOICES, default=NOT_ANALYZED)
-    modality = models.DecimalField(max_digits=2, decimal_places=1,default=Decimal("0"))
-
     def __unicode__(self):
         return '%s-%s' % (self.result_of.query, self.source_id)
 
     class Meta:
         ordering = ['-date']
+
+class DailyStat(models.Model):
+    stat_of = models.ForeignKey(Query, related_name='dailystats', blank=True)
+    stat_for = models.DateField(auto_now_add=True)
+    document_count = models.IntegerField()
+    buy_count = models.IntegerField()
+    recommendation_count = models.IntegerField()
+    question_count = models.IntegerField()
+    commitment_count = models.IntegerField()
+    like_count = models.IntegerField()
+    dislike_count = models.IntegerField()
+    try_count = models.IntegerField()

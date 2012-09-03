@@ -18,6 +18,13 @@
 
 <h3>{{ intent|capfirst }} intents for {{ query.query }}</h3>
 
+<div class='well'>
 {% include page_template %}
+</div>
+
+
+<a href="{% url query:recent-queries %}">Go to dashboard</a>
+
+<p>
 
 {% endblock %}
