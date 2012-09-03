@@ -86,14 +86,9 @@ def build_context_from_intent(docs, docs_count, intent):
             'tweets': docs.filter(recommendation_rule__isnull=False),
             'recommendation_percentage': docs.filter(recommendation_rule__isnull=False).count() * 100 / docs_count,
             }
-    elif intent == 'like':
-        return {
-            'tweets': docs.filter(try_rule__isnull=False),
-            'try_percentage': docs.filter(try_rule__isnull=False).count() * 100 / docs_count,
-            }
     elif intent == 'question':
         return {
-            'tweets': docs.filter(buy_rule__isnull=False),
+            'tweets': docs.filter(question_rule__isnull=False),
             'question_percentage': docs.filter(question_rule__isnull=False).count() * 100 / docs_count,
             }
     elif intent == 'commitment':
