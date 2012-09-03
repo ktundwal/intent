@@ -41,7 +41,10 @@ class TwitterEx(SearchEngine):
             data = URL(url).download(cached=cached, **kwargs)
         except HTTP420Error:
             raise SearchEngineLimitError
-        data = json.loads(data)
+        try:
+            data = json.loads(data)
+        except:
+            raise Exception('Twitter api returned unexpected result')
         results = Results(TWITTER, query, type)
         results.total = None
         for x in data.get("results", data.get("trends", [])):
