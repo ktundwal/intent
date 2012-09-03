@@ -3,6 +3,8 @@
  */
 $(window).ready(function () {
 
+    return
+
     var apiURL = '/query/process'
     var page = 0;
     var handler = null;
