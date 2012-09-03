@@ -148,7 +148,7 @@ class Document(models.Model):
 
 class DailyStat(models.Model):
     stat_of = models.ForeignKey(Query, related_name='dailystats', blank=True)
-    stat_for = models.DateField(auto_now_add=True)
+    stat_for = models.DateField()
     document_count = models.IntegerField()
     buy_count = models.IntegerField()
     recommendation_count = models.IntegerField()
@@ -157,3 +157,9 @@ class DailyStat(models.Model):
     like_count = models.IntegerField()
     dislike_count = models.IntegerField()
     try_count = models.IntegerField()
+
+    def __unicode__(self):
+        return '%s-%s' % (self.stat_for.strftime('%h %d %Y'), self.stat_of.query)
+
+    class Meta:
+        ordering = ['-stat_for']

@@ -32,10 +32,11 @@ def update_stats(query, logger):
     counts = intent_counts(query)
 
     try:
-        daily_stat = DailyStat.objects.filter(stat_for=query)[0]
+        daily_stat = DailyStat.objects.filter(stat_of=query)[0]
         if not daily_stat:
             raise Exception
-        daily_stat.document_count       = counts['docs_today']
+        daily_stat.document_count       = counts['docs_today_count']
+        daily_stat.stat_for             = datetime.utcnow().replace(tzinfo=utc)
         daily_stat.buy_count            = counts['buy_today_count']
         daily_stat.recommendation_count = counts['recommendation_today_count']
         daily_stat.question_count       = counts['question_today_count']
@@ -44,9 +45,10 @@ def update_stats(query, logger):
         daily_stat.dislike_count        = counts['dislike_today_count']
         daily_stat.try_count            = counts['try_today_count']
         daily_stat.save()
-    except:
-        DailyStat.objects.create(
-            stat_of=query,
+    except Exception, ex:
+        ds = DailyStat.objects.create(
+            stat_of              = query,
+            stat_for             = datetime.utcnow().replace(tzinfo=utc),
             document_count       = counts['docs_today_count'],
             buy_count            = counts['buy_today_count'],
             recommendation_count = counts['recommendation_today_count'],

@@ -41,7 +41,7 @@ def search_twitter(query, query_count):
         raise type(limitError)(limitError.message + 'happens for query: %s' % web.bytestring(query))
     except Exception, e:
         log_exception("Exception during twitter search for query: %s" % web.bytestring(query))
-        raise type(e)(e.message + 'happens for query: %s' % web.bytestring(query))
+        raise type(e)(e.message + ' for query: %s' % web.bytestring(query))
     return tweets
 
 def clean_tweet(tweet):
