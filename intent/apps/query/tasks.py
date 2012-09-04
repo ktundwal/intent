@@ -11,7 +11,8 @@ from django.utils.timezone import utc, datetime, timedelta
 from .utils import run_and_analyze_query, create_unknown_rule, intent_counts
 from intent.apps.query.models import Rule, Author, Query, Document, DailyStat
 
-from intent.apps.core.utils import *
+from django.core.mail import send_mail
+from intent.settings.common import *
 
 # Run this
 # python manage.py celeryd -E -B --loglevel=INFO
@@ -46,7 +47,7 @@ def update_stats(query, logger):
         daily_stat.try_count            = counts['try_today_count']
         daily_stat.save()
     except Exception, ex:
-        ds = DailyStat.objects.create(
+        daily_stat = DailyStat.objects.create(
             stat_of              = query,
             stat_for             = datetime.utcnow().replace(tzinfo=utc),
             document_count       = counts['docs_today_count'],
@@ -67,8 +68,13 @@ def update_stats(query, logger):
     query.num_times_run += 1
     query.save()
 
+    return daily_stat
 
-@periodic_task(run_every=timedelta(minutes=1))
+
+def send_status_email(subject, message):
+    send_mail(subject, message, DEFAULT_FROM_EMAIL, ['aloke@cruxly.com', 'kapil@cruxly.com'])
+
+@periodic_task(run_every=timedelta(minutes=5))
 def run_and_analyze_queries():
     response = None
     try:
@@ -120,7 +126,13 @@ def run_and_analyze_queries():
                         task_logger.info(
                             "    already analyzed tweeet. may be we ran soon. SKIPPING (%s)" % tweet['content'])
 
-                update_stats(query, task_logger)
+                daily_stat = update_stats(query, task_logger)
+
+                try:
+                    send_status_email('cruxly prod - background process success',
+                        'Aloke, Kapil - successfully processed %s for user %s\n\n' % (query.query, query.created_by, daily_stat))
+                except:
+                    log_exception(task_logger, "Exception sending status via email. %s" % e)
 
             except Exception, e:
                 response = '%s' % e
@@ -130,6 +142,12 @@ def run_and_analyze_queries():
                 query.num_times_run += 1
                 query.query_exception = e.message
                 query.save()
+
+                try:
+                    send_status_email('cruxly prod - background process failure',
+                        'Aloke, Kapil - exception processing %s for user %s\n\n %s' % (query.query, query.created_by, e))
+                except:
+                    log_exception(task_logger, "Exception sending status via email. %s" % e)
             finally:
                 query.status = Query.WAITING_TO_RUN_STATUS
                 query.save()
@@ -137,6 +155,13 @@ def run_and_analyze_queries():
     except Exception, e:
         response = '%s' % e
         log_exception(task_logger, "Exception while executing run_and_analyze_queries task asynchronously. %s" % e)
+
+        try:
+            send_status_email('cruxly prod - background process failure',
+                'Aloke, Kapil - exception processing queries. %s' % e)
+        except:
+            log_exception(task_logger, "Exception sending status via email. %s" % e)
+
         raise e
 
     return response
