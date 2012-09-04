@@ -317,7 +317,7 @@ def process(request):
         return HttpResponse(content = simplejson.dumps(
                 {'result': 'success' if response is None else 'failure: %s' % response,
                  "time_taken": time.time() - start_time
-            }), mimetype='application/json', status=200 if response is None else 500)
+            }), mimetype='application/json', status=200)
     except Exception, e:
         return HttpResponse(content = simplejson.dumps(
                 {'result': 'failure: %s' % e,
