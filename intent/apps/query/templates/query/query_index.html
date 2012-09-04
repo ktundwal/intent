@@ -3,6 +3,46 @@
 
     <!--Load the AJAX API-->
     <script type="text/javascript" src="https://www.google.com/jsapi"></script>
+
+<script type="text/javascript">
+    google.load("visualization", "1", {packages:["corechart"]});
+    google.setOnLoadCallback(drawChart);
+    function drawChart() {
+
+        {% for query in queries %}
+
+            var data = google.visualization.arrayToDataTable([
+                ['Day', 'Buy', 'Like', 'Try', 'Question', 'Recommendation', 'Commitmemt', 'Dislike'],
+                ['Oct 30, 2012', 12, 4, 0, 3, 2, 2, 0,],
+                ['Oct 31, 2012', 8, 1, 0, 5, 5, 4, 0,],
+                ['Sept 1, 2012', 9, 3, 0, 8, 1, 1, 0,],
+                ['Sept 2, 2012', 10, 2, 0, 10, 3, 2, 0,],
+                {% for daily_stat_percentage in query.daily_stats_percentage %}
+                    [
+                        '{{ daily_stat_percentage.date }}',
+                        {{ daily_stat_percentage.buy_percentage }},
+                        {{ daily_stat_percentage.like_percentage }},
+                        {{ daily_stat_percentage.try_percentage }},
+                        {{ daily_stat_percentage.question_percentage }},
+                        {{ daily_stat_percentage.recommendation_percentage }},
+                        {{ daily_stat_percentage.commitment_percentage }},
+                        {{ daily_stat_percentage.dislike_percentage }},
+                    ],
+                {% endfor %}
+            ]);
+
+            var options = {
+                title: 'Intents over time'
+            };
+
+            var chart = new google.visualization.LineChart(document.getElementById('chart_div_{{query.id}}'));
+            chart.draw(data, options);
+
+        {% endfor %}
+
+    }
+</script>
+
 {% endblock %}
 
 {% block title %}Queries{% endblock %}
@@ -11,35 +51,38 @@
     <h1>Queries</h1>
     <table class="table table-striped table-bordered table-condensed">
         <thead><tr>
-            <th width='15%'>Query</th>
-            <th width='5%'>State</th>
-            <th width='15%'>Created on</th>
-            <th width='15%'>Last run</th>
-            <th width='5%'>Tweets analyzed</th>
-            <th width='35%'>Results</th>
+            <th width='30%'>Query</th>
+            <th >Results</th>
         </tr></thead>
         <tbody>
         {% for query in queries %}
             <tr>
-                <td><a href='edit/{{query.id}}'>{{ query.query }}</a></td>
                 <td>
+                    <a href='edit/{{query.id}}'>{{ query.query }}</a>
+                    <br>
                     {% for k, v in status_choices.items %}
                         {% ifequal k|stringformat:"s" query.status|stringformat:"s" %}
                             {{ v }}
                         {% endifequal %}
                     {% endfor %}
+                    <br>
+                    Created on {{ query.created_on }}
+                    <br>
+                    Last run on {{ query.last_run }}
+                    <br>
+                    {{ query.count }} tweets analyzed
                 </td>
-                <td>{{ query.created_on }}</td>
-                <td>{{ query.last_run }}</td>
-                <td>{{ query.count }}</td>
                 <td>
-                    <a href="results/{{query.id}}?intent=buy">{{ query.buy_percentage }}% buy intents</a><br>
-                    <a href="results/{{query.id}}?intent=recommendation">{{ query.recommendation_percentage }}% recommendations</a><br>
-                    <a href="results/{{query.id}}?intent=question">{{ query.question_percentage }}% questions/requests</a><br>
-                    <a href="results/{{query.id}}?intent=commitment">{{ query.commitment_percentage }}% commitments</a><br>
-                    <a href="results/{{query.id}}?intent=like">{{ query.like_percentage }}% likes</a><br>
-                    <a href="results/{{query.id}}?intent=dislike">{{ query.dislike_percentage }}% dislikes</a><br>
+                    <div class='chart' id="chart_div_{{query.id}}" style="width: 500px; height: 300px;"></div><br>
+                    <a href="results/{{query.id}}?intent=buy">{{ query.buy_percentage }}% buy intents</a>,
+                    <a href="results/{{query.id}}?intent=like">{{ query.like_percentage }}% likes</a>,
                     <a href="results/{{query.id}}?intent=try">{{ query.try_percentage }}% try intent</a><br>
+                    <a href="results/{{query.id}}?intent=question">{{ query.question_percentage }}% questions/requests</a>,
+                    <a href="results/{{query.id}}?intent=recommendation">{{ query.recommendation_percentage }}% recommendations</a>,
+                    <a href="results/{{query.id}}?intent=commitment">{{ query.commitment_percentage }}% commitments</a><br>
+
+                    <a href="results/{{query.id}}?intent=dislike">{{ query.dislike_percentage }}% dislikes</a><br>
+
                 </td>
                 <!--
                 <td>

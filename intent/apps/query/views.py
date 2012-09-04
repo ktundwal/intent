@@ -64,6 +64,7 @@ def query_index(request):
         dislike_all_count = 0
         try_all_count = 0
 
+        daily_stats_percentage = []
         for daily_stat in daily_stats:
             buy_all_count += daily_stat.buy_count
             recommendation_all_count += daily_stat.recommendation_count
@@ -72,6 +73,16 @@ def query_index(request):
             like_all_count += daily_stat.like_count
             dislike_all_count += daily_stat.dislike_count
             try_all_count += daily_stat.try_count
+            daily_stats_percentage.append({
+                'date': daily_stat.stat_for,
+                'buy_percentage': daily_stat.buy_count * 100 / daily_stat.document_count,
+                'recommendation_percentage': daily_stat.recommendation_count * 100 / daily_stat.document_count,
+                'question_percentage': daily_stat.question_count * 100 / daily_stat.document_count,
+                'commitment_percentage': daily_stat.commitment_count * 100 / daily_stat.document_count,
+                'like_percentage': daily_stat.like_count * 100 / daily_stat.document_count,
+                'dislike_percentage': daily_stat.dislike_count * 100 / daily_stat.document_count,
+                'try_percentage': daily_stat.try_count * 100 / daily_stat.document_count,
+            })
 
         queries.append({
             'query': query.query,
@@ -80,7 +91,7 @@ def query_index(request):
             'status': query.status,
             'created_on': query.created_on,
             'count': query.count,
-            'daily_stats': daily_stats,
+            'daily_stats_percentage': daily_stats_percentage,
             'buy_percentage': buy_all_count * 100 / query.count,
             'recommendation_percentage': recommendation_all_count * 100 / query.count,
             'question_percentage': question_all_count * 100 / query.count,
