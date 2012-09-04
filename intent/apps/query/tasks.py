@@ -14,6 +14,9 @@ from intent.apps.query.models import Rule, Author, Query, Document, DailyStat
 from django.core.mail import send_mail
 from intent.settings.common import *
 
+import sys
+import traceback
+
 # Run this
 # python manage.py celeryd -E -B --loglevel=INFO
 
