@@ -334,4 +334,4 @@ def process(request):
                 {'result': 'failure: %s' % e,
                  'reason': e.message,
                  "time_taken": time.time() - start_time
-            }), mimetype='application/json', status=500)
+            }), mimetype='application/json', status=200)
