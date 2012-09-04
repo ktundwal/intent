@@ -133,9 +133,10 @@ def run_and_analyze_queries():
 
                 try:
                     send_status_email('cruxly prod - background process success',
-                        'Aloke, Kapil - successfully processed %s for user %s\n\n' % (query.query, query.created_by, daily_stat))
-                except:
-                    log_exception(task_logger, "Exception sending status via email. %s" % e)
+                        'Aloke, Kapil - successfully processed %s for user %s\n\n%s'
+                            % (query.query, query.created_by, daily_stat))
+                except Exception, email_ex:
+                    log_exception(task_logger, "Exception sending status via email \n%s" % email_ex)
 
             except Exception, e:
                 response = '%s' % e
@@ -149,8 +150,8 @@ def run_and_analyze_queries():
                 try:
                     send_status_email('cruxly prod - background process failure',
                         'Aloke, Kapil - exception processing %s for user %s\n\n %s' % (query.query, query.created_by, e))
-                except:
-                    log_exception(task_logger, "Exception sending status via email. %s" % e)
+                except Exception, email_ex:
+                    log_exception(task_logger, "Exception sending status via email. %s" % email_ex)
             finally:
                 query.status = Query.WAITING_TO_RUN_STATUS
                 query.save()
@@ -162,8 +163,8 @@ def run_and_analyze_queries():
         try:
             send_status_email('cruxly prod - background process failure',
                 'Aloke, Kapil - exception processing queries. %s' % e)
-        except:
-            log_exception(task_logger, "Exception sending status via email. %s" % e)
+        except Exception, email_ex:
+            log_exception(task_logger, "Exception sending status via email \n%s" % email_ex)
 
         raise e
 
