@@ -160,15 +160,15 @@ class DailyStat(models.Model):
 
     def display(self):
         response = 'Daily stat: %s\n' % self.stat_for.strftime('%h %d %Y')
-        response += 'Query: %s\n' & self.stat_of.query.query
+        response += 'Query: %s\n' % self.stat_of.query.query
         response += 'Total tweets processed today: %d\n' % self.document_count
-        response += 'Buy: %d%%\n' % self.buy_count * 100 / self.document_count
-        response += 'Recommendation: %d%%\n' % self.recommendation_count * 100 / self.document_count
-        response += 'Question: %d%%\n' % self.question_count * 100 / self.document_count
-        response += 'Commitment: %d%%\n' % self.commitment_count * 100 / self.document_count
-        response += 'Like: %d%%\n' % self.like_count * 100 / self.document_count
-        response += 'Try: %d%%\n' % self.dislike_count * 100 / self.document_count
-        response += 'Dislike: %d%%\n' % self.try_count * 100 / self.document_count
+        response += 'Buy: %d%%\n' % (self.buy_count * 100 / self.document_count)
+        response += 'Recommendation: %d%%\n' % (self.recommendation_count * 100 / self.document_count)
+        response += 'Question: %d%%\n' % (self.question_count * 100 / self.document_count)
+        response += 'Commitment: %d%%\n' % (self.commitment_count * 100 / self.document_count)
+        response += 'Like: %d%%\n' % (self.like_count * 100 / self.document_count)
+        response += 'Try: %d%%\n' % (self.dislike_count * 100 / self.document_count)
+        response += 'Dislike: %d%%\n' % (self.try_count * 100 / self.document_count)
 
         return response
 
