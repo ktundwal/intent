@@ -155,7 +155,7 @@ def run_and_analyze_queries():
             task_logger.info("    Processed query %s for user %s" % (query.query, query.created_by))
             try:
                 send_status_email('cruxly prod - background process success',
-                    'Aloke, Kapil - successfully processed %d queries.\n\n%s' % (queries.count(), email_message))
+                    'Aloke, Kapil - successfully processed %d queries.\n\n%s' % (len(queries), email_message))
             except Exception, email_ex:
                 log_exception(task_logger, "Exception sending status via email \n%s" % email_ex)
     except Exception, e:
