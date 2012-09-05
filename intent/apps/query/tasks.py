@@ -76,7 +76,7 @@ def update_stats(query, logger):
 
 def send_status_email(subject, message):
     message += '\n\n-Cruxly background query processor'
-    send_mail(subject, message, DEFAULT_FROM_EMAIL, ['aloke@cruxly.com', 'kapil@cruxly.com'])
+    send_mail(subject, message, DEFAULT_FROM_EMAIL, ['kapil@cruxly.com'])
 
 @periodic_task(run_every=timedelta(minutes=5))
 def run_and_analyze_queries():
@@ -133,7 +133,7 @@ def run_and_analyze_queries():
 
                 daily_stat = update_stats(query, task_logger)
 
-                email_message += 'User: %s\n\n%s' % (query.created_by, daily_stat.display())
+                email_message += '\n\n%s' % daily_stat.display()
 
             except Exception, e:
                 response = '%s' % e

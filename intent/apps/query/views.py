@@ -295,6 +295,8 @@ def demo(request):
                 analyzed_tweet_dict_list) if len(analyzed_tweet_dict_list) > 0 else 1
             tries = len([tweet for tweet in analyzed_tweet_dict_list if 'try' in tweet['intents']]) * 100 / len(
                 analyzed_tweet_dict_list) if len(analyzed_tweet_dict_list) > 0 else 1
+            dislikes = len([tweet for tweet in analyzed_tweet_dict_list if 'dislike' in tweet['intents']]) * 100 / len(
+                analyzed_tweet_dict_list) if len(analyzed_tweet_dict_list) > 0 else 1
             logger.info('Demo Request: %s' % query)
 
             context = {
@@ -307,7 +309,8 @@ def demo(request):
                           'commitment': commitment,
                           'buy': buy,
                           'like': like,
-                          'tries': tries},
+                          'tries': tries,
+                          'dislike': dislikes,},
                 }
 
         except Exception, e:

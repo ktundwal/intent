@@ -139,6 +139,26 @@
                 title:'Try',
                 backgroundColor: { fill:'transparent' },
                 colors: ['0191C8', '74C2E1']});
+
+            // Create the data table.
+            var dislike_data = new google.visualization.DataTable();
+            dislike_data.addColumn('string', 'Dislike');
+            dislike_data.addColumn('number', 'Rest');
+            dislike_data.addRows([
+                ['Dislike', {{ stats.dislike }}],
+                ['Rest', 100 - {{ stats.dislike }}],
+            ]);
+
+            // Instantiate and draw our chart, passing in some options.
+            var dislike_chart = new google.visualization.PieChart(document.getElementById('dislike_chart_div'));
+            dislike_chart.draw(dislike_data, {
+                'width':300,
+                'height':200,
+                'is3D': false,
+                legend:'none',
+                title:'Dislike',
+                backgroundColor: { fill:'transparent' },
+                colors: ['0191C8', '74C2E1']});
         }
 
         // Set a callback to run when the Google Visualization API is loaded.
@@ -201,6 +221,7 @@
                     <div class="span3" id="buy_chart_div"></div>
                     <div class="span3" id="like_chart_div"></div>
                     <div class="span3" id="try_chart_div"></div>
+                    <div class="span3" id="dislike_chart_div"></div>
                 </div>
 
                 <table class="table table-striped table-bordered table-condensed">
