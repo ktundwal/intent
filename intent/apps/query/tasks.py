@@ -153,11 +153,13 @@ def run_and_analyze_queries():
                 query.status = Query.WAITING_TO_RUN_STATUS
                 query.save()
             task_logger.info("    Processed query %s for user %s" % (query.query, query.created_by))
-            try:
-                send_status_email('cruxly prod - background process success',
-                    'Aloke, Kapil - successfully processed %d queries.\n\n%s' % (len(queries), email_message))
-            except Exception, email_ex:
-                log_exception(task_logger, "Exception sending status via email \n%s" % email_ex)
+
+        try:
+            send_status_email('cruxly prod - background process success',
+                'Aloke, Kapil - successfully processed %d queries.\n\n%s' % (len(queries), email_message))
+        except Exception, email_ex:
+            log_exception(task_logger, "Exception sending status via email \n%s" % email_ex)
+
     except Exception, e:
         response = '%s' % e
         log_exception(task_logger, "Exception while executing run_and_analyze_queries task asynchronously. %s" % e)
