@@ -75,11 +75,13 @@ def update_stats(query, logger):
 
 
 def send_status_email(subject, message):
+    message += '\n\n-Cruxly background query processor'
     send_mail(subject, message, DEFAULT_FROM_EMAIL, ['aloke@cruxly.com', 'kapil@cruxly.com'])
 
 @periodic_task(run_every=timedelta(minutes=5))
 def run_and_analyze_queries():
     response = None
+    email_message = ''
     try:
         task_logger = run_and_analyze_queries.get_logger()
 
@@ -131,12 +133,7 @@ def run_and_analyze_queries():
 
                 daily_stat = update_stats(query, task_logger)
 
-                try:
-                    send_status_email('cruxly prod - background process success',
-                        'Aloke, Kapil - successfully processed %s for user %s\n\n%s'
-                            % (query.query, query.created_by, daily_stat))
-                except Exception, email_ex:
-                    log_exception(task_logger, "Exception sending status via email \n%s" % email_ex)
+                email_message += 'User: %s\n\n%s' % (query.created_by, daily_stat.display())
 
             except Exception, e:
                 response = '%s' % e
@@ -156,6 +153,11 @@ def run_and_analyze_queries():
                 query.status = Query.WAITING_TO_RUN_STATUS
                 query.save()
             task_logger.info("    Processed query %s for user %s" % (query.query, query.created_by))
+            try:
+                send_status_email('cruxly prod - background process success',
+                    'Aloke, Kapil - successfully processed %d queries.\n\n%s' % (queries.count(), email_message))
+            except Exception, email_ex:
+                log_exception(task_logger, "Exception sending status via email \n%s" % email_ex)
     except Exception, e:
         response = '%s' % e
         log_exception(task_logger, "Exception while executing run_and_analyze_queries task asynchronously. %s" % e)
