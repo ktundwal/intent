@@ -36,7 +36,7 @@ def update_stats(query, logger):
     counts = intent_counts(query)
 
     try:
-        daily_stat = DailyStat.objects.filter(stat_of=query)[0]
+        daily_stat = DailyStat.objects.filter(stat_of=query, stat_for=datetime.utcnow().date())[0]
         if not daily_stat:
             raise Exception
         daily_stat.document_count       = counts['docs_today_count']

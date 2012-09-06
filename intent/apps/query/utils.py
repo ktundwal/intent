@@ -188,12 +188,8 @@ def create_unknown_rule(intents, intent_str, intent_id):
     return rule
 
 def intent_counts(query):
-
-    today_min               = datetime.utcnow().min.replace(tzinfo=utc)
-    today_max               = datetime.utcnow().max.replace(tzinfo=utc)
-
     docs_all                = Document.objects.filter(result_of=query)
-    docs_today              = docs_all.filter(date__range=(today_min, today_max))
+    docs_today              = docs_all.filter(date__startswith=datetime.utcnow().date())
 
     docs_all_count          = docs_all.count() if docs_all.count() > 0 else 1
     docs_today_count        = docs_today.count() if docs_today.count() > 0 else 1
