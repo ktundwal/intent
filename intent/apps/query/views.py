@@ -52,7 +52,13 @@ def recent_queries(request):
 @login_required
 def query_index(request):
     queries = []
-    for query in Query.objects.filter(created_by=request.user):
+
+    if request.user.is_superuser:
+        qs = Query.objects.all()
+    else:
+        qs = Query.objects.filter(created_by=request.user)
+
+    for query in qs:
 
         daily_stats = DailyStat.objects.filter(stat_of=query)
 
@@ -205,7 +211,7 @@ def new_query(request, query_id=None):
             query = form.save(commit=False) # returns unsaved instance
             query.created_by = request.user
             query.save() # real save to DB.
-            messages.success(request, 'New query successfully added.')
+            #messages.success(request, 'New query successfully added.') FIXME
             return HttpResponseRedirect(reverse('query:recent-queries'))
         else:
             messages.error(request, 'Query did not pass validation!')
