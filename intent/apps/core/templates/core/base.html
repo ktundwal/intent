@@ -58,7 +58,7 @@
                 <ul class="nav pull-right">
                     <li><a href="http://blog.cruxly.com">Blog</a></li>
                     {% if user.is_authenticated %}
-                        <li><a href="#new-query" data-toggle="modal">New Query</a></li>
+                        <li><a href="#new-query" data-toggle="modal">New Twitter Tracker</a></li>
                         <li><a href="{% url core:logout %}">Logout {{ user.username }}</a></li>
                     {% else %}
                         <li><a href="{% url core:login %}">Login</a></li>
