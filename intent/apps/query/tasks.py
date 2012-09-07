@@ -75,6 +75,7 @@ def run_and_analyze_queries():
 
                 daily_stat = get_or_create_todays_daily_stat(query)
 
+                daily_stat.document_count        += len(tweets)
                 daily_stat.question_count        += len(question_count)
                 daily_stat.recommendation_count  += len(recommendation_count)
                 daily_stat.buy_count             += len(buy_count)
