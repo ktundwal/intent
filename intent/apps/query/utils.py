@@ -10,7 +10,7 @@ import time # to sleep if twitter raises an exception
 from time import gmtime, strftime
 
 from intent.apps.core.utils import *
-from intent.apps.query.models import Rule, Document
+from intent.apps.query.models import Rule, Document, DailyStat
 from .decorators import *
 
 #CRUXLY_SERVER = 'detectintent'
@@ -187,59 +187,15 @@ def create_unknown_rule(intents, intent_str, intent_id):
 
     return rule
 
-def intent_counts(query):
-    docs_all                = Document.objects.filter(result_of=query)
-    docs_today              = docs_all.filter(date__startswith=datetime.utcnow().date())
+def get_or_create_todays_daily_stat(query):
+    try:
+        daily_stat = DailyStat.objects.filter(stat_of=query, stat_for=datetime.utcnow().date())[0]
+    except: # daily_stat.DoesNotExist:
+        daily_stat = None
 
-    docs_all_count          = docs_all.count() if docs_all.count() > 0 else 1
-    docs_today_count        = docs_today.count() if docs_today.count() > 0 else 1
+    if not daily_stat:
+        daily_stat = DailyStat.objects.create(
+            stat_of              = query,
+            stat_for             = datetime.utcnow().replace(tzinfo=utc))
 
-    buy_all_count           = docs_all.filter(buy_rule__isnull=False).count()
-    buy_today_count         = docs_today.filter(buy_rule__isnull=False).count()
-
-    recommendation_all_count   = docs_all.filter(recommendation_rule__isnull=False).count()
-    recommendation_today_count = docs_today.filter(recommendation_rule__isnull=False).count()
-
-    question_all_count           = docs_all.filter(question_rule__isnull=False).count()
-    question_today_count         = docs_today.filter(question_rule__isnull=False).count()
-
-    commitment_all_count           = docs_all.filter(commitment_rule__isnull=False).count()
-    commitment_today_count         = docs_today.filter(commitment_rule__isnull=False).count()
-
-    like_all_count           = docs_all.filter(like_rule__isnull=False).count()
-    like_today_count         = docs_today.filter(like_rule__isnull=False).count()
-
-    dislike_all_count           = docs_all.filter(dislike_rule__isnull=False).count()
-    dislike_today_count         = docs_today.filter(dislike_rule__isnull=False).count()
-
-    try_all_count           = docs_all.filter(try_rule__isnull=False).count()
-    try_today_count         = docs_today.filter(try_rule__isnull=False).count()
-
-    return {
-        'docs_all':                     docs_all,
-        'docs_today':                   docs_today,
-
-        'docs_all_count':               docs_all_count,
-        'docs_today_count':             docs_today_count,
-
-        'buy_all_count':                buy_all_count,
-        'buy_today_count':              buy_today_count,
-
-        'recommendation_all_count':     recommendation_all_count,
-        'recommendation_today_count':   recommendation_today_count,
-
-        'question_all_count':           question_all_count,
-        'question_today_count':         question_today_count,
-
-        'commitment_all_count':         commitment_all_count,
-        'commitment_today_count':       commitment_today_count,
-
-        'like_all_count':               like_all_count,
-        'like_today_count':             like_today_count,
-
-        'dislike_all_count':            dislike_all_count,
-        'dislike_today_count':          dislike_today_count,
-
-        'try_all_count':                try_all_count,
-        'try_today_count':              try_today_count,
-    }
+    return daily_stat

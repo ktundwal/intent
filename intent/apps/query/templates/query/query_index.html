@@ -13,20 +13,17 @@
 
             var data = google.visualization.arrayToDataTable([
                 ['Day', 'Buy', 'Like', 'Try', 'Question', 'Recommendation', 'Commitmemt', 'Dislike'],
-                ['Oct 30, 2012', 12, 4, 0, 3, 2, 2, 0,],
-                ['Oct 31, 2012', 8, 1, 0, 5, 5, 4, 0,],
-                ['Sept 1, 2012', 9, 3, 0, 8, 1, 1, 0,],
-                ['Sept 2, 2012', 10, 2, 0, 10, 3, 2, 0,],
-                {% for daily_stat_percentage in query.daily_stats_percentage %}
+                ['Sept 2, 2012', 0, 0, 0, 0, 0, 0, 0],
+                {% for daily_stat in query.dailystats.all %}
                     [
-                        '{{ daily_stat_percentage.date }}',
-                        {{ daily_stat_percentage.buy_percentage }},
-                        {{ daily_stat_percentage.like_percentage }},
-                        {{ daily_stat_percentage.try_percentage }},
-                        {{ daily_stat_percentage.question_percentage }},
-                        {{ daily_stat_percentage.recommendation_percentage }},
-                        {{ daily_stat_percentage.commitment_percentage }},
-                        {{ daily_stat_percentage.dislike_percentage }},
+                        '{{ daily_stat.stat_for }}',
+                        {{ daily_stat.buy_percentage }},
+                        {{ daily_stat.like_percentage }},
+                        {{ daily_stat.try_percentage }},
+                        {{ daily_stat.question_percentage }},
+                        {{ daily_stat.recommendation_percentage }},
+                        {{ daily_stat.commitment_percentage }},
+                        {{ daily_stat.dislike_percentage }}
                     ],
                 {% endfor %}
             ]);

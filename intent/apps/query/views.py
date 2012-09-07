@@ -54,99 +54,44 @@ def query_index(request):
     queries = []
 
     if request.user.is_superuser:
-        qs = Query.objects.all()
+        queries = Query.objects.all()
     else:
-        qs = Query.objects.filter(created_by=request.user)
+        queries = Query.objects.filter(created_by=request.user)
 
-    for query in qs:
-
-        daily_stats = DailyStat.objects.filter(stat_of=query)
-
-        buy_all_count = 0
-        recommendation_all_count = 0
-        question_all_count = 0
-        commitment_all_count = 0
-        like_all_count = 0
-        dislike_all_count = 0
-        try_all_count = 0
-
-        daily_stats_percentage = []
-        for daily_stat in daily_stats:
-            buy_all_count += daily_stat.buy_count
-            recommendation_all_count += daily_stat.recommendation_count
-            question_all_count += daily_stat.question_count
-            commitment_all_count += daily_stat.commitment_count
-            like_all_count += daily_stat.like_count
-            dislike_all_count += daily_stat.dislike_count
-            try_all_count += daily_stat.try_count
-            daily_stats_percentage.append({
-                'date': daily_stat.stat_for,
-                'buy_percentage': daily_stat.buy_count * 100 / daily_stat.document_count,
-                'recommendation_percentage': daily_stat.recommendation_count * 100 / daily_stat.document_count,
-                'question_percentage': daily_stat.question_count * 100 / daily_stat.document_count,
-                'commitment_percentage': daily_stat.commitment_count * 100 / daily_stat.document_count,
-                'like_percentage': daily_stat.like_count * 100 / daily_stat.document_count,
-                'dislike_percentage': daily_stat.dislike_count * 100 / daily_stat.document_count,
-                'try_percentage': daily_stat.try_count * 100 / daily_stat.document_count,
-            })
-
-        queries.append({
-            'query': query.query,
-            'id': query.id,
-            'last_run': query.last_run,
-            'status': query.status,
-            'created_on': query.created_on,
-            'count': query.count,
-            'daily_stats_percentage': daily_stats_percentage,
-            'buy_percentage': buy_all_count * 100 / query.count,
-            'recommendation_percentage': recommendation_all_count * 100 / query.count,
-            'question_percentage': question_all_count * 100 / query.count,
-            'commitment_percentage': commitment_all_count * 100 / query.count,
-            'like_percentage': like_all_count * 100 / query.count,
-            'dislike_percentage': dislike_all_count * 100 / query.count,
-            'try_percentage': try_all_count * 100 / query.count,
-        })
     return render_to_response('query/query_index.html',
             {'queries': queries,
              'status_choices': dict(Query.STATUS_CHOICES)},
         context_instance=RequestContext(request))
 
 
-def build_context_from_intent(docs, docs_count, intent):
+def filter_tweets_for_intent(docs, intent):
     if intent == 'buy':
         return {
             'tweets': docs.filter(buy_rule__isnull=False),
-            'buy_percentage': docs.filter(buy_rule__isnull=False).count() * 100 / docs_count,
         }
     elif intent == 'recommendation':
         return {
             'tweets': docs.filter(recommendation_rule__isnull=False),
-            'recommendation_percentage': docs.filter(recommendation_rule__isnull=False).count() * 100 / docs_count,
             }
     elif intent == 'question':
         return {
             'tweets': docs.filter(question_rule__isnull=False),
-            'question_percentage': docs.filter(question_rule__isnull=False).count() * 100 / docs_count,
             }
     elif intent == 'commitment':
         return {
             'tweets': docs.filter(commitment_rule__isnull=False),
-            'commitment_percentage': docs.filter(commitment_rule__isnull=False).count() * 100 / docs_count,
             }
     elif intent == 'like':
         return {
             'tweets': docs.filter(like_rule__isnull=False),
-            'like_percentage': docs.filter(like_rule__isnull=False).count() * 100 / docs_count,
             }
     elif intent == 'dislike':
         return {
             'tweets': docs.filter(dislike_rule__isnull=False),
-            'dislike_percentage': docs.filter(dislike_rule__isnull=False).count() * 100 / docs_count,
             }
     elif intent == 'try':
         return {
             'tweets': docs.filter(try_rule__isnull=False),
-            'try_percentage': docs.filter(try_rule__isnull=False).count() * 100 / docs_count,
             }
 
 @login_required
@@ -167,20 +112,15 @@ def query_results(request,
     if request.method == 'GET' and query:
         try:
             intent = request.GET.get('intent', 'buy')   #default to buy
-            docs = Document.objects.filter(result_of=query)
-            docs_count = docs.count() if docs.count() > 0 else 1
+            tweets = Document.objects.filter(result_of=query)
 
             context = {
                 'query': query,
-                'last_run': query.last_run,
-                'status': query.status,
-                'created_on': query.created_on,
-                'total_tweets': docs.count(),
                 'status_choices': dict(Query.STATUS_CHOICES),
                 'intent': intent,
                 }
 
-            context.update(build_context_from_intent(docs, docs_count, intent))
+            context.update(filter_tweets_for_intent(tweets, intent))
 
             if extra_context is not None:
                 context.update(extra_context)

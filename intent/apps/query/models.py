@@ -67,8 +67,6 @@ class Query(models.Model):
     last_run = models.DateTimeField(blank=True, null=True)
     interval = models.IntegerField(default=1800)
 
-    count = models.IntegerField(default=100)
-
     throttle = models.FloatField(default=0.5)
 
     latitude = models.CharField(max_length=40, blank=True)
@@ -77,6 +75,37 @@ class Query(models.Model):
 
     num_times_run = models.IntegerField(default = 0)
     query_exception = models.CharField(max_length=200, blank=True)
+
+    count                   = models.IntegerField(default=0)
+    document_count          = models.IntegerField(default=0)
+    buy_count               = models.IntegerField(default=0)
+    recommendation_count    = models.IntegerField(default=0)
+    question_count          = models.IntegerField(default=0)
+    commitment_count        = models.IntegerField(default=0)
+    like_count              = models.IntegerField(default=0)
+    dislike_count           = models.IntegerField(default=0)
+    try_count               = models.IntegerField(default=0)
+
+    def buy_percentage(self):
+        return self.buy_count * 100 / self.count if self.count else 0
+
+    def recommendation_percentage(self):
+        return self.recommendation_count * 100 / self.count if self.count else 0
+
+    def question_percentage(self):
+        return self.question_count * 100 / self.count if self.count else 0
+
+    def commitment_percentage(self):
+        return self.commitment_count * 100 / self.count if self.count else 0
+
+    def like_percentage(self):
+        return self.like_count * 100 / self.count if self.count else 0
+
+    def dislike_percentage(self):
+        return self.dislike_count * 100 / self.count if self.count else 0
+
+    def try_percentage(self):
+        return self.try_count * 100 / self.count if self.count else 0
 
     def __unicode__(self):
         return self.query
@@ -87,7 +116,7 @@ class Query(models.Model):
 
 class Author(models.Model):
     twitter_handle = models.CharField(max_length=40, blank=False)
-    name = models.CharField(max_length=40, blank=False)
+    name = models.CharField(max_length=40, default='', blank=False)
 
     def __unicode__(self):
         return self.twitter_handle
@@ -149,29 +178,51 @@ class Document(models.Model):
 class DailyStat(models.Model):
     stat_of = models.ForeignKey(Query, related_name='dailystats', blank=True)
     stat_for = models.DateField()
-    document_count = models.IntegerField()
-    buy_count = models.IntegerField()
-    recommendation_count = models.IntegerField()
-    question_count = models.IntegerField()
-    commitment_count = models.IntegerField()
-    like_count = models.IntegerField()
-    dislike_count = models.IntegerField()
-    try_count = models.IntegerField()
+
+    document_count          = models.IntegerField(default=0)
+    buy_count               = models.IntegerField(default=0)
+    recommendation_count    = models.IntegerField(default=0)
+    question_count          = models.IntegerField(default=0)
+    commitment_count        = models.IntegerField(default=0)
+    like_count              = models.IntegerField(default=0)
+    dislike_count           = models.IntegerField(default=0)
+    try_count               = models.IntegerField(default=0)
 
     def display(self):
         response = 'Daily stat: %s\n' % self.stat_for.strftime('%h %d %Y')
         response += 'Query: %s\n' % self.stat_of.query
         response += 'Created by: %s\n' % self.stat_of.created_by
         response += 'Total tweets processed today: %d\n' % self.document_count
-        response += 'Buy: %d%%\n' % (self.buy_count * 100 / self.document_count)
-        response += 'Recommendation: %d%%\n' % (self.recommendation_count * 100 / self.document_count)
-        response += 'Question: %d%%\n' % (self.question_count * 100 / self.document_count)
-        response += 'Commitment: %d%%\n' % (self.commitment_count * 100 / self.document_count)
-        response += 'Like: %d%%\n' % (self.like_count * 100 / self.document_count)
-        response += 'Try: %d%%\n' % (self.dislike_count * 100 / self.document_count)
-        response += 'Dislike: %d%%\n' % (self.try_count * 100 / self.document_count)
+        response += 'Buy: %d%%\n' % self.buy_percentage()
+        response += 'Recommendation: %d%%\n' % self.recommendation_percentage()
+        response += 'Question: %d%%\n' % self.question_percentage()
+        response += 'Commitment: %d%%\n' % self.commitment_percentage()
+        response += 'Like: %d%%\n' % self.like_percentage()
+        response += 'Try: %d%%\n' % self.dislike_percentage()
+        response += 'Dislike: %d%%\n' % self.try_percentage()
 
         return response
+
+    def buy_percentage(self):
+        return self.buy_count * 100 / self.document_count if self.document_count else 0
+
+    def recommendation_percentage(self):
+        return self.recommendation_count * 100 / self.document_count if self.document_count else 0
+
+    def question_percentage(self):
+        return self.question_count * 100 / self.document_count if self.document_count else 0
+
+    def commitment_percentage(self):
+        return self.commitment_count * 100 / self.document_count if self.document_count else 0
+
+    def like_percentage(self):
+        return self.like_count * 100 / self.document_count if self.document_count else 0
+
+    def dislike_percentage(self):
+        return self.dislike_count * 100 / self.document_count if self.document_count else 0
+
+    def try_percentage(self):
+        return self.try_count * 100 / self.document_count if self.document_count else 0
 
     def __unicode__(self):
         return '%s-%s' % (self.stat_for.strftime('%h %d %Y'), self.stat_of.query)
