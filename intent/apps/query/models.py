@@ -228,4 +228,4 @@ class DailyStat(models.Model):
         return '%s-%s' % (self.stat_for.strftime('%h %d %Y'), self.stat_of.query)
 
     class Meta:
-        ordering = ['-stat_for']
+        ordering = ['stat_for']
