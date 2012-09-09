@@ -7,14 +7,16 @@ from django.contrib import messages
 from intent.apps.core.forms import UserCreationFormWithEmail
 from django.core.mail import send_mail
 from intent import settings
-from intent.apps.query.models import Document, Rule
+from intent.apps.query.models import Document, Query
+from django.db.models import Sum
 
 def home(request):
     if request.user.is_authenticated():
         return HttpResponseRedirect(reverse('query:recent-queries'))
     else:
         return TemplateResponse(request, 'core/home.html', {
-            'total_documents_processed': Document.objects.count(),
+            'total_documents_processed': Query.objects.all().aggregate(Sum('count'))['count__sum'],
+            'buy_count': Query.objects.all().aggregate(Sum('buy_count'))['buy_count__sum']
         })
 
 def terms(request):

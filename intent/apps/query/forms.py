@@ -37,4 +37,5 @@ class QueryForm(forms.ModelForm):
     class Meta:
         model = Query
         exclude = ['created_by', 'count', 'interval', 'num_times_run', 'status', 'throttle', 'last_run',
-                   'interval', 'latitude', 'longitude', 'radius', 'query_exception']
+                   'interval', 'latitude', 'longitude', 'radius', 'query_exception',
+                   'buy_count', 'recommendation_count', 'question_count', 'commitment_count', 'like_count', 'dislike_count', 'try_count','document_count',  ]

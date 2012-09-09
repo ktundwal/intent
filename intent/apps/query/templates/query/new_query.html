@@ -11,6 +11,12 @@
                 <h1>{% if instance %}New{% else %}Edit{% endif %} Twitter Tracker</h1>
                 <form action="" method="post" class="form-horizontal">
                     {% csrf_token %}
+
+                    {% for field in form %}
+                        {% bootstrap_field field %}
+                    {% endfor %}
+                    <br><br><br>
+
                     <p class="help-block">Ex: <b>starbucks coffee</b> containing both "starbucks" and "coffee"<br>
                         <b>"kindle fire"</b>	containing the exact phrase "kindle fire"<br>
                         <b>coffee OR donut</b> containing either "coffee" or "donut" (or both)<br>
@@ -19,10 +25,7 @@
                         <b>from:starbucks</b> sent from the user @starbucks<br>
                         <b>@starbucks</b> mentioning @starbucks<br>
                     </p>
-                    <br><br><br>
-                    {% for field in form %}
-                        {% bootstrap_field field %}
-                    {% endfor %}
+
                     <div class="form-actions">
                         <button type="submit" class="btn btn-primary">{% if instance %}Update{% else %}Add{% endif %}</button>
                         <a href="{% url core:home %}" class="btn">Cancel</a>
