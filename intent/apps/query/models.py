@@ -117,6 +117,7 @@ class Query(models.Model):
 class Author(models.Model):
     twitter_handle = models.CharField(max_length=40, blank=False)
     name = models.CharField(max_length=40, default='', blank=False)
+    profile_image_url = models.URLField(default='http://i.stack.imgur.com/TDbOb.png')
 
     def __unicode__(self):
         return self.twitter_handle

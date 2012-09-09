@@ -4,11 +4,19 @@
 {% paginate tweets %}
 {% for tweet in tweets %}
 {# your code to show the entry #}
-<div>
-    <div>{{ tweet.text|tweet }}</div>
-    {% yfrog_images tweet.text 1 'fancybox' %}
-    {% twitpic_images tweet.text 1 'fancybox' %}
-
-</div>
+    <div class="container-fluid well">
+        <div class="row-fluid">
+            <div class="span2">
+                <div align="center" class="row"><img src="{{ tweet.author.profile_image_url }}" alt="" width='50' height='50' class='img-rounded'></div>
+                <div align="center" class="row"><a href="http://twitter.com/{{ tweet.author.twitter_handle }}">{{ tweet.author.twitter_handle }}</a></div>
+            </div>
+            <div class="span8">
+                <!--Body content-->
+                <table class="table-condensed" >
+                    <tr><td>{{ tweet.text|tweet }}</td></tr>
+                </table>
+            </div>
+        </div>
+    </div>
 {% endfor %}
 {% show_more %}

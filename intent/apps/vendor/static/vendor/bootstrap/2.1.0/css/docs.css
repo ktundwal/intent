@@ -12,7 +12,7 @@ body {
     position: relative;
     padding-top: 90px;
     background-color: #fff;
-    background-image: url(https://github.com/foca/bootstrap/raw/a579645fc23eefd2fcf0eebaa290eeb3c84e7820/docs/assets/img/grid-18px-masked.png);
+    /*background-image: url(https://github.com/foca/bootstrap/raw/a579645fc23eefd2fcf0eebaa290eeb3c84e7820/docs/assets/img/grid-18px-masked.png);*/
     background-repeat: repeat-x;
     background-position: 0 40px;
 }

@@ -53,12 +53,14 @@ class TwitterEx(SearchEngine):
                 r.url         = self.format(TWITTER_SOURCE.search(x.get("source", "href=&quot;&quot;")).group(1))
             except Exception, e:
                 r.url = ''
-            r.description = self.format(x.get("text"))
-            r.date        = self.format(x.get("created_at", data.get("as_of")))
-            r.author      = self.format(x.get("from_user"))
-            r.profile     = self.format(x.get("profile_image_url")) # Profile picture URL.
-            r.language    = self.format(x.get("iso_language_code"))
-            r.tweet_id    = self.format(x.get("id"))
+            r.description       = self.format(x.get("text"))
+            r.date              = self.format(x.get("created_at", data.get("as_of")))
+            r.author            = self.format(x.get("from_user"))
+            r.author_user_id    = self.format(x.get("from_user_id"))
+            r.profile           = self.format(x.get("profile_image_url")) # Profile picture URL.
+            r.language          = self.format(x.get("iso_language_code"))
+            r.tweet_id          = self.format(x.get("id"))
+            r.author_user_name  = self.format(x.get("from_user_name"))
             results.append(r)
         return results
 

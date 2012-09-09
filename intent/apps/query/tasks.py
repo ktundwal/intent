@@ -112,7 +112,9 @@ def run_and_analyze_queries():
                                 author = Author.objects.get(twitter_handle=tweet['author'])
                             #except author.DoesNotExist:
                             except:
-                                author = Author.objects.create(twitter_handle=tweet['author'], name='')
+                                author = Author.objects.create(twitter_handle=tweet['author'],
+                                    name=tweet['author_user_name'],
+                                    profile_image_url=tweet['image'])
 
                             document = Document.objects.create(
                                 result_of=query,

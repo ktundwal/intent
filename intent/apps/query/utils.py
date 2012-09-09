@@ -160,6 +160,7 @@ def run_and_analyze_query(query, query_count):
         analyzed_tweet_dict = dict(
             content = cleaned_tweet,    # 'content' key is what cruxly api looks for
             author = tweet.author,
+            author_user_name = tweet.author_user_name,
             image = tweet.profile,
             url = "".join(['http://twitter.com/', tweet.author, '/status/', tweet.tweet_id]),
             date = pretty_date(get_timestamp_from_twitter_date(tweet.date)),
