@@ -14,7 +14,6 @@ from intent.apps.query.models import Rule, Document, DailyStat
 from .decorators import *
 
 from intent import settings
-#CRUXLY_SERVER = 'detectintent'
 
 if settings.ENVIRONMENT is 'prod':
     CRUXLY_SERVER = 'detectintent'
@@ -22,6 +21,8 @@ else:
     CRUXLY_SERVER = 'api-dev'
 
 CRUXLY_API = 'http://' + CRUXLY_SERVER + '.appspot.com/v1/api/detect'
+
+logger.info('ENVIRONMENT = %s. Cruxly API = %s' % (settings.ENVIRONMENT, CRUXLY_API))
 
 @retry(web.SearchEngineLimitError, tries=4, delay=3, backoff=2)
 def search_twitter(query, query_count):
