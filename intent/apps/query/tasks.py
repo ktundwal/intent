@@ -50,39 +50,40 @@ def run_and_analyze_queries():
                 task_logger.info("    Running query %s for user %s" % (query.query, query.created_by))
                 query.status = Query.RUNNING_STATUS
                 query.save()
+
                 tweets = run_and_analyze_query(query.query, 500)
 
-                dislike_count           = [tweet for tweet in tweets if 'dislike'           in tweet['intents']]
-                question_count          = [tweet for tweet in tweets if 'question'          in tweet['intents']]
-                recommendation_count    = [tweet for tweet in tweets if 'recommendation'    in tweet['intents']]
-                buy_count               = [tweet for tweet in tweets if 'buy'               in tweet['intents']]
-                commitment_count        = [tweet for tweet in tweets if 'commitment'        in tweet['intents']]
-                try_count               = [tweet for tweet in tweets if 'try'               in tweet['intents']]
-                like_count              = [tweet for tweet in tweets if 'like'              in tweet['intents']]
+                tweets_w_dislike           = [tweet for tweet in tweets if 'dislike'           in tweet['intents']]
+                tweets_w_question          = [tweet for tweet in tweets if 'question'          in tweet['intents']]
+                tweets_w_recommendation    = [tweet for tweet in tweets if 'recommendation'    in tweet['intents']]
+                tweets_w_buy               = [tweet for tweet in tweets if 'buy'               in tweet['intents']]
+                tweets_w_commitment        = [tweet for tweet in tweets if 'commitment'        in tweet['intents']]
+                tweets_w_try               = [tweet for tweet in tweets if 'try'               in tweet['intents']]
+                tweets_w_like              = [tweet for tweet in tweets if 'like'              in tweet['intents']]
 
-                query.question_count        += len(question_count)
-                query.recommendation_count  += len(recommendation_count)
-                query.buy_count             += len(buy_count)
-                query.commitment_count      += len(commitment_count)
-                query.try_count             += len(try_count)
-                query.like_count            += len(like_count)
-                query.dislike_count         += len(dislike_count)
+                query.question_count        += len(tweets_w_question)
+                query.recommendation_count  += len(tweets_w_recommendation)
+                query.buy_count             += len(tweets_w_buy)
+                query.commitment_count      += len(tweets_w_commitment)
+                query.try_count             += len(tweets_w_try)
+                query.like_count            += len(tweets_w_like)
+                query.dislike_count         += len(tweets_w_dislike)
 
-                query.last_run = datetime.utcnow().replace(tzinfo=utc)
-                query.num_times_run += 1
-                query.count += len(tweets)
+                query.last_run              = datetime.utcnow().replace(tzinfo=utc)
+                query.num_times_run         += 1
+                query.count                 += len(tweets)
                 query.save()
 
                 daily_stat = get_or_create_todays_daily_stat(query)
 
                 daily_stat.document_count        += len(tweets)
-                daily_stat.question_count        += len(question_count)
-                daily_stat.recommendation_count  += len(recommendation_count)
-                daily_stat.buy_count             += len(buy_count)
-                daily_stat.commitment_count      += len(commitment_count)
-                daily_stat.try_count             += len(try_count)
-                daily_stat.like_count            += len(like_count)
-                daily_stat.dislike_count         += len(dislike_count)
+                daily_stat.question_count        += len(tweets_w_question)
+                daily_stat.recommendation_count  += len(tweets_w_recommendation)
+                daily_stat.buy_count             += len(tweets_w_buy)
+                daily_stat.commitment_count      += len(tweets_w_commitment)
+                daily_stat.try_count             += len(tweets_w_try)
+                daily_stat.like_count            += len(tweets_w_like)
+                daily_stat.dislike_count         += len(tweets_w_dislike)
 
                 daily_stat.save()
 
@@ -96,14 +97,13 @@ def run_and_analyze_queries():
                     if not document:
 
                     # for now we are not saving any rules. Just unknowns
-                        buy_rule=create_unknown_rule(tweet['intents'], 'buy', Rule.BUY_GRAMMAR)
-                        recommendation_rule=create_unknown_rule(tweet['intents'], 'recommendation',
-                            Rule.RECOMMENDATION_GRAMMAR)
-                        question_rule=create_unknown_rule(tweet['intents'], 'question', Rule.QUESTION_GRAMMAR)
-                        commitment_rule=create_unknown_rule(tweet['intents'], 'commitment', Rule.COMMITMENT_GRAMMAR)
-                        like_rule=create_unknown_rule(tweet['intents'], 'like', Rule.LIKE_GRAMMAR)
-                        dislike_rule=create_unknown_rule(tweet['intents'], 'dislike', Rule.DISLIKE_GRAMMAR)
-                        try_rule=create_unknown_rule(tweet['intents'], 'tries', Rule.TRY_GRAMMAR)
+                        buy_rule            = create_unknown_rule(tweet['intents'], 'buy',           Rule.BUY_GRAMMAR)
+                        recommendation_rule = create_unknown_rule(tweet['intents'], 'recommendation',Rule.RECOMMENDATION_GRAMMAR)
+                        question_rule       = create_unknown_rule(tweet['intents'], 'question',      Rule.QUESTION_GRAMMAR)
+                        commitment_rule     = create_unknown_rule(tweet['intents'], 'commitment',    Rule.COMMITMENT_GRAMMAR)
+                        like_rule           = create_unknown_rule(tweet['intents'], 'like',          Rule.LIKE_GRAMMAR)
+                        dislike_rule        = create_unknown_rule(tweet['intents'], 'dislike',       Rule.DISLIKE_GRAMMAR)
+                        try_rule            = create_unknown_rule(tweet['intents'], 'tries',         Rule.TRY_GRAMMAR)
 
                         if buy_rule or recommendation_rule or question_rule or commitment_rule \
                            or like_rule or dislike_rule or try_rule:
@@ -117,21 +117,21 @@ def run_and_analyze_queries():
                                     profile_image_url=tweet['image'])
 
                             document = Document.objects.create(
-                                result_of=query,
-                                source=Document.TWITTER_SOURCE,
-                                author=author,
-                                source_id=tweet['tweet_id'],
-                                date=tweet['date'],
-                                text=tweet['content'],
-                                analyzed=True,
+                                result_of           = query,
+                                source              = Document.TWITTER_SOURCE,
+                                author              = author,
+                                source_id           = tweet['tweet_id'],
+                                date                = tweet['date'],
+                                text                = tweet['content'],
+                                analyzed            = True,
                                 # for now we are not saving any rules. Just unknowns
-                                buy_rule=buy_rule,
-                                recommendation_rule=recommendation_rule,
-                                question_rule=question_rule,
-                                commitment_rule=commitment_rule,
-                                like_rule=like_rule,
-                                dislike_rule=dislike_rule,
-                                try_rule=try_rule,
+                                buy_rule            = buy_rule,
+                                recommendation_rule = recommendation_rule,
+                                question_rule       = question_rule,
+                                commitment_rule     = commitment_rule,
+                                like_rule           = like_rule,
+                                dislike_rule        = dislike_rule,
+                                try_rule            = try_rule,
 
                             )
                             document.save()

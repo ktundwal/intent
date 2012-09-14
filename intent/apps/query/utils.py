@@ -13,8 +13,14 @@ from intent.apps.core.utils import *
 from intent.apps.query.models import Rule, Document, DailyStat
 from .decorators import *
 
+from intent import settings
 #CRUXLY_SERVER = 'detectintent'
-CRUXLY_SERVER = 'api-dev'
+
+if settings.ENVIRONMENT is 'prod':
+    CRUXLY_SERVER = 'detectintent'
+else:
+    CRUXLY_SERVER = 'api-dev'
+
 CRUXLY_API = 'http://' + CRUXLY_SERVER + '.appspot.com/v1/api/detect'
 
 @retry(web.SearchEngineLimitError, tries=4, delay=3, backoff=2)
