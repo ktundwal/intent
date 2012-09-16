@@ -4,6 +4,7 @@ from urllib2 import Request, urlopen, URLError, HTTPError
 import socket
 
 from django.utils.timezone import utc, datetime, timedelta
+import shlex
 
 import json
 import time # to sleep if twitter raises an exception
@@ -89,7 +90,8 @@ def insert_intents(tweets):
     try:
         #make a request object to hold the POST data and the URL
         #make the request using the request object as an argument, store response in a variable
-        result = urlopen(Request(CRUXLY_API, json.dumps(tweets), {'Content-Type': 'application/json'}),
+        tweets_json = json.dumps(tweets)
+        result = urlopen(Request(CRUXLY_API, tweets_json, {'Content-Type': 'application/json'}),
             timeout = 45)
 
         #store request response in a string
@@ -154,12 +156,12 @@ def pretty_date(time=False):
         return str(day_diff/30) + " months ago"
     return str(day_diff/365) + " years ago"
 
-def run_and_analyze_query(query, query_count):
+def run_and_analyze_query(key_term, industry_terms_comma_separated, query_count):
     """
     Input query, query_count
     Output processed tweets, % wants, % questions, % promises
     """
-    tweets = search_twitter(query, query_count)
+    tweets = search_twitter(create_query(key_term, industry_terms_comma_separated), query_count)
     processed_tweets = []
     for tweet in tweets:
         cleaned_tweet = clean_tweet(tweet.description)
@@ -172,6 +174,7 @@ def run_and_analyze_query(query, query_count):
             url = "".join(['http://twitter.com/', tweet.author, '/status/', tweet.tweet_id]),
             date = pretty_date(get_timestamp_from_twitter_date(tweet.date)),
             tweet_id = tweet.tweet_id,
+            kip = get_kip(key_term, industry_terms_comma_separated)
         )
         processed_tweets.append(analyzed_tweet_dict)
 
@@ -207,3 +210,19 @@ def get_or_create_todays_daily_stat(query):
             stat_for             = datetime.utcnow().replace(tzinfo=utc))
 
     return daily_stat
+
+def create_query(key_term, industry_terms_comma_separated):
+    splitter = shlex.shlex(industry_terms_comma_separated, posix=True)
+    splitter.whitespace += ','
+    splitter.whitespace_split = True
+    industry_terms = list(splitter)
+    industry_terms.append(key_term)
+    return " OR ".join(industry_terms)
+
+def get_kip(key_term, industry_terms_comma_separated):
+    splitter = shlex.shlex(industry_terms_comma_separated, posix=True)
+    splitter.whitespace += ','
+    splitter.whitespace_split = True
+    industry_terms = list(splitter)
+    industry_terms.append(key_term)
+    return industry_terms

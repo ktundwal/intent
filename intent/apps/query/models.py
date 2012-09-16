@@ -59,7 +59,11 @@ class Query(models.Model):
     )
 
     created_by = models.ForeignKey(User)
+
     query = models.CharField(max_length=200, blank=False)
+    industry_terms_comma_separated = models.CharField(max_length=200, default="", blank=True)
+    competitors_comma_separated = models.CharField(max_length=200, default="", blank=True)
+
     created_on = models.DateTimeField(auto_now_add=True, default = datetime.now)
 
     status = models.IntegerField(choices=STATUS_CHOICES, default=WAITING_TO_RUN_STATUS)
@@ -108,7 +112,12 @@ class Query(models.Model):
         return self.try_count * 100 / self.count if self.count else 0
 
     def __unicode__(self):
-        return self.query
+        val = self.query
+        if self.industry_terms_comma_separated:
+            val += ' +(%s)' % self.industry_terms_comma_separated
+        if self.competitors_comma_separated:
+            val += ' -(%s)' % self.competitors_comma_separated
+        return val
 
     class Meta:
         ordering = ['-created_on']

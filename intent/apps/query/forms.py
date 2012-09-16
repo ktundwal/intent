@@ -23,16 +23,9 @@ from django.utils.safestring import mark_safe
 
 class QueryForm(forms.ModelForm):
 
-    sample_queries = [
-        'starbucks coffee containing both "starbucks" and "coffee"<br>',
-        '<b>kindle fire</b> containing the exact phrase "kindle fire"<br>',
-        '<b>coffee OR donut</b> containing either "coffee" or "donut" (or both)<br>',
-        '<b>coffee -donut</b> containing "coffee" but not "donut"<br>',
-        '<b>#coffee</b> containing the hashtag "coffee"<br>',
-        '<b>from:starbucks</b> sent from the user @starbucks<br>',
-        '<b>@starbucks</b> mentioning @starbucks',
-    ]
-    query = forms.CharField(help_text=mark_safe(''.join(sample_queries)))
+    query = forms.CharField(label="Product/Brand", help_text="Ex: starbucks")
+    industry_terms_comma_separated = forms.CharField(label="Industry terms", help_text="Comma separated values. Ex: coffee, mocha, latte")
+    competitors_comma_separated = forms.CharField(label="Competitors", help_text="Comma separated values. Ex: McDonald, Dunkin Donuts")
 
     class Meta:
         model = Query

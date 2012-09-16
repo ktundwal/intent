@@ -20,7 +20,6 @@ from django.template import RequestContext
 from django.template.response import TemplateResponse
 from django.http import HttpResponseRedirect
 from django.core.urlresolvers import reverse
-from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.db.models import Count
 
@@ -105,7 +104,7 @@ def query_results(request,
     if query_id:
         query = get_object_or_404(Query, id=query_id)
     else:
-        messages.error(request, 'Application error. Need a query id! Please try again.')
+        django.contrib.messages.error(request, 'Application error. Need a query id! Please try again.')
 
     context = {}
 
@@ -127,14 +126,14 @@ def query_results(request,
 
         except:
             log_exception(message='Error processing query id %d' % query_id)
-            messages.error(request, 'Application error. Please try again.')
+            django.contrib.messages.error(request, 'Application error. Please try again.')
     else:
-        messages.error(request, 'Application error. Only GET requests are supported! Please try again.')
+        django.contrib.messages.error(request, 'Application error. Only GET requests are supported! Please try again.')
 
     try:
         response = render_to_response(template, context, context_instance=RequestContext(request))
     except Exception, ex:
-        messages.error(request, 'Pagination error. Please try again.')
+        django.contrib.messages.error(request, 'Pagination error. Please try again.')
         response = render_to_response(template, context, context_instance=RequestContext(request))
     return response
 
@@ -142,6 +141,7 @@ def query_results(request,
 @login_required
 def new_query(request, query_id=None):
     query = None
+    #message = None
     if query_id:
         query = get_object_or_404(Query, id=query_id)
 
@@ -151,13 +151,14 @@ def new_query(request, query_id=None):
             query = form.save(commit=False) # returns unsaved instance
             query.created_by = request.user
             query.save() # real save to DB.
-            #messages.success(request, 'New query successfully added.') FIXME
+            #django.contrib.messages.success(request, 'New query successfully added.') FIXME
             return HttpResponseRedirect(reverse('query:recent-queries'))
         else:
-            messages.error(request, 'Query did not pass validation!')
+            django.contrib.messages.error(request, 'Query did not pass validation!')
+            #message = UserMessage("Validation error", "Query did not pass validation!")
     else:
         form = QueryForm(instance=query)
-    context = {'form': form, }
+    context = {'form': form}
     #return TemplateResponse(request, 'reminders/new_reminder.html', context)
     return render_to_response("query/new_query.html",
         context, context_instance=RequestContext(request))

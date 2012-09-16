@@ -13,7 +13,6 @@ __status__      = "Development"
 
 import unittest
 import logging
-
 from intent.apps.query.utils import *
 
 log = logging.getLogger( "Intent.AnalysisTestCase" )
@@ -33,6 +32,13 @@ class AnalysisTestCase(unittest.TestCase):
                 print '    wants = %d%% in %d seconds' % (wants, time.time() - start_time)
             else:
                 print '    no tweets to analyze'
+
+class TwitterSearchTestCase(unittest.TestCase):
+    def testBasic(self):
+        query = create_query("starbucks", "mocha, coffee, latte")
+        tweets = search_twitter(query, 100)
+        for tweet in tweets:
+            print clean_tweet(tweet.description)
 
 if __name__ == '__main__':
     logging.basicConfig( stream=sys.stderr )

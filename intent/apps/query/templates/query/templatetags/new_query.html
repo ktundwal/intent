@@ -2,18 +2,10 @@
 
 <div class="modal fade" id="new-query">
     <div class="modal-header">
-        <h3>{% if instance %}Update{% else %}Add{% endif %} Query</h3>
+        <h3>{% if instance %}Update{% else %}Add{% endif %} Tracker</h3>
     </div>
     <form action="{% url query:new-query %}" method="post" class="form-horizontal">{% csrf_token %}
         <div class="modal-body">
-            <p class="help-block">Ex: <b>starbucks coffee</b> containing both "starbucks" and "coffee"<br>
-                <b>"kindle fire"</b>	containing the exact phrase "kindle fire"<br>
-                <b>coffee OR donut</b> containing either "coffee" or "donut" (or both)<br>
-                <b>coffee -donut</b> containing "coffee" but not "donut"<br>
-                <b>#coffee</b> containing the hashtag "coffee"<br>
-                <b>from:starbucks</b> sent from the user @starbucks<br>
-                <b>@starbucks</b> mentioning @starbucks<br>
-            </p>
             {% for field in form %}
                 {% bootstrap_field field %}
             {% endfor %}

@@ -36,6 +36,7 @@ def send_status_email(subject, message):
     message += '\n\n-Cruxly background query processor'
     send_mail(subject, message, DEFAULT_FROM_EMAIL, ['kapil@cruxly.com'])
 
+
 @periodic_task(run_every=timedelta(minutes=5))
 def run_and_analyze_queries():
     response = None
@@ -51,15 +52,15 @@ def run_and_analyze_queries():
                 query.status = Query.RUNNING_STATUS
                 query.save()
 
-                tweets = run_and_analyze_query(query.query, 500)
+                tweets = run_and_analyze_query(query.query, query.industry_terms_comma_separated, 500)
 
-                tweets_w_dislike           = [tweet for tweet in tweets if 'dislike'           in tweet['intents']]
-                tweets_w_question          = [tweet for tweet in tweets if 'question'          in tweet['intents']]
-                tweets_w_recommendation    = [tweet for tweet in tweets if 'recommendation'    in tweet['intents']]
-                tweets_w_buy               = [tweet for tweet in tweets if 'buy'               in tweet['intents']]
-                tweets_w_commitment        = [tweet for tweet in tweets if 'commitment'        in tweet['intents']]
-                tweets_w_try               = [tweet for tweet in tweets if 'try'               in tweet['intents']]
-                tweets_w_like              = [tweet for tweet in tweets if 'like'              in tweet['intents']]
+                tweets_w_dislike           = [tweet for tweet in tweets if {u'intent': u'dislike'}          in tweet['intents']]
+                tweets_w_question          = [tweet for tweet in tweets if {u'intent': u'question'}         in tweet['intents']]
+                tweets_w_recommendation    = [tweet for tweet in tweets if {u'intent': u'recommendation'}   in tweet['intents']]
+                tweets_w_buy               = [tweet for tweet in tweets if {u'intent': u'buy'}              in tweet['intents']]
+                tweets_w_commitment        = [tweet for tweet in tweets if {u'intent': u'commitment'}       in tweet['intents']]
+                tweets_w_try               = [tweet for tweet in tweets if {u'intent': u'try'}              in tweet['intents']]
+                tweets_w_like              = [tweet for tweet in tweets if {u'intent': u'like'}             in tweet['intents']]
 
                 query.question_count        += len(tweets_w_question)
                 query.recommendation_count  += len(tweets_w_recommendation)
@@ -97,13 +98,13 @@ def run_and_analyze_queries():
                     if not document:
 
                     # for now we are not saving any rules. Just unknowns
-                        buy_rule            = create_unknown_rule(tweet['intents'], 'buy',           Rule.BUY_GRAMMAR)
-                        recommendation_rule = create_unknown_rule(tweet['intents'], 'recommendation',Rule.RECOMMENDATION_GRAMMAR)
-                        question_rule       = create_unknown_rule(tweet['intents'], 'question',      Rule.QUESTION_GRAMMAR)
-                        commitment_rule     = create_unknown_rule(tweet['intents'], 'commitment',    Rule.COMMITMENT_GRAMMAR)
-                        like_rule           = create_unknown_rule(tweet['intents'], 'like',          Rule.LIKE_GRAMMAR)
-                        dislike_rule        = create_unknown_rule(tweet['intents'], 'dislike',       Rule.DISLIKE_GRAMMAR)
-                        try_rule            = create_unknown_rule(tweet['intents'], 'tries',         Rule.TRY_GRAMMAR)
+                        buy_rule            = create_unknown_rule(tweet['intents'], {u'intent': u'buy'},           Rule.BUY_GRAMMAR)
+                        recommendation_rule = create_unknown_rule(tweet['intents'], {u'intent': u'recommendation'},Rule.RECOMMENDATION_GRAMMAR)
+                        question_rule       = create_unknown_rule(tweet['intents'], {u'intent': u'question'},      Rule.QUESTION_GRAMMAR)
+                        commitment_rule     = create_unknown_rule(tweet['intents'], {u'intent': u'commitment'},    Rule.COMMITMENT_GRAMMAR)
+                        like_rule           = create_unknown_rule(tweet['intents'], {u'intent': u'like'},          Rule.LIKE_GRAMMAR)
+                        dislike_rule        = create_unknown_rule(tweet['intents'], {u'intent': u'dislike'},       Rule.DISLIKE_GRAMMAR)
+                        try_rule            = create_unknown_rule(tweet['intents'], {u'intent': u'tries'},         Rule.TRY_GRAMMAR)
 
                         if buy_rule or recommendation_rule or question_rule or commitment_rule \
                            or like_rule or dislike_rule or try_rule:

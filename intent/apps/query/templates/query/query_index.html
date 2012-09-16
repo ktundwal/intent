@@ -55,7 +55,7 @@
         {% for query in queries %}
             <tr>
                 <td>
-                    <a href='edit/{{query.id}}'>{{ query.query }}</a>
+                    <a href='edit/{{query.id}}'>{{ query }}</a>
                     <br>
                     {% for k, v in status_choices.items %}
                         {% ifequal k|stringformat:"s" query.status|stringformat:"s" %}
