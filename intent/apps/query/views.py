@@ -200,7 +200,7 @@ def demo(request):
     if request.method == 'GET':
         query = request.GET.get('q', 'starbucks,latte')
         logger.debug('Demo Request (comma separated): %s' % query)
-        kip = parse_comma_separated_text(query)
+        kip = query.split(',')
         logger.debug('Demo Request (list): %s' % kip)
         query_count = int(request.GET.get('count', DEFAULT_QUERY_COUNT))
 
