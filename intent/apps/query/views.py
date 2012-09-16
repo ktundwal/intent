@@ -187,7 +187,7 @@ def download(request, query_id=None):
         raise Http404
 
 SAMPLE_KEYWORD = "starbucks"
-DEFAULT_QUERY_COUNT = '200'
+DEFAULT_QUERY_COUNT = '50'
 
 def demo(request):
     """Analyze text"""
@@ -195,79 +195,77 @@ def demo(request):
     context = {}
     error = ''
     query = None
+    kip = None
 
     if request.method == 'GET':
-        try: query = request.GET.get('q')
-        except Exception: error = 'Invalid query'
-        try: query_count = int(request.GET.get('count'))
-        except Exception: query_count = int(DEFAULT_QUERY_COUNT)
+        query = request.GET.get('q', 'starbucks,latte')
+        logger.debug('Demo Request (comma separated): %s' % query)
+        kip = parse_comma_separated_text(query)
+        logger.debug('Demo Request (list): %s' % kip)
+        query_count = int(request.GET.get('count', DEFAULT_QUERY_COUNT))
 
-    if not error and query:
-        try:
-            kip = parse_comma_separated_text(query)
-            logger.debug('Demo Request: %s' % kip)
-            search_results = search_twitter(" OR ".join(kip), query_count)
+    try:
+        logger.debug('Going to run twitter search for %s' % " OR ".join(kip))
+        search_results = search_twitter(" OR ".join(kip), query_count)
 
-            tweets = []
-            for tweet in search_results:
-                cleaned_tweet = clean_tweet(tweet.description)
-                #cleaned_tweet = Text(parse(clean_tweet(tweet.desciption))).string
-                analyzed_tweet_dict = dict(
-                    content=cleaned_tweet, # 'content' key is what cruxly api looks for
-                    author=tweet.author,
-                    image=tweet.profile,
-                    kip = kip,
-                    url="".join(['http://twitter.com/', tweet.author, '/status/', tweet.tweet_id]),
-                    date=pretty_date(get_timestamp_from_twitter_date(tweet.date)),
-                )
-                tweets.append(analyzed_tweet_dict)
+        tweets = []
+        for tweet in search_results:
+            cleaned_tweet = clean_tweet(tweet.description)
+            #cleaned_tweet = Text(parse(clean_tweet(tweet.desciption))).string
+            analyzed_tweet_dict = dict(
+                content=cleaned_tweet, # 'content' key is what cruxly api looks for
+                author=tweet.author,
+                image=tweet.profile,
+                kip = kip,
+                url="".join(['http://twitter.com/', tweet.author, '/status/', tweet.tweet_id]),
+                date=pretty_date(get_timestamp_from_twitter_date(tweet.date)),
+            )
+            tweets.append(analyzed_tweet_dict)
 
-            if len(tweets) > 0:
-                tweets = insert_intents(tweets, logger)
+        if len(tweets) > 0:
+            tweets = insert_intents(tweets, logger)
 
-            tweets_w_dislike           = [tweet for tweet in tweets if {u'intent': u'dislike'}          in tweet['intents']]
-            tweets_w_question          = [tweet for tweet in tweets if {u'intent': u'question'}         in tweet['intents']]
-            tweets_w_recommendation    = [tweet for tweet in tweets if {u'intent': u'recommendation'}   in tweet['intents']]
-            tweets_w_buy               = [tweet for tweet in tweets if {u'intent': u'buy'}              in tweet['intents']]
-            tweets_w_commitment        = [tweet for tweet in tweets if {u'intent': u'commitment'}       in tweet['intents']]
-            tweets_w_try               = [tweet for tweet in tweets if {u'intent': u'try'}              in tweet['intents']]
-            tweets_w_like              = [tweet for tweet in tweets if {u'intent': u'like'}             in tweet['intents']]
+        tweets_w_dislike           = [tweet for tweet in tweets if {u'intent': u'dislike'}          in tweet['intents']]
+        tweets_w_question          = [tweet for tweet in tweets if {u'intent': u'question'}         in tweet['intents']]
+        tweets_w_recommendation    = [tweet for tweet in tweets if {u'intent': u'recommendation'}   in tweet['intents']]
+        tweets_w_buy               = [tweet for tweet in tweets if {u'intent': u'buy'}              in tweet['intents']]
+        tweets_w_commitment        = [tweet for tweet in tweets if {u'intent': u'commitment'}       in tweet['intents']]
+        tweets_w_try               = [tweet for tweet in tweets if {u'intent': u'try'}              in tweet['intents']]
+        tweets_w_like              = [tweet for tweet in tweets if {u'intent': u'like'}             in tweet['intents']]
 
-            question_percentage        = len(tweets_w_question) * 100 / len(tweets) if len(tweets) > 0 else 1
-            recommendation_percentage  = len(tweets_w_recommendation) * 100 / len(tweets) if len(tweets) > 0 else 1
-            buy_percentage             = len(tweets_w_buy) * 100 / len(tweets) if len(tweets) > 0 else 1
-            commitment_percentage      = len(tweets_w_commitment) * 100 / len(tweets) if len(tweets) > 0 else 1
-            try_percentage             = len(tweets_w_try) * 100 / len(tweets) if len(tweets) > 0 else 1
-            like_percentage            = len(tweets_w_like) * 100 / len(tweets) if len(tweets) > 0 else 1
-            dislike_percentage         = len(tweets_w_dislike) * 100 / len(tweets) if len(tweets) > 0 else 1
+        question_percentage        = len(tweets_w_question) * 100 / len(tweets) if len(tweets) > 0 else 1
+        recommendation_percentage  = len(tweets_w_recommendation) * 100 / len(tweets) if len(tweets) > 0 else 1
+        buy_percentage             = len(tweets_w_buy) * 100 / len(tweets) if len(tweets) > 0 else 1
+        commitment_percentage      = len(tweets_w_commitment) * 100 / len(tweets) if len(tweets) > 0 else 1
+        try_percentage             = len(tweets_w_try) * 100 / len(tweets) if len(tweets) > 0 else 1
+        like_percentage            = len(tweets_w_like) * 100 / len(tweets) if len(tweets) > 0 else 1
+        dislike_percentage         = len(tweets_w_dislike) * 100 / len(tweets) if len(tweets) > 0 else 1
 
-            for tweet in tweets:
-                intent_list = []
-                for intent in tweet['intents']:
-                    intent_list.append(intent['intent'])
-                tweet['comman_separated_intents'] = ", ".join(intent_list)
+        for tweet in tweets:
+            intent_list = []
+            for intent in tweet['intents']:
+                intent_list.append(intent['intent'])
+            tweet['comman_separated_intents'] = ", ".join(intent_list)
 
-            logger.info('Demo Request: %s' % query)
+        logger.info('Demo Request: %s' % query)
 
-            context = {
-                'form': QueryForm(),
-                'tweets': tweets,
-                'query': query,
-                'count': query_count,
-                'stats': {'question':       question_percentage,
-                          'recommendation': recommendation_percentage,
-                          'commitment':     commitment_percentage,
-                          'buy':            buy_percentage,
-                          'like':           like_percentage,
-                          'tries':          try_percentage,
-                          'dislike':        dislike_percentage,},
-                }
+        context = {
+            'form': QueryForm(),
+            'tweets': tweets,
+            'query': query,
+            'count': query_count,
+            'stats': {'question':       question_percentage,
+                      'recommendation': recommendation_percentage,
+                      'commitment':     commitment_percentage,
+                      'buy':            buy_percentage,
+                      'like':           like_percentage,
+                      'tries':          try_percentage,
+                      'dislike':        dislike_percentage,},
+            }
 
-        except Exception, e:
-            log_exception()
-            context['error'] = 'Unexpected error! %s' % e.message
-    else:
-        context['error'] = error
+    except Exception, e:
+        log_exception()
+        context['error'] = 'Unexpected error! %s' % e.message
 
     return render_to_response("query/demo.html", context,
         context_instance=RequestContext(request))
