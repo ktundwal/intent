@@ -208,6 +208,7 @@ def demo(request):
     if not error and query:
         try:
             kip = parse_comma_separated_text(query)
+            logger.debug('Demo Request: %s' % kip)
             search_results = search_twitter(" OR ".join(kip), query_count)
 
             tweets = []
