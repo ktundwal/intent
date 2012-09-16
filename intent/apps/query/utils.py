@@ -212,17 +212,23 @@ def get_or_create_todays_daily_stat(query):
     return daily_stat
 
 def create_query(key_term, industry_terms_comma_separated):
-    splitter = shlex.shlex(industry_terms_comma_separated, posix=True)
-    splitter.whitespace += ','
-    splitter.whitespace_split = True
-    industry_terms = list(splitter)
-    industry_terms.append(key_term)
-    return " OR ".join(industry_terms)
+    if industry_terms_comma_separated and len(industry_terms_comma_separated) > 0:
+        splitter = shlex.shlex(industry_terms_comma_separated, posix=True)
+        splitter.whitespace += ','
+        splitter.whitespace_split = True
+        industry_terms = list(splitter)
+        industry_terms.append(key_term)
+        return " OR ".join(industry_terms)
+    else:
+        return key_term
 
 def get_kip(key_term, industry_terms_comma_separated):
-    splitter = shlex.shlex(industry_terms_comma_separated, posix=True)
-    splitter.whitespace += ','
-    splitter.whitespace_split = True
-    industry_terms = list(splitter)
-    industry_terms.append(key_term)
-    return industry_terms
+    if industry_terms_comma_separated and len(industry_terms_comma_separated) > 0:
+        splitter = shlex.shlex(industry_terms_comma_separated, posix=True)
+        splitter.whitespace += ','
+        splitter.whitespace_split = True
+        industry_terms = list(splitter)
+        industry_terms.append(key_term)
+        return industry_terms
+    else:
+        return key_term
