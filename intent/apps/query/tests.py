@@ -27,7 +27,7 @@ class AnalysisTestCase(unittest.TestCase):
             for tweet in tweets:
                 tweet['content'] = clean_tweet(tweet.description)
             if len(tweets) > 0:
-                tweets = insert_intents(tweets)
+                tweets = insert_intents(tweets, log)
                 wants = len([tweet for tweet in tweets if 'want' in tweet['intents']]) * 100 / len(tweets) if len(tweets) > 0 else 1
                 print '    wants = %d%% in %d seconds' % (wants, time.time() - start_time)
             else:

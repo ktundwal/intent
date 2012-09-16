@@ -226,7 +226,7 @@ def demo(request):
                 analyzed_tweet_dict_list.append(analyzed_tweet_dict)
 
             if len(analyzed_tweet_dict_list) > 0:
-                analyzed_tweet_dict_list = insert_intents(analyzed_tweet_dict_list)
+                analyzed_tweet_dict_list = insert_intents(analyzed_tweet_dict_list, logger)
 
             question = len([tweet for tweet in analyzed_tweet_dict_list if 'question' in tweet['intents']]) * 100 / len(
                 analyzed_tweet_dict_list) if len(analyzed_tweet_dict_list) > 0 else 1

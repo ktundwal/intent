@@ -60,7 +60,7 @@ def clean_tweet(tweet):
     return txt1
 
 @retry(URLError, tries=4, delay=3, backoff=2)
-def insert_intents(tweets):
+def insert_intents(tweets, logger):
     """
     Input:
     [
@@ -156,7 +156,7 @@ def pretty_date(time=False):
         return str(day_diff/30) + " months ago"
     return str(day_diff/365) + " years ago"
 
-def run_and_analyze_query(key_term, industry_terms_comma_separated, query_count):
+def run_and_analyze_query(key_term, industry_terms_comma_separated, query_count, logger):
     """
     Input query, query_count
     Output processed tweets, % wants, % questions, % promises
@@ -179,7 +179,7 @@ def run_and_analyze_query(key_term, industry_terms_comma_separated, query_count)
         processed_tweets.append(analyzed_tweet_dict)
 
     if len(processed_tweets) > 0:
-        processed_tweets = insert_intents(processed_tweets)
+        processed_tweets = insert_intents(processed_tweets, logger)
 
     return processed_tweets
 

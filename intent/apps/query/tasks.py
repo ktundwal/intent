@@ -52,7 +52,7 @@ def run_and_analyze_queries():
                 query.status = Query.RUNNING_STATUS
                 query.save()
 
-                tweets = run_and_analyze_query(query.query, query.industry_terms_comma_separated, 500)
+                tweets = run_and_analyze_query(query.query, query.industry_terms_comma_separated, 500, task_logger)
 
                 tweets_w_dislike           = [tweet for tweet in tweets if {u'intent': u'dislike'}          in tweet['intents']]
                 tweets_w_question          = [tweet for tweet in tweets if {u'intent': u'question'}         in tweet['intents']]
@@ -73,6 +73,7 @@ def run_and_analyze_queries():
                 query.last_run              = datetime.utcnow().replace(tzinfo=utc)
                 query.num_times_run         += 1
                 query.count                 += len(tweets)
+                query.query_exception       = ""
                 query.save()
 
                 daily_stat = get_or_create_todays_daily_stat(query)
@@ -157,8 +158,11 @@ def run_and_analyze_queries():
                 except Exception, email_ex:
                     log_exception(task_logger, "Exception sending status via email. %s" % email_ex)
             finally:
-                query.status = Query.WAITING_TO_RUN_STATUS
-                query.save()
+                try:
+                    query.status = Query.WAITING_TO_RUN_STATUS
+                    query.save()
+                except:
+                    log_exception(task_logger, "Exception setting query to in queue")
             task_logger.info("    Processed query %s for user %s" % (query.query, query.created_by))
 
         try:
