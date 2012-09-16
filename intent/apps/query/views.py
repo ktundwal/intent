@@ -205,7 +205,7 @@ def demo(request):
         query = form['query'].data
         query_count = int(DEFAULT_QUERY_COUNT)
 
-    if not error:
+    if not error and query:
         try:
             kip = parse_comma_separated_text(query)
             search_results = search_twitter(" OR ".join(kip), query_count)
