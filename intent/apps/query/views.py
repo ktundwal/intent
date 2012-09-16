@@ -194,16 +194,13 @@ def demo(request):
 
     context = {}
     error = ''
+    query = None
 
     if request.method == 'GET':
         try: query = request.GET.get('q')
         except Exception: error = 'Invalid query'
         try: query_count = int(request.GET.get('count'))
         except Exception: query_count = int(DEFAULT_QUERY_COUNT)
-    else:
-        form = QueryForm(data=request.POST)
-        query = form['query'].data
-        query_count = int(DEFAULT_QUERY_COUNT)
 
     if not error and query:
         try:

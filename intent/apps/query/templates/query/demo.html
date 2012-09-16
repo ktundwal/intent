@@ -171,31 +171,6 @@
 {% block yield %}
     <div >
         <div >
-            <form action="" method=post class="form-horizontal"> {% csrf_token %}
-                <fieldset>
-                    <legend>Intent detection</legend>
-                    <div class="control-group">
-                        <label class='control-label' for="input01">Query</label>
-                        <div class="controls">
-                            <input class="input-xlarge" id="query" name="query" type="text" value="{{ query }}" placeholder="starbucks, coffee, mocha"/>
-                            <span class="help-block">Comma separated terms</span>
-                        </div>
-                    </div> <!-- /clearfix -->
-                    <div class="control-group">
-                        <label class='control-label' for="input01">Number of tweets</label>
-                        <div class="controls">
-                            <input class="input-xlarge" id="keyword" name="count" type="text" value="{{ count }}" placeholder="200"/>
-                            <p class="help-block">Depending on server load, request may fail. Try anything between 5-500</p>
-                        </div>
-                    </div> <!-- /clearfix -->
-                    <div class="form-actions">
-                        <button class="btn btn-primary btn-large" type="submit">Search and detect intent</button>
-                        <a href="/register/" class="btn btn-large">Register</a>
-                        <em class="pull-right">API last updated on Aug 25th 2012 (version 15)</em>
-                    </div>
-                </fieldset>
-            </form>
-
             {% if error %}
                 <div class="alert-message error">
                     <p><strong>Sorry. Unexpected error!</strong>{{ error }}</p>
