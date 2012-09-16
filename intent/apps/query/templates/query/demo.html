@@ -177,15 +177,8 @@
                     <div class="control-group">
                         <label class='control-label' for="input01">Query</label>
                         <div class="controls">
-                            <input class="input-xlarge" id="query" name="query" type="text" value="{{ query }}" placeholder="search"/>
-                            <p class="help-block">Ex: <b>starbucks coffee</b> containing both "starbucks" and "coffee"<br>
-                                <b>"kindle fire"</b>	containing the exact phrase "kindle fire"<br>
-                                <b>coffee OR donut</b> containing either "coffee" or "donut" (or both)<br>
-                                <b>coffee -donut</b> containing "coffee" but not "donut"<br>
-                                <b>#coffee</b> containing the hashtag "coffee"<br>
-                                <b>from:starbucks</b> sent from the user @starbucks<br>
-                                <b>@starbucks</b> mentioning @starbucks<br>
-                            </p>
+                            <input class="input-xlarge" id="query" name="query" type="text" value="{{ query }}" placeholder="starbucks, coffee, mocha"/>
+                            <span class="help-block">Comma separated terms</span>
                         </div>
                     </div> <!-- /clearfix -->
                     <div class="control-group">
@@ -244,7 +237,7 @@
                                     </table>
                                 </td>
                                 <td>{{ tweet.content }}</td>
-                                <td>{{ tweet.intents|join:", " }}</td>
+                                <td>{{ tweet.comman_separated_intents }}</td>
                             </tr>
                         {% endfor %}    <!-- for tweet in tweets -->
                     </tbody>

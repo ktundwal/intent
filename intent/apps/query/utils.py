@@ -232,3 +232,9 @@ def get_kip(key_term, industry_terms_comma_separated):
         return industry_terms
     else:
         return key_term
+
+def parse_comma_separated_text(text):
+    splitter = shlex.shlex(text, posix=True)
+    splitter.whitespace += ','
+    splitter.whitespace_split = True
+    return list(splitter)

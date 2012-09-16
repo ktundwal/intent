@@ -25,7 +25,7 @@ class QueryForm(forms.ModelForm):
 
     query = forms.CharField(label="Product/Brand", help_text="Ex: starbucks")
     industry_terms_comma_separated = forms.CharField(label="Industry terms", help_text="Comma separated values. Ex: coffee, mocha, latte")
-    competitors_comma_separated = forms.CharField(label="Competitors", help_text="Comma separated values. Ex: McDonald, Dunkin Donuts")
+    competitors_comma_separated = forms.CharField(label="Competitors", help_text="Comma separated values. Ex: McDonalds, Dunkin Donuts")
 
     class Meta:
         model = Query

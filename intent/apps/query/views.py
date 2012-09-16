@@ -202,62 +202,67 @@ def demo(request):
         except Exception: query_count = int(DEFAULT_QUERY_COUNT)
     else:
         form = QueryForm(data=request.POST)
-        if form.is_valid():
-            query = form.save(commit=False) # returns unsaved instance
-            query_count = int(DEFAULT_QUERY_COUNT)
-        else:
-            error = 'Invalid query'
+        query = form['query'].data
+        query_count = int(DEFAULT_QUERY_COUNT)
 
     if not error:
         try:
-            tweets = search_twitter(query, query_count)
+            kip = parse_comma_separated_text(query)
+            search_results = search_twitter(" OR ".join(kip), query_count)
 
-            analyzed_tweet_dict_list = []
-            for tweet in tweets:
+            tweets = []
+            for tweet in search_results:
                 cleaned_tweet = clean_tweet(tweet.description)
                 #cleaned_tweet = Text(parse(clean_tweet(tweet.desciption))).string
                 analyzed_tweet_dict = dict(
                     content=cleaned_tweet, # 'content' key is what cruxly api looks for
                     author=tweet.author,
                     image=tweet.profile,
+                    kip = kip,
                     url="".join(['http://twitter.com/', tweet.author, '/status/', tweet.tweet_id]),
                     date=pretty_date(get_timestamp_from_twitter_date(tweet.date)),
                 )
-                analyzed_tweet_dict_list.append(analyzed_tweet_dict)
+                tweets.append(analyzed_tweet_dict)
 
-            if len(analyzed_tweet_dict_list) > 0:
-                analyzed_tweet_dict_list = insert_intents(analyzed_tweet_dict_list, logger)
+            if len(tweets) > 0:
+                tweets = insert_intents(tweets, logger)
 
-            question = len([tweet for tweet in analyzed_tweet_dict_list if 'question' in tweet['intents']]) * 100 / len(
-                analyzed_tweet_dict_list) if len(analyzed_tweet_dict_list) > 0 else 1
-            recommendation = len(
-                [tweet for tweet in analyzed_tweet_dict_list if 'recommendation' in tweet['intents']]) * 100 / len(
-                analyzed_tweet_dict_list) if len(analyzed_tweet_dict_list) > 0 else 1
-            commitment = len(
-                [tweet for tweet in analyzed_tweet_dict_list if 'commitment' in tweet['intents']]) * 100 / len(
-                analyzed_tweet_dict_list) if len(analyzed_tweet_dict_list) > 0 else 1
-            buy = len([tweet for tweet in analyzed_tweet_dict_list if 'buy' in tweet['intents']]) * 100 / len(
-                analyzed_tweet_dict_list) if len(analyzed_tweet_dict_list) > 0 else 1
-            like = len([tweet for tweet in analyzed_tweet_dict_list if 'like' in tweet['intents']]) * 100 / len(
-                analyzed_tweet_dict_list) if len(analyzed_tweet_dict_list) > 0 else 1
-            tries = len([tweet for tweet in analyzed_tweet_dict_list if 'try' in tweet['intents']]) * 100 / len(
-                analyzed_tweet_dict_list) if len(analyzed_tweet_dict_list) > 0 else 1
-            dislikes = len([tweet for tweet in analyzed_tweet_dict_list if 'dislike' in tweet['intents']]) * 100 / len(
-                analyzed_tweet_dict_list) if len(analyzed_tweet_dict_list) > 0 else 1
+            tweets_w_dislike           = [tweet for tweet in tweets if {u'intent': u'dislike'}          in tweet['intents']]
+            tweets_w_question          = [tweet for tweet in tweets if {u'intent': u'question'}         in tweet['intents']]
+            tweets_w_recommendation    = [tweet for tweet in tweets if {u'intent': u'recommendation'}   in tweet['intents']]
+            tweets_w_buy               = [tweet for tweet in tweets if {u'intent': u'buy'}              in tweet['intents']]
+            tweets_w_commitment        = [tweet for tweet in tweets if {u'intent': u'commitment'}       in tweet['intents']]
+            tweets_w_try               = [tweet for tweet in tweets if {u'intent': u'try'}              in tweet['intents']]
+            tweets_w_like              = [tweet for tweet in tweets if {u'intent': u'like'}             in tweet['intents']]
+
+            question_percentage        = len(tweets_w_question) * 100 / len(tweets) if len(tweets) > 0 else 1
+            recommendation_percentage  = len(tweets_w_recommendation) * 100 / len(tweets) if len(tweets) > 0 else 1
+            buy_percentage             = len(tweets_w_buy) * 100 / len(tweets) if len(tweets) > 0 else 1
+            commitment_percentage      = len(tweets_w_commitment) * 100 / len(tweets) if len(tweets) > 0 else 1
+            try_percentage             = len(tweets_w_try) * 100 / len(tweets) if len(tweets) > 0 else 1
+            like_percentage            = len(tweets_w_like) * 100 / len(tweets) if len(tweets) > 0 else 1
+            dislike_percentage         = len(tweets_w_dislike) * 100 / len(tweets) if len(tweets) > 0 else 1
+
+            for tweet in tweets:
+                intent_list = []
+                for intent in tweet['intents']:
+                    intent_list.append(intent['intent'])
+                tweet['comman_separated_intents'] = ", ".join(intent_list)
+
             logger.info('Demo Request: %s' % query)
 
             context = {
                 'form': QueryForm(),
-                'tweets': analyzed_tweet_dict_list,
+                'tweets': tweets,
                 'query': query,
                 'count': query_count,
-                'stats': {'question': question,
-                          'recommendation': recommendation,
-                          'commitment': commitment,
-                          'buy': buy,
-                          'like': like,
-                          'tries': tries,
-                          'dislike': dislikes,},
+                'stats': {'question':       question_percentage,
+                          'recommendation': recommendation_percentage,
+                          'commitment':     commitment_percentage,
+                          'buy':            buy_percentage,
+                          'like':           like_percentage,
+                          'tries':          try_percentage,
+                          'dislike':        dislike_percentage,},
                 }
 
         except Exception, e:
