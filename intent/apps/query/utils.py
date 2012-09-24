@@ -17,7 +17,8 @@ from .decorators import *
 from intent import settings
 
 if settings.ENVIRONMENT == 'prod':
-    CRUXLY_SERVER = 'detectintent'
+    #CRUXLY_SERVER = 'detectintent'
+    CRUXLY_SERVER = 'api-dev'
 else:
     CRUXLY_SERVER = 'api-dev'
 
