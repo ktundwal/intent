@@ -61,7 +61,7 @@ def clean_tweet(tweet):
     return txt1
 
 @retry(URLError, tries=4, delay=3, backoff=2)
-def insert_intents(tweets, logger):
+def insert_intents(tweets, caller_logger):
     """
     Input:
     [
@@ -101,7 +101,7 @@ def insert_intents(tweets, logger):
 
     except URLError, e:
         if isinstance(e.reason, socket.timeout):
-            logger.severe("Cruxly API timed out: %r" % e)
+            caller_logger.severe("Cruxly API timed out: %r" % e)
         raise type(e)('Cruxly API under heavy load. Please try again later.')
 
     return response
