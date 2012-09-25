@@ -52,7 +52,7 @@ def run_and_analyze_queries():
                 query.status = Query.RUNNING_STATUS
                 query.save()
 
-                tweets = run_and_analyze_query(query.query, query.industry_terms_comma_separated, 5, task_logger)
+                tweets = run_and_analyze_query(query.query, query.industry_terms_comma_separated, 3, task_logger)
 
                 tweets_w_dislike           = [tweet for tweet in tweets if {u'intent': u'dislike'}          in tweet['intents']]
                 tweets_w_question          = [tweet for tweet in tweets if {u'intent': u'question'}         in tweet['intents']]
