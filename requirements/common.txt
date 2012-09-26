@@ -11,3 +11,4 @@ django-sentry
 django-registration
 newrelic==1.3.0.289
 pytz==2012d
+requests==0.14.0

@@ -1,7 +1,7 @@
 from pattern import web    # for twitter search
 from patternliboverrides import *   # for twitter class override in pattern lib
-from urllib2 import Request, urlopen, URLError, HTTPError
 import socket
+import requests
 
 from django.utils.timezone import utc, datetime, timedelta
 import shlex
@@ -16,17 +16,21 @@ from .decorators import *
 
 from intent import settings
 
+CRUXLY_API_TIMEOUT = 120
+TWEETS_PER_API = 10
+
 if settings.ENVIRONMENT == 'prod':
-    #CRUXLY_SERVER = 'detectintent'
-    CRUXLY_SERVER = 'api-dev'
+    CRUXLY_SERVER = 'detectintent'
+    #CRUXLY_SERVER = 'api-dev'
 else:
     CRUXLY_SERVER = 'api-dev'
 
 CRUXLY_API = 'http://' + CRUXLY_SERVER + '.appspot.com/v1/api/detect'
+#CRUXLY_API = 'http://localhost:8888/v1/api/detect'
 
 logger.info('ENVIRONMENT = %s. Cruxly API = %s' % (settings.ENVIRONMENT, CRUXLY_API))
 
-@retry(web.SearchEngineLimitError, tries=4, delay=3, backoff=2)
+@retry(web.SearchEngineLimitError, tries=2, delay=3, backoff=2)
 def search_twitter(query, query_count):
     """
     search twitter
@@ -60,7 +64,7 @@ def clean_tweet(tweet):
     txt1 = txt1.replace("\t", " ").replace("  ", " ")
     return txt1
 
-@retry(URLError, tries=4, delay=3, backoff=2)
+#@retry(URLError, tries=1, delay=3, backoff=2)
 def insert_intents(tweets, caller_logger):
     """
     Input:
@@ -92,16 +96,21 @@ def insert_intents(tweets, caller_logger):
         #make a request object to hold the POST data and the URL
         #make the request using the request object as an argument, store response in a variable
         tweets_json = json.dumps(tweets)
-        result = urlopen(Request(CRUXLY_API, tweets_json, {'Content-Type': 'application/json'}),
-            timeout = 45)
+        r = requests.post(CRUXLY_API, data=tweets_json, timeout=CRUXLY_API_TIMEOUT)
+        if r.status_code == 202:
+            #store request response in a string
+            response = unicode(r.content, 'utf8')
+            response = json.loads(response)
 
-        #store request response in a string
-        response = unicode(result.read(), 'utf8')
-        response = json.loads(response)
-
-    except URLError, e:
-        if isinstance(e.reason, socket.timeout):
-            caller_logger.severe("Cruxly API timed out: %r" % e)
+    except requests.URLRequired, e:
+        raise type(e)('invalid url')
+    except requests.HTTPError, e:
+        raise type(e)('HTTP error')
+    except requests.ConnectionError, e:
+        raise type(e)('Connection error')
+    except requests.RequestException, e:
+        raise type(e)('ambiguous exception')
+    except Exception, e:
         raise type(e)('Cruxly API under heavy load. Please try again later.')
 
     return response
@@ -162,27 +171,47 @@ def run_and_analyze_query(key_term, industry_terms_comma_separated, query_count,
     Input query, query_count
     Output processed tweets, % wants, % questions, % promises
     """
-    tweets = search_twitter(create_query(key_term, industry_terms_comma_separated), query_count)
-    processed_tweets = []
-    for tweet in tweets:
-        cleaned_tweet = clean_tweet(tweet.description)
-        #cleaned_tweet = Text(parse(clean_tweet(tweet.desciption))).string
-        analyzed_tweet_dict = dict(
-            content = cleaned_tweet,    # 'content' key is what cruxly api looks for
-            author = tweet.author,
-            author_user_name = tweet.author_user_name,
-            image = tweet.profile,
-            url = "".join(['http://twitter.com/', tweet.author, '/status/', tweet.tweet_id]),
-            date = pretty_date(get_timestamp_from_twitter_date(tweet.date)),
-            tweet_id = tweet.tweet_id,
-            kip = get_kip(key_term, industry_terms_comma_separated)
-        )
-        processed_tweets.append(analyzed_tweet_dict)
+    start = time.time()
 
-    if len(processed_tweets) > 0:
-        processed_tweets = insert_intents(processed_tweets, logger)
+    all_tweets = search_twitter(create_query(key_term, industry_terms_comma_separated), query_count)
+    after_twitter_search = time.time()
 
-    return processed_tweets
+    chunked_tweets = list(chunks(all_tweets, TWEETS_PER_API))
+    merged_chunked_tweets = []
+    chunks_done = 0
+    for tweets in chunked_tweets:
+        try:
+            processed_tweets = []
+            for tweet in tweets:
+                cleaned_tweet = clean_tweet(tweet.description)
+                #cleaned_tweet = Text(parse(clean_tweet(tweet.desciption))).string
+                analyzed_tweet_dict = dict(
+                    content = cleaned_tweet,    # 'content' key is what cruxly api looks for
+                    author = tweet.author,
+                    author_user_name = tweet.author_user_name,
+                    image = tweet.profile,
+                    url = "".join(['http://twitter.com/', tweet.author, '/status/', tweet.tweet_id]),
+                    date = pretty_date(get_timestamp_from_twitter_date(tweet.date)),
+                    tweet_id = tweet.tweet_id,
+                    kip = get_kip(key_term, industry_terms_comma_separated)
+                )
+                processed_tweets.append(analyzed_tweet_dict)
+
+            if len(processed_tweets) > 0:
+                processed_tweets = insert_intents(processed_tweets, logger)
+                merged_chunked_tweets += processed_tweets
+
+            chunks_done += 1
+        except Exception, e:
+            log_exception(message="Cruxly API failed to process %d chunk containing %d tweets. %d chunks left"
+                                  % (chunks_done, len(tweets), len(chunked_tweets) - chunks_done))
+
+    after_cruxly_api = time.time()
+
+    logger.info("TIME TAKEN: Cruxly[%d s], Twitter[%d s]"
+                % (int(round(after_cruxly_api - after_twitter_search)),
+                    int(round(after_twitter_search - start))))
+    return merged_chunked_tweets
 
 def create_unknown_rule(intents, intent_str, intent_id):
     rule = None
@@ -218,7 +247,8 @@ def create_query(key_term, industry_terms_comma_separated):
         splitter.whitespace += ','
         splitter.whitespace_split = True
         industry_terms = list(splitter)
-        industry_terms.append(key_term)
+        if key_term:
+            industry_terms.append(key_term)
         return " OR ".join(industry_terms)
     else:
         return key_term
@@ -239,3 +269,9 @@ def parse_comma_separated_text(text):
     splitter.whitespace += ','
     splitter.whitespace_split = True
     return list(splitter)
+
+def chunks(l, n):
+    """ Yield successive n-sized chunks from l.
+    """
+    for i in xrange(0, len(l), n):
+        yield l[i:i+n]

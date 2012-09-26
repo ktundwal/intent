@@ -198,32 +198,32 @@ def demo(request):
     kip = None
 
     if request.method == 'GET':
-        query = request.GET.get('q', 'starbucks,latte')
-        logger.debug('Demo Request (comma separated): %s' % query)
-        kip = query.split(',')
-        logger.debug('Demo Request (list): %s' % kip)
+        key_term = request.GET.get('k')
+        industry_terms_comma_separated = request.GET.get('i', None)
         query_count = int(request.GET.get('count', DEFAULT_QUERY_COUNT))
 
     try:
-        logger.debug('Going to run twitter search for %s' % " OR ".join(kip))
-        search_results = search_twitter(" OR ".join(kip), query_count)
+        tweets = run_and_analyze_query(key_term, industry_terms_comma_separated, 100, logger)
 
-        tweets = []
-        for tweet in search_results:
-            cleaned_tweet = clean_tweet(tweet.description)
-            #cleaned_tweet = Text(parse(clean_tweet(tweet.desciption))).string
-            analyzed_tweet_dict = dict(
-                content=cleaned_tweet, # 'content' key is what cruxly api looks for
-                author=tweet.author,
-                image=tweet.profile,
-                kip = kip,
-                url="".join(['http://twitter.com/', tweet.author, '/status/', tweet.tweet_id]),
-                date=pretty_date(get_timestamp_from_twitter_date(tweet.date)),
-            )
-            tweets.append(analyzed_tweet_dict)
-
-        if len(tweets) > 0:
-            tweets = insert_intents(tweets, logger)
+#        logger.debug('Going to run twitter search for %s' % " OR ".join(kip))
+#        search_results = search_twitter(" OR ".join(kip), query_count)
+#
+#        tweets = []
+#        for tweet in search_results:
+#            cleaned_tweet = clean_tweet(tweet.description)
+#            #cleaned_tweet = Text(parse(clean_tweet(tweet.desciption))).string
+#            analyzed_tweet_dict = dict(
+#                content=cleaned_tweet, # 'content' key is what cruxly api looks for
+#                author=tweet.author,
+#                image=tweet.profile,
+#                kip = kip,
+#                url="".join(['http://twitter.com/', tweet.author, '/status/', tweet.tweet_id]),
+#                date=pretty_date(get_timestamp_from_twitter_date(tweet.date)),
+#            )
+#            tweets.append(analyzed_tweet_dict)
+#
+#        if len(tweets) > 0:
+#            tweets = insert_intents(tweets, logger)
 
         tweets_w_dislike           = [tweet for tweet in tweets if {u'intent': u'dislike'}          in tweet['intents']]
         tweets_w_question          = [tweet for tweet in tweets if {u'intent': u'question'}         in tweet['intents']]
