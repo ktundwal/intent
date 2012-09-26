@@ -17,7 +17,7 @@ from .decorators import *
 from intent import settings
 
 CRUXLY_API_TIMEOUT = 120
-TWEETS_PER_API = 10
+TWEETS_PER_API = 5
 
 if settings.ENVIRONMENT == 'prod':
     CRUXLY_SERVER = 'detectintent'
