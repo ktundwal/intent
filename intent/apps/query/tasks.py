@@ -157,7 +157,8 @@ def run_and_analyze_queries():
                     send_status_email('cruxly prod - background process failure',
                         'exception processing %s for user %s\n\n %s' % (query.query, query.created_by, e))
                 except Exception, email_ex:
-                    log_exception(task_logger, "Exception sending status via email. %s" % email_ex)
+                    #log_exception(task_logger, "Exception sending status via email. %s" % email_ex)
+                    pass
             finally:
                 try:
                     query.status = Query.WAITING_TO_RUN_STATUS
