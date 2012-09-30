@@ -280,9 +280,9 @@ def chunks(l, n):
 
 class Kip():
     def __init__(self, keyterms="", genericterms_comma_separated="", competingterms_comma_separated=""):
-        self.product = parse_comma_separated_text(keyterms)
-        self.industryterms = parse_comma_separated_text(genericterms_comma_separated)
-        self.competitors = parse_comma_separated_text(competingterms_comma_separated)
+        self.product = ','.split(keyterms)
+        self.industryterms = ','.split(genericterms_comma_separated)
+        self.competitors = ','.split(competingterms_comma_separated)
 
     @property
     def dict(self):
