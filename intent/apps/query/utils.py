@@ -265,10 +265,11 @@ def get_kip(key_term, industry_terms_comma_separated):
 
 def parse_comma_separated_text(text):
     if text:
-        splitter = shlex.shlex(text, posix=True)
-        splitter.whitespace += ','
-        splitter.whitespace_split = True
-        return list(splitter)
+        return text.split(',')
+#        splitter = shlex.shlex(text, posix=True)
+#        splitter.whitespace += ','
+#        splitter.whitespace_split = True
+#        return list(splitter)
     else:
         return []
 
@@ -280,9 +281,9 @@ def chunks(l, n):
 
 class Kip():
     def __init__(self, keyterms="", genericterms_comma_separated="", competingterms_comma_separated=""):
-        self.product = ','.split(keyterms)
-        self.industryterms = ','.split(genericterms_comma_separated)
-        self.competitors = ','.split(competingterms_comma_separated)
+        self.product = parse_comma_separated_text(keyterms)
+        self.industryterms = parse_comma_separated_text(genericterms_comma_separated)
+        self.competitors = parse_comma_separated_text(competingterms_comma_separated)
 
     @property
     def dict(self):
