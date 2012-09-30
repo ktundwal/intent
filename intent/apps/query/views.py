@@ -203,7 +203,8 @@ def demo(request):
         query_count = int(request.GET.get('count', DEFAULT_QUERY_COUNT))
 
     try:
-        tweets = run_and_analyze_query(key_term, industry_terms_comma_separated, 100, logger)
+        k = Kip(keyterms=key_term, genericterms_comma_separated=industry_terms_comma_separated)
+        tweets = run_and_analyze_query(k, 100, logger)
 
 #        logger.debug('Going to run twitter search for %s' % " OR ".join(kip))
 #        search_results = search_twitter(" OR ".join(kip), query_count)

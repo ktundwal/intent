@@ -52,7 +52,8 @@ def run_and_analyze_queries():
                 query.status = Query.RUNNING_STATUS
                 query.save()
 
-                tweets = run_and_analyze_query(query.query, query.industry_terms_comma_separated, 100, task_logger)
+                tweets = run_and_analyze_query(Kip(keyterms=query.query, genericterms_comma_separated=query.industry_terms_comma_separated),
+                    100, task_logger)
 
                 tweets_w_dislike           = [tweet for tweet in tweets if {u'intent': u'dislike'}          in tweet['intents']]
                 tweets_w_question          = [tweet for tweet in tweets if {u'intent': u'question'}         in tweet['intents']]
@@ -124,7 +125,7 @@ def run_and_analyze_queries():
                                 author              = author,
                                 source_id           = tweet['tweet_id'],
                                 date                = tweet['date'],
-                                text                = tweet['content'],
+                                text                = tweet['text'],
                                 analyzed            = True,
                                 # for now we are not saving any rules. Just unknowns
                                 buy_rule            = buy_rule,
@@ -169,7 +170,8 @@ def run_and_analyze_queries():
             send_status_email('cruxly prod - background process success',
                 'successfully processed %d queries.\n\n%s' % (len(queries), email_message))
         except Exception, email_ex:
-            log_exception(task_logger, "Exception sending status via email \n%s" % email_ex)
+            #log_exception(task_logger, "Exception sending status via email \n%s" % email_ex)
+            pass
 
     except Exception, e:
         response = '%s' % e

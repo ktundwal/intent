@@ -17,7 +17,7 @@ from .decorators import *
 from intent import settings
 
 CRUXLY_API_TIMEOUT = 120
-TWEETS_PER_API = 5
+TWEETS_PER_API = 100
 
 if settings.ENVIRONMENT == 'prod':
     CRUXLY_SERVER = 'detectintent'
@@ -25,8 +25,10 @@ if settings.ENVIRONMENT == 'prod':
 else:
     CRUXLY_SERVER = 'api-dev'
 
-CRUXLY_API = 'http://' + CRUXLY_SERVER + '.appspot.com/v1/api/detect'
+#CRUXLY_API = 'http://' + CRUXLY_SERVER + '.appspot.com/v1/api/detect'
 #CRUXLY_API = 'http://localhost:8888/v1/api/detect'
+
+CRUXLY_API = 'http://support-cruxly-api-env1-vagt8pmtqd.elasticbeanstalk.com/rest/v1/analyze'
 
 logger.info('ENVIRONMENT = %s. Cruxly API = %s' % (settings.ENVIRONMENT, CRUXLY_API))
 
@@ -96,11 +98,14 @@ def insert_intents(tweets, caller_logger):
         #make a request object to hold the POST data and the URL
         #make the request using the request object as an argument, store response in a variable
         tweets_json = json.dumps(tweets)
-        r = requests.post(CRUXLY_API, data=tweets_json, timeout=CRUXLY_API_TIMEOUT)
-        if r.status_code == 202:
+        headers = {'content-type': 'application/json'}
+        r = requests.post(CRUXLY_API, data=tweets_json, headers=headers, timeout=CRUXLY_API_TIMEOUT)
+        if r.status_code == 200:
             #store request response in a string
             response = unicode(r.content, 'utf8')
             response = json.loads(response)
+        else:
+            raise Exception("Got " + r.status_code + " from Cruxly API")
 
     except requests.URLRequired, e:
         raise type(e)('invalid url')
@@ -166,14 +171,14 @@ def pretty_date(time=False):
         return str(day_diff/30) + " months ago"
     return str(day_diff/365) + " years ago"
 
-def run_and_analyze_query(key_term, industry_terms_comma_separated, query_count, logger):
+def run_and_analyze_query(kip, query_count, logger):
     """
     Input query, query_count
     Output processed tweets, % wants, % questions, % promises
     """
     start = time.time()
 
-    all_tweets = search_twitter(create_query(key_term, industry_terms_comma_separated), query_count)
+    all_tweets = search_twitter(create_query(kip), query_count)
     after_twitter_search = time.time()
 
     chunked_tweets = list(chunks(all_tweets, TWEETS_PER_API))
@@ -186,14 +191,14 @@ def run_and_analyze_query(key_term, industry_terms_comma_separated, query_count,
                 cleaned_tweet = clean_tweet(tweet.description)
                 #cleaned_tweet = Text(parse(clean_tweet(tweet.desciption))).string
                 analyzed_tweet_dict = dict(
-                    content = cleaned_tweet,    # 'content' key is what cruxly api looks for
+                    text = cleaned_tweet,    # 'content' key is what cruxly api looks for
                     author = tweet.author,
                     author_user_name = tweet.author_user_name,
                     image = tweet.profile,
                     url = "".join(['http://twitter.com/', tweet.author, '/status/', tweet.tweet_id]),
                     date = pretty_date(get_timestamp_from_twitter_date(tweet.date)),
                     tweet_id = tweet.tweet_id,
-                    kip = get_kip(key_term, industry_terms_comma_separated)
+                    kip = kip.dict
                 )
                 processed_tweets.append(analyzed_tweet_dict)
 
@@ -241,17 +246,9 @@ def get_or_create_todays_daily_stat(query):
 
     return daily_stat
 
-def create_query(key_term, industry_terms_comma_separated):
-    if industry_terms_comma_separated and len(industry_terms_comma_separated) > 0:
-        splitter = shlex.shlex(industry_terms_comma_separated, posix=True)
-        splitter.whitespace += ','
-        splitter.whitespace_split = True
-        industry_terms = list(splitter)
-        if key_term:
-            industry_terms.append(key_term)
-        return " OR ".join(industry_terms)
-    else:
-        return key_term
+def create_query(kip):
+    terms = kip.product + kip.industryterms
+    return " OR ".join(terms)
 
 def get_kip(key_term, industry_terms_comma_separated):
     if industry_terms_comma_separated and len(industry_terms_comma_separated) > 0:
@@ -265,13 +262,30 @@ def get_kip(key_term, industry_terms_comma_separated):
         return key_term
 
 def parse_comma_separated_text(text):
-    splitter = shlex.shlex(text, posix=True)
-    splitter.whitespace += ','
-    splitter.whitespace_split = True
-    return list(splitter)
+    if text:
+        splitter = shlex.shlex(text, posix=True)
+        splitter.whitespace += ','
+        splitter.whitespace_split = True
+        return list(splitter)
+    else:
+        return []
 
 def chunks(l, n):
     """ Yield successive n-sized chunks from l.
     """
     for i in xrange(0, len(l), n):
         yield l[i:i+n]
+
+class Kip():
+    def __init__(self, keyterms="", genericterms_comma_separated="", competingterms_comma_separated=""):
+        self.product = parse_comma_separated_text(keyterms)
+        self.industryterms = parse_comma_separated_text(genericterms_comma_separated)
+        self.competitors = parse_comma_separated_text(competingterms_comma_separated)
+
+    @property
+    def dict(self):
+        return {
+            "keyterms": self.product,
+            "genericterms": self.industryterms,
+            "competingterms": self.competitors
+        }
