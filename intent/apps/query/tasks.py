@@ -141,7 +141,7 @@ def run_and_analyze_queries():
                     else:
                         # We have already analyzed this tweeet. may be we ran soon. SKIP
                         task_logger.info(
-                            "    already analyzed tweeet. may be we ran soon. SKIPPING (%s)" % tweet['content'])
+                            "    already analyzed tweeet. may be we ran soon. SKIPPING (%s)" % tweet['text'])
 
                 task_logger.info("    Fetched %d tweets. Daily stat = %s" % (len(tweets), daily_stat.display()))
                 email_message += '\n\n%s' % daily_stat.display()

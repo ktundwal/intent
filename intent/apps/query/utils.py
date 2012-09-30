@@ -20,15 +20,11 @@ CRUXLY_API_TIMEOUT = 120
 TWEETS_PER_API = 100
 
 if settings.ENVIRONMENT == 'prod':
-    CRUXLY_SERVER = 'detectintent'
-    #CRUXLY_SERVER = 'api-dev'
+    CRUXLY_SERVER = 'api.cruxly.com'
 else:
-    CRUXLY_SERVER = 'api-dev'
+    CRUXLY_SERVER = 'localhost:8080/api'
 
-#CRUXLY_API = 'http://' + CRUXLY_SERVER + '.appspot.com/v1/api/detect'
-#CRUXLY_API = 'http://localhost:8888/v1/api/detect'
-
-CRUXLY_API = 'http://support-cruxly-api-env1-vagt8pmtqd.elasticbeanstalk.com/rest/v1/analyze'
+CRUXLY_API = 'http://' + CRUXLY_SERVER + '/rest/v1/analyze'
 
 logger.info('ENVIRONMENT = %s. Cruxly API = %s' % (settings.ENVIRONMENT, CRUXLY_API))
 
