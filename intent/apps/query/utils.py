@@ -178,7 +178,9 @@ def run_and_analyze_query(kip, query_count, logger):
     """
     start = time.time()
 
-    all_tweets = search_twitter(create_query(kip), query_count)
+    query_from_kip = create_query(kip)
+    logger.info("Going to search twitter for " + query_from_kip);
+    all_tweets = search_twitter(query_from_kip, query_count)
     after_twitter_search = time.time()
 
     chunked_tweets = list(chunks(all_tweets, TWEETS_PER_API))
