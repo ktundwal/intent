@@ -32,3 +32,12 @@ class QueryForm(forms.ModelForm):
         exclude = ['created_by', 'count', 'interval', 'num_times_run', 'status', 'throttle', 'last_run',
                    'interval', 'latitude', 'longitude', 'radius', 'query_exception',
                    'buy_count', 'recommendation_count', 'question_count', 'commitment_count', 'like_count', 'dislike_count', 'try_count','document_count',  ]
+
+class VerticalTrackerForm(forms.ModelForm):
+
+    query = forms.CharField(label="Query", help_text="Ex: Tablets")
+    query = forms.CharField(label="Query", help_text="Ex: Kindle fire|KindleFire|Kindle Fire HD, iPad|iPad Mini, Google Nexux|Nexus")
+
+    class Meta:
+        model = VerticalTracker
+        exclude = ['created_by', 'created_on']

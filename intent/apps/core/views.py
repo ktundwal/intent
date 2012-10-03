@@ -7,14 +7,69 @@ from django.contrib import messages
 from intent.apps.core.forms import UserCreationFormWithEmail
 from django.core.mail import send_mail
 from intent import settings
-from intent.apps.query.models import Document, Query
+from intent.apps.query.models import Document, Query, VerticalTracker
 from django.db.models import Sum
+
 
 def home(request):
     if request.user.is_authenticated():
         return HttpResponseRedirect(reverse('query:recent-queries'))
     else:
+        #        Vertical tracker needs following
+        #        var data = google.visualization.arrayToDataTable([
+        #            ['Date',           Kindle',    'iPad', 'Nexus'],
+        #            ['Sept 2, 2012',   10,         20,     30],
+        #            ['Sept 3, 2012',   20,         22,     10],
+        #        ]);
+        #        list of lists
+
+        trackers_chartdata_list = []
+        trackers = VerticalTracker.objects.all()
+        for tracker in trackers:
+            tracker_chart_data = {}
+            products = tracker.trackers.all()   # product = Kindle, KindleFire, Kindle Fire HD
+
+            tracker_chartdata_buy_list = []     # row / date
+            tracker_chartdata_like_list = []     # row / date
+            tracker_chartdata_dislike_list = []     # row / date
+
+            for product in products:
+                product_dailystats = product.dailystats.all()
+
+                first = True
+
+                product_daily_buy_stats = []
+                product_daily_like_stats = []
+                product_daily_dislike_stats = []
+
+                for product_dailystat in product_dailystats:
+                    if first:
+                        product_daily_buy_stats.append(product_dailystat.stat_of.query)    # product name
+                        product_daily_like_stats.append(product_dailystat.stat_of.query)    # product name
+                        product_daily_dislike_stats.append(product_dailystat.stat_of.query)    # product name
+                        first = False
+
+                    product_daily_buy_stats.append(product_dailystat.buy_percentage())    # add buy %
+                    product_daily_like_stats.append(product_dailystat.like_percentage())    # add like %
+                    product_daily_dislike_stats.append(product_dailystat.dislike_percentage())    # add dislike %
+
+                tracker_chartdata_buy_list.append(product_daily_buy_stats)
+                tracker_chartdata_like_list.append(product_daily_like_stats)
+                tracker_chartdata_dislike_list.append(product_daily_dislike_stats)
+
+            transposed_tracker_chartdata_buy_list = zip(*tracker_chartdata_buy_list)
+            transposed_tracker_chartdata_like_list = zip(*tracker_chartdata_like_list)
+            transposed_tracker_chartdata_dislike_list = zip(*tracker_chartdata_dislike_list)
+
+            tracker_chart_data['buy'] = transposed_tracker_chartdata_buy_list;
+            tracker_chart_data['like'] = transposed_tracker_chartdata_like_list;
+            tracker_chart_data['dislike'] = transposed_tracker_chartdata_dislike_list;
+
+            trackers_chartdata_list.append(tracker_chart_data)
+
+
         return TemplateResponse(request, 'core/home.html', {
+            'vertical_trackers':trackers_chartdata_list,
             'total_documents_processed': Query.objects.all().aggregate(Sum('count'))['count__sum'],
             'buy_count': Query.objects.all().aggregate(Sum('buy_count'))['buy_count__sum']
         })

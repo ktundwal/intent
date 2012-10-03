@@ -17,6 +17,48 @@
 
         <link rel="stylesheet" href="/static/core/css/reminderpin.css">
     </head>
+
+    !--Load the AJAX API-->
+    <script type="text/javascript" src="https://www.google.com/jsapi"></script>
+
+    <script type="text/javascript">
+        google.load("visualization", "1", {packages:["corechart"]});
+        google.setOnLoadCallback(drawChart);
+        function drawChart() {
+
+        {% for tracker in vertical_trackers %}
+
+            var data = google.visualization.arrayToDataTable([
+                //['Kindle', 'iPad', 'Nexus', 'Try', 'Question', 'Recommendation', 'Commitmemt', 'Dislike'],
+                [{% for query in queries %} '{{ query.query }}', {% endfor %}]
+                ['Sept 2, 2012', 0, 0, 0, 0, 0, 0, 0],
+                {% for daily_stat in query.dailystats.all %}
+                    [
+                        '{{ daily_stat.stat_for }}',
+                        {{ daily_stat.buy_percentage }},
+                        {{ daily_stat.like_percentage }},
+                        {{ daily_stat.try_percentage }},
+                        {{ daily_stat.question_percentage }},
+                        {{ daily_stat.recommendation_percentage }},
+                        {{ daily_stat.commitment_percentage }},
+                        {{ daily_stat.dislike_percentage }}
+                    ],
+                {% endfor %}
+            ]);
+
+            var options = {
+                title: 'Intents over time'
+            };
+
+            var chart = new google.visualization.LineChart(document.getElementById('chart_div_{{query.id}}'));
+            chart.draw(data, options);
+
+
+        {% endfor %}
+
+        }
+    </script>
+
     <body data-spy="scroll" data-target=".subnav" data-offset="50">
 
         <!-- Navbar
@@ -63,6 +105,14 @@
                                 -->
                             </div>
                         </div>
+                    </div>
+
+                    <div class="container">
+                        {% for tracker in vertical_trackers %}
+                            <div class='chart' id="chart_div_buy_{{tracker.id}}" style="width: 500px; height: 300px;"></div><br>
+                            <div class='chart' id="chart_div_like_{{tracker.id}}" style="width: 500px; height: 300px;"></div><br>
+                            <div class='chart' id="chart_div_dislike_{{tracker.id}}" style="width: 500px; height: 300px;"></div><br>
+                        {% endfor %}
                     </div>
 
                     <p class="download-info">

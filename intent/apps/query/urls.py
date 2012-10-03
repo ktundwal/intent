@@ -20,6 +20,8 @@ urlpatterns = patterns('intent.apps.query.views',
     url(r'^edit/(?P<query_id>\d+)', 'new_query', name='edit-query'),
     url(r'^results/(?P<query_id>\d+)', 'query_results', name='query_results'),
     url(r'^download/(?P<query_id>\d+)', 'download', name='download-query'),
+    #url(r'^$', 'verticaltracker_index', name='verticaltracker_index'),
+    url(r'^new-verticaltracker/$', 'new_verticaltracker', name='new-verticaltracker'),
     url(r'^demo/$', 'demo', name='demo'),
     url(r'^process/$', 'process', name='process'),
 )

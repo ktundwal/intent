@@ -63,6 +63,10 @@
                         {% endifequal %}
                     {% endfor %}
                     <br>
+                    {% if query.vertical_tracker %}
+                        Tracking for <b>{{ query.vertical_tracker.name }}</b>
+                    {% endif %}
+                    <br>
                     Created on {{ query.created_on }}
                     <br>
                     Last run on {{ query.last_run }}

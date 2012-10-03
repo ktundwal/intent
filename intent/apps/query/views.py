@@ -27,7 +27,7 @@ from io import BytesIO
 from django.http import HttpResponse
 from django.http import Http404
 
-from .forms import QueryForm
+from .forms import QueryForm, VerticalTrackerForm
 from .models import *
 from .utils import *
 from .tasks import *
@@ -163,6 +163,36 @@ def new_query(request, query_id=None):
     return render_to_response("query/new_query.html",
         context, context_instance=RequestContext(request))
 
+@login_required
+def new_verticaltracker(request, verticaltracker_id=None):
+    verticaltracker = None
+    #message = None
+    if verticaltracker_id:
+        verticaltracker = get_object_or_404(VerticalTracker, id=verticaltracker_id)
+
+    if request.method == 'POST':
+        form = VerticalTrackerForm(data=request.POST, instance=verticaltracker)
+        if form.is_valid():
+            verticaltracker = form.save(commit=False) # returns unsaved instance
+            verticaltracker.created_by = request.user
+            verticaltracker.save() # real save to DB.
+
+            products = verticaltracker.query.split(',')
+            for product in products:
+                q = Query(query=product.replace('|',','))
+                q.created_by = request.user
+                q.vertical_tracker = verticaltracker
+                q.save()
+            django.contrib.messages.success(request, 'New vertical tracker successfully added.')
+            return HttpResponseRedirect(reverse('query:recent-queries'))
+        else:
+            django.contrib.messages.error(request, 'Vertical tracker did not pass validation!')
+            #message = UserMessage("Validation error", "Query did not pass validation!")
+    else:
+        form = VerticalTrackerForm(instance=verticaltracker)
+    context = {'form': form}
+    return render_to_response("query/new_verticaltracker.html",
+        context, context_instance=RequestContext(request))
 
 @login_required
 def download(request, query_id=None):

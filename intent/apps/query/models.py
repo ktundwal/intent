@@ -16,6 +16,13 @@ from django.contrib.auth.models import User
 from decimal import *
 from django.utils.timezone import datetime
 
+class VerticalTracker(models.Model):
+
+    created_by = models.ForeignKey(User)
+    name = models.CharField(max_length=200, blank=False)
+    query = models.CharField(max_length=200, blank=False)
+    created_on = models.DateTimeField(auto_now_add=True, default = datetime.now)
+
 class Rule(models.Model):
     BUY_GRAMMAR             = 1
     RECOMMENDATION_GRAMMAR  = 2
@@ -59,6 +66,8 @@ class Query(models.Model):
     )
 
     created_by = models.ForeignKey(User)
+
+    vertical_tracker = models.ForeignKey(VerticalTracker, related_name='trackers', null=True, blank=True, default=None)
 
     query = models.CharField(max_length=200, blank=False)
     industry_terms_comma_separated = models.CharField(max_length=200, default="", blank=True)
