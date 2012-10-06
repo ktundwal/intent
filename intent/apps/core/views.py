@@ -10,6 +10,8 @@ from intent import settings
 from intent.apps.query.models import Document, Query, VerticalTracker
 from django.db.models import Sum
 
+from intent.apps.query import gviz_api
+
 
 def home(request):
     if request.user.is_authenticated():
@@ -25,48 +27,66 @@ def home(request):
 
         trackers_chartdata_list = []
         trackers = VerticalTracker.objects.all()
+
         for tracker in trackers:
             tracker_chart_data = {}
-            products = tracker.trackers.all()   # product = Kindle, KindleFire, Kindle Fire HD
+            products = tracker.trackers.all()       # product = Kindle, KindleFire, Kindle Fire HD
 
-            tracker_chartdata_buy_list = []     # row / date
-            tracker_chartdata_like_list = []     # row / date
-            tracker_chartdata_dislike_list = []     # row / date
+            tracker_product_list_of_tuple = [("date", "string")]  # [("date","string"),("kindle","number"),("ipad","number")]
+            tracker_buy_list_of_tuple = []          # [("Sept 29",10,20),("Sept 30", 30, 35),("Oct 1", 15, 10)]
+            tracker_like_list_of_tuple = []
+            tracker_dislike_list_of_tuple = []
 
             for product in products:
                 product_dailystats = product.dailystats.all()
 
-                first = True
+                tracker_product_list_of_tuple.append((product.query, "number"))
 
-                product_daily_buy_stats = []
-                product_daily_like_stats = []
-                product_daily_dislike_stats = []
+                product_daily_buy_stats_list = []
+                product_daily_like_stats_list = []
+                product_daily_dislike_stats_list = []
 
+                first_dailystat = True
                 for product_dailystat in product_dailystats:
-                    if first:
-                        product_daily_buy_stats.append(product_dailystat.stat_of.query)    # product name
-                        product_daily_like_stats.append(product_dailystat.stat_of.query)    # product name
-                        product_daily_dislike_stats.append(product_dailystat.stat_of.query)    # product name
-                        first = False
+                    if first_dailystat:
 
-                    product_daily_buy_stats.append(product_dailystat.buy_percentage())    # add buy %
-                    product_daily_like_stats.append(product_dailystat.like_percentage())    # add like %
-                    product_daily_dislike_stats.append(product_dailystat.dislike_percentage())    # add dislike %
+                        product_daily_buy_stats_list.append(product_dailystat.stat_for.strftime('%h %d %Y'))    # date
+                        product_daily_like_stats_list.append(product_dailystat.stat_for.strftime('%h %d %Y'))    # date
+                        product_daily_dislike_stats_list.append(product_dailystat.stat_for.strftime('%h %d %Y'))    # date
+                        first_dailystat = False
 
-                tracker_chartdata_buy_list.append(product_daily_buy_stats)
-                tracker_chartdata_like_list.append(product_daily_like_stats)
-                tracker_chartdata_dislike_list.append(product_daily_dislike_stats)
 
-            transposed_tracker_chartdata_buy_list = zip(*tracker_chartdata_buy_list)
-            transposed_tracker_chartdata_like_list = zip(*tracker_chartdata_like_list)
-            transposed_tracker_chartdata_dislike_list = zip(*tracker_chartdata_dislike_list)
+                    product_daily_buy_stats_list.append(product_dailystat.buy_percentage())    # add buy %
+                    product_daily_like_stats_list.append(product_dailystat.like_percentage())    # add like %
+                    product_daily_dislike_stats_list.append(product_dailystat.dislike_percentage())    # add dislike %
 
-            tracker_chart_data['buy'] = transposed_tracker_chartdata_buy_list;
-            tracker_chart_data['like'] = transposed_tracker_chartdata_like_list;
-            tracker_chart_data['dislike'] = transposed_tracker_chartdata_dislike_list;
+                tracker_buy_list_of_tuple.append(tuple(product_daily_buy_stats_list))
+                tracker_like_list_of_tuple.append(tuple(product_daily_like_stats_list))
+                tracker_dislike_list_of_tuple.append(tuple(product_daily_dislike_stats_list))
 
-            trackers_chartdata_list.append(tracker_chart_data)
 
+            #create a DataTable object
+            buy_table = gviz_api.DataTable(tracker_product_list_of_tuple)
+            buy_table.LoadData(tracker_buy_list_of_tuple)
+            buy_json_str=buy_table.ToJSon() #convert to JSON
+
+            #create a DataTable object
+            like_table = gviz_api.DataTable(tracker_product_list_of_tuple)
+            like_table.LoadData(tracker_like_list_of_tuple)
+            like_json_str=like_table.ToJSon()   #convert to JSON
+
+            #create a DataTable object
+            dislike_table = gviz_api.DataTable(tracker_product_list_of_tuple)
+            dislike_table.LoadData(tracker_dislike_list_of_tuple)
+            dislike_json_str=dislike_table.ToJSon()   #convert to JSON
+
+            trackers_chartdata_list.append({
+                'id' : tracker.id,
+                'name' : tracker.name,
+                'buy': buy_json_str,
+                'like': like_json_str,
+                'dislike': dislike_json_str,
+            })
 
         return TemplateResponse(request, 'core/home.html', {
             'vertical_trackers':trackers_chartdata_list,

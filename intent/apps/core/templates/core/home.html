@@ -18,7 +18,7 @@
         <link rel="stylesheet" href="/static/core/css/reminderpin.css">
     </head>
 
-    !--Load the AJAX API-->
+    <!--Load the AJAX API-->
     <script type="text/javascript" src="https://www.google.com/jsapi"></script>
 
     <script type="text/javascript">
@@ -27,37 +27,47 @@
         function drawChart() {
 
         {% for tracker in vertical_trackers %}
-
-            var data = google.visualization.arrayToDataTable([
-                //['Kindle', 'iPad', 'Nexus', 'Try', 'Question', 'Recommendation', 'Commitmemt', 'Dislike'],
-                [{% for query in queries %} '{{ query.query }}', {% endfor %}]
-                ['Sept 2, 2012', 0, 0, 0, 0, 0, 0, 0],
-                {% for daily_stat in query.dailystats.all %}
-                    [
-                        '{{ daily_stat.stat_for }}',
-                        {{ daily_stat.buy_percentage }},
-                        {{ daily_stat.like_percentage }},
-                        {{ daily_stat.try_percentage }},
-                        {{ daily_stat.question_percentage }},
-                        {{ daily_stat.recommendation_percentage }},
-                        {{ daily_stat.commitment_percentage }},
-                        {{ daily_stat.dislike_percentage }}
-                    ],
-                {% endfor %}
-            ]);
-
-            var options = {
-                title: 'Intents over time'
+            var data_buy = new google.visualization.DataTable('{{ tracker.buy|safe }}');
+            var options_buy = {
+                title: '{{ tracker.name }} - Buy intents',
+                hAxis: {title: name, titleTextStyle: {color: 'red'}},
+                //legend: 'bottom',
+                width: 500, height: 400,
+                //chartArea:{left:20,top:20,width:"100%",height:"100%"},
             };
+            var chart_buy = new google.visualization.LineChart(document.getElementById('chart_div_buy_{{tracker.id}}'));
+            chart_buy.draw(data_buy, options_buy);
 
-            var chart = new google.visualization.LineChart(document.getElementById('chart_div_{{query.id}}'));
-            chart.draw(data, options);
+            var data_like = new google.visualization.DataTable('{{ tracker.like|safe }}');
+            var options_like = {
+                title: '{{ tracker.name }} - Like intents',
+                hAxis: {title: name, titleTextStyle: {color: 'red'}},
+                //legend: 'bottom',
+                width: 500, height: 400,
+                //chartArea:{left:0,top:10,width:"100%"},
+            };
+            var chart_like = new google.visualization.LineChart(document.getElementById('chart_div_like_{{tracker.id}}'));
+            chart_like.draw(data_like, options_like);
 
-
+            var data_dislike = new google.visualization.DataTable('{{ tracker.dislike|safe }}');
+            var options_dislike = {
+                title: '{{ tracker.name }} - Dislike intents',
+                hAxis: {title: name, titleTextStyle: {color: 'red'}},
+                //legend: 'bottom',
+                width: 500, height: 400,
+                //chartArea:{left:0,top:10,width:"100%"},
+            };
+            var chart_dislike = new google.visualization.LineChart(document.getElementById('chart_div_dislike_{{tracker.id}}'));
+            chart_dislike.draw(data_dislike, options_dislike);
         {% endfor %}
 
         }
     </script>
+
+    <style type="text/css">
+        .carousel-inner { text-align: center; }
+        .carousel .item > div { display: inline-block; }
+    </style>
 
     <body data-spy="scroll" data-target=".subnav" data-offset="50">
 
@@ -107,12 +117,24 @@
                         </div>
                     </div>
 
-                    <div class="container">
-                        {% for tracker in vertical_trackers %}
-                            <div class='chart' id="chart_div_buy_{{tracker.id}}" style="width: 500px; height: 300px;"></div><br>
-                            <div class='chart' id="chart_div_like_{{tracker.id}}" style="width: 500px; height: 300px;"></div><br>
-                            <div class='chart' id="chart_div_dislike_{{tracker.id}}" style="width: 500px; height: 300px;"></div><br>
-                        {% endfor %}
+                    <div id="myCarousel" class="carousel slide">
+                        <!-- Carousel items -->
+                        <div class="carousel-inner">
+                            {% for tracker in vertical_trackers %}
+                                <div class="active item">
+                                    <div class='chart' id="chart_div_buy_{{tracker.id}}"></div>
+                                </div>
+                                <div class="item">
+                                    <div class='chart' id="chart_div_like_{{tracker.id}}"></div>
+                                </div>
+                                <div class="item">
+                                    <div class='chart' id="chart_div_dislike_{{tracker.id}}"></div>
+                                </div>
+                            {% endfor %}
+                        </div>
+                        <!-- Carousel nav -->
+                        <a class="carousel-control left" href="#myCarousel" data-slide="prev">&lsaquo;</a>
+                        <a class="carousel-control right" href="#myCarousel" data-slide="next">&rsaquo;</a>
                     </div>
 
                     <p class="download-info">
@@ -125,8 +147,25 @@
                         <!-- <li><a href="mailto:bot@cruxly.com">Email Bot</a></li> -->
                         <li><a href="https://twitter.com/Cruxly" class="twitter-follow-button" data-link-color="#0069D6" data-show-count="true">Follow @Cruxly</a></li>
                         <li><a href="https://twitter.com/share" class="twitter-share-button" data-url="http://Cruxly.com" data-count="horizontal" data-via="Cruxly" data-related="mdo:Creator of Cruxly">Tweet</a></li>
+                        <li><a href="https://facebook.com/cruxly" class="twitter-share-button">Facebook</a></li>
                     </ul>
                 </div>
+
+                <!--
+                <div class="bs-docs-social">
+                    <div class="container">
+                        <ul class="bs-docs-social-buttons">
+                             <li class="follow-btn">
+                                <a href="https://twitter.com/cruxly" class="twitter-follow-button" data-link-color="#0069D6" data-show-count="true">Follow @cruxly</a>
+                            </li>
+                            <li class="tweet-btn">
+                                <a href="https://twitter.com/share" class="twitter-share-button" data-url="http://www.cruxly.com/" data-count="horizontal" data-via="cruxly" data-related="mdo:Creator of Cruxly">Tweet</a>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+                -->
+
             </header>
 
             <div class="row-fluid">

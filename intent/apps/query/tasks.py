@@ -90,61 +90,62 @@ def run_and_analyze_queries():
 
                 daily_stat.save()
 
-                # For each analyzed tweet, add a document
-                for tweet in tweets:
-                    try:
-                        document = Document.objects.get(source_id=tweet['tweet_id'])
-                    except Document.DoesNotExist:
-                        document = None
+                if query.vertical_tracker is None:
+                    # For each analyzed tweet, add a document
+                    for tweet in tweets:
+                        try:
+                            document = Document.objects.get(source_id=tweet['tweet_id'])
+                        except Document.DoesNotExist:
+                            document = None
 
-                    if not document:
+                        if not document:
 
-                    # for now we are not saving any rules. Just unknowns
-                        buy_rule            = create_unknown_rule(tweet['intents'], {u'intent': u'buy'},           Rule.BUY_GRAMMAR)
-                        recommendation_rule = create_unknown_rule(tweet['intents'], {u'intent': u'recommendation'},Rule.RECOMMENDATION_GRAMMAR)
-                        question_rule       = create_unknown_rule(tweet['intents'], {u'intent': u'question'},      Rule.QUESTION_GRAMMAR)
-                        commitment_rule     = create_unknown_rule(tweet['intents'], {u'intent': u'commitment'},    Rule.COMMITMENT_GRAMMAR)
-                        like_rule           = create_unknown_rule(tweet['intents'], {u'intent': u'like'},          Rule.LIKE_GRAMMAR)
-                        dislike_rule        = create_unknown_rule(tweet['intents'], {u'intent': u'dislike'},       Rule.DISLIKE_GRAMMAR)
-                        try_rule            = create_unknown_rule(tweet['intents'], {u'intent': u'tries'},         Rule.TRY_GRAMMAR)
+                        # for now we are not saving any rules. Just unknowns
+                            buy_rule            = create_unknown_rule(tweet['intents'], {u'intent': u'buy'},           Rule.BUY_GRAMMAR)
+                            recommendation_rule = create_unknown_rule(tweet['intents'], {u'intent': u'recommendation'},Rule.RECOMMENDATION_GRAMMAR)
+                            question_rule       = create_unknown_rule(tweet['intents'], {u'intent': u'question'},      Rule.QUESTION_GRAMMAR)
+                            commitment_rule     = create_unknown_rule(tweet['intents'], {u'intent': u'commitment'},    Rule.COMMITMENT_GRAMMAR)
+                            like_rule           = create_unknown_rule(tweet['intents'], {u'intent': u'like'},          Rule.LIKE_GRAMMAR)
+                            dislike_rule        = create_unknown_rule(tweet['intents'], {u'intent': u'dislike'},       Rule.DISLIKE_GRAMMAR)
+                            try_rule            = create_unknown_rule(tweet['intents'], {u'intent': u'tries'},         Rule.TRY_GRAMMAR)
 
-                        if buy_rule or recommendation_rule or question_rule or commitment_rule \
-                           or like_rule or dislike_rule or try_rule:
+                            if buy_rule or recommendation_rule or question_rule or commitment_rule \
+                               or like_rule or dislike_rule or try_rule:
 
-                            try:
-                                author = Author.objects.get(twitter_handle=tweet['author'])
-                            #except author.DoesNotExist:
-                            except:
-                                author = Author.objects.create(twitter_handle=tweet['author'],
-                                    name=tweet['author_user_name'],
-                                    profile_image_url=tweet['image'])
+                                try:
+                                    author = Author.objects.get(twitter_handle=tweet['author'])
+                                #except author.DoesNotExist:
+                                except:
+                                    author = Author.objects.create(twitter_handle=tweet['author'],
+                                        name=tweet['author_user_name'],
+                                        profile_image_url=tweet['image'])
 
-                            document = Document.objects.create(
-                                result_of           = query,
-                                source              = Document.TWITTER_SOURCE,
-                                author              = author,
-                                source_id           = tweet['tweet_id'],
-                                date                = tweet['date'],
-                                text                = tweet['text'],
-                                analyzed            = True,
-                                # for now we are not saving any rules. Just unknowns
-                                buy_rule            = buy_rule,
-                                recommendation_rule = recommendation_rule,
-                                question_rule       = question_rule,
-                                commitment_rule     = commitment_rule,
-                                like_rule           = like_rule,
-                                dislike_rule        = dislike_rule,
-                                try_rule            = try_rule,
+                                document = Document.objects.create(
+                                    result_of           = query,
+                                    source              = Document.TWITTER_SOURCE,
+                                    author              = author,
+                                    source_id           = tweet['tweet_id'],
+                                    date                = tweet['date'],
+                                    text                = tweet['text'],
+                                    analyzed            = True,
+                                    # for now we are not saving any rules. Just unknowns
+                                    buy_rule            = buy_rule,
+                                    recommendation_rule = recommendation_rule,
+                                    question_rule       = question_rule,
+                                    commitment_rule     = commitment_rule,
+                                    like_rule           = like_rule,
+                                    dislike_rule        = dislike_rule,
+                                    try_rule            = try_rule,
 
-                            )
-                            document.save()
-                    else:
-                        # We have already analyzed this tweeet. may be we ran soon. SKIP
-                        task_logger.info(
-                            "    already analyzed tweeet. may be we ran soon. SKIPPING (%s)" % tweet['text'])
+                                )
+                                document.save()
+                        else:
+                            # We have already analyzed this tweeet. may be we ran soon. SKIP
+                            task_logger.info(
+                                "    already analyzed tweeet. may be we ran soon. SKIPPING (%s)" % tweet['text'])
 
-                task_logger.info("    Fetched %d tweets. Daily stat = %s" % (len(tweets), daily_stat.display()))
-                email_message += '\n\n%s' % daily_stat.display()
+                    task_logger.info("    Fetched %d tweets. Daily stat = %s" % (len(tweets), daily_stat.display()))
+                    email_message += '\n\n%s' % daily_stat.display()
 
             except Exception, e:
                 response = '%s' % e
@@ -167,12 +168,12 @@ def run_and_analyze_queries():
                     log_exception(task_logger, "Exception setting query to in queue")
             task_logger.info("    Processed query %s for user %s" % (query.query, query.created_by))
 
-        try:
-            send_status_email('cruxly prod - background process success',
-                'successfully processed %d queries.\n\n%s' % (len(queries), email_message))
-        except Exception, email_ex:
-            #log_exception(task_logger, "Exception sending status via email \n%s" % email_ex)
-            pass
+#        try:
+#            send_status_email('cruxly prod - background process success',
+#                'successfully processed %d queries.\n\n%s' % (len(queries), email_message))
+#        except Exception, email_ex:
+#            #log_exception(task_logger, "Exception sending status via email \n%s" % email_ex)
+#            pass
 
     except Exception, e:
         response = '%s' % e

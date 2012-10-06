@@ -23,6 +23,9 @@ class VerticalTracker(models.Model):
     query = models.CharField(max_length=200, blank=False)
     created_on = models.DateTimeField(auto_now_add=True, default = datetime.now)
 
+    def __unicode__(self):
+        return '%s-%s' % (self.name, self.query)
+
 class Rule(models.Model):
     BUY_GRAMMAR             = 1
     RECOMMENDATION_GRAMMAR  = 2

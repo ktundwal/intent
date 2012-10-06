@@ -16,6 +16,8 @@ from .decorators import *
 
 from intent import settings
 
+import gviz_api
+
 CRUXLY_API_TIMEOUT = 120
 TWEETS_PER_API = 100
 
