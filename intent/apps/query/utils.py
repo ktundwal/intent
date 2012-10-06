@@ -21,10 +21,10 @@ import gviz_api
 CRUXLY_API_TIMEOUT = 120
 TWEETS_PER_API = 100
 
-if settings.ENVIRONMENT == 'prod':
-    CRUXLY_SERVER = 'api.cruxly.com'
-else:
+if settings.ENVIRONMENT == 'dev':
     CRUXLY_SERVER = 'localhost:8080/api'
+else:
+    CRUXLY_SERVER = 'api.cruxly.com'
 
 CRUXLY_API = 'http://' + CRUXLY_SERVER + '/rest/v1/analyze'
 
