@@ -113,7 +113,10 @@ def register(request):
             form.save()
             messages.success(request, 'Thank you for registering, you can now '
                                       'login.')
-            send_invite_email(form.data['username'], form.data['email'])
+            try:
+                send_invite_email(form.data['username'], form.data['email'])
+            except:
+                pass
             return HttpResponseRedirect(reverse('core:login'))
     else:
         form = UserCreationFormWithEmail()
