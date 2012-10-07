@@ -21,7 +21,7 @@ import gviz_api
 CRUXLY_API_TIMEOUT = 120
 TWEETS_PER_API = 100
 
-if settings.ENVIRONMENT == 'dev':
+if settings.ENVIRONMENT == 'mbp':
     CRUXLY_SERVER = 'localhost:8080/api'
 else:
     CRUXLY_SERVER = 'api.cruxly.com'
@@ -290,3 +290,91 @@ class Kip():
             "genericterms": self.industryterms,
             "competingterms": self.competitors
         }
+
+def get_verticaltracker_gvizjson(tracker):
+    products = tracker.trackers.all()       # product = Kindle, KindleFire, Kindle Fire HD
+
+    tracker_product_list_of_tuple = [("date", "string")]  # [("date","string"),("kindle","number"),("ipad","number")]
+    for product in products:
+        tracker_product_list_of_tuple.append((product.query, "number"))
+
+    tracker_buy_list_of_tuple = []          # [("Sept 29",10,20),("Sept 30", 30, 35),("Oct 1", 15, 10)]
+    tracker_like_list_of_tuple = []
+    tracker_dislike_list_of_tuple = []
+
+    product_daily_buy_stats_list = []
+    product_daily_like_stats_list = []
+    product_daily_dislike_stats_list = []
+
+    first_dailystat = True
+
+    first_product = products[0]
+    first_product_dailystats = first_product.dailystats.all()
+
+    for first_product_dailystat in first_product_dailystats:
+
+        daily_buy_list = [first_product_dailystat.stat_for.strftime('%h %d %Y')]
+        daily_like_list = [first_product_dailystat.stat_for.strftime('%h %d %Y')]
+        daily_dislike_list = [first_product_dailystat.stat_for.strftime('%h %d %Y')]
+
+        daily_buy_list.append(first_product_dailystat.buy_percentage())
+        daily_like_list.append(first_product_dailystat.like_percentage())
+        daily_dislike_list.append(first_product_dailystat.dislike_percentage())
+
+        other_products_dailystat = DailyStat.objects\
+                                        .filter(stat_of__in=products)\
+                                        .exclude(stat_of=first_product)\
+                                        .filter(stat_for=first_product_dailystat.stat_for)
+
+        for other_product_dailystat in other_products_dailystat:
+
+            daily_buy_list.append(other_product_dailystat.buy_percentage())
+            daily_like_list.append(other_product_dailystat.like_percentage())
+            daily_dislike_list.append(other_product_dailystat.dislike_percentage())
+
+        tracker_buy_list_of_tuple.append(tuple(daily_buy_list))
+        tracker_like_list_of_tuple.append(tuple(daily_like_list))
+        tracker_dislike_list_of_tuple.append(tuple(daily_dislike_list))
+
+#    for product in products:
+#
+#        product_dailystats = product.dailystats.all()
+#
+#        tracker_product_list_of_tuple.append((product.query, "number"))
+#
+#        for product_dailystat in product_dailystats:
+#            if first_dailystat:
+#                product_daily_buy_stats_list.append(product_dailystat.stat_for.strftime('%h %d %Y'))    # date
+#                product_daily_like_stats_list.append(product_dailystat.stat_for.strftime('%h %d %Y'))    # date
+#                product_daily_dislike_stats_list.append(product_dailystat.stat_for.strftime('%h %d %Y'))    # date
+#                first_dailystat = False
+#
+#            product_daily_buy_stats_list.append(product_dailystat.buy_percentage())    # add buy %
+#            product_daily_like_stats_list.append(product_dailystat.like_percentage())    # add like %
+#            product_daily_dislike_stats_list.append(product_dailystat.dislike_percentage())    # add dislike %
+#
+#    tracker_buy_list_of_tuple.append(tuple(product_daily_buy_stats_list))
+#    tracker_like_list_of_tuple.append(tuple(product_daily_like_stats_list))
+#    tracker_dislike_list_of_tuple.append(tuple(product_daily_dislike_stats_list))
+
+
+    #create a DataTable object
+    buy_table = gviz_api.DataTable(tracker_product_list_of_tuple)
+    buy_table.LoadData(tracker_buy_list_of_tuple)
+    buy_json_str = buy_table.ToJSon() #convert to JSON
+    #create a DataTable object
+    like_table = gviz_api.DataTable(tracker_product_list_of_tuple)
+    like_table.LoadData(tracker_like_list_of_tuple)
+    like_json_str = like_table.ToJSon()   #convert to JSON
+    #create a DataTable object
+    dislike_table = gviz_api.DataTable(tracker_product_list_of_tuple)
+    dislike_table.LoadData(tracker_dislike_list_of_tuple)
+    dislike_json_str = dislike_table.ToJSon()   #convert to JSON
+
+    intent_gviz_json = {
+        'id': tracker.id,
+        'name': tracker.name,
+        'buy': buy_json_str,
+        'like': like_json_str,
+        'dislike': dislike_json_str, }
+    return intent_gviz_json

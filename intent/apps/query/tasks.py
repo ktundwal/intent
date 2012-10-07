@@ -55,97 +55,123 @@ def run_and_analyze_queries():
                 tweets = run_and_analyze_query(Kip(keyterms=query.query, genericterms_comma_separated=query.industry_terms_comma_separated),
                     100, task_logger)
 
-                tweets_w_dislike           = [tweet for tweet in tweets if {u'intent': u'dislike'}          in tweet['intents']]
-                tweets_w_question          = [tweet for tweet in tweets if {u'intent': u'question'}         in tweet['intents']]
-                tweets_w_recommendation    = [tweet for tweet in tweets if {u'intent': u'recommendation'}   in tweet['intents']]
-                tweets_w_buy               = [tweet for tweet in tweets if {u'intent': u'buy'}              in tweet['intents']]
-                tweets_w_commitment        = [tweet for tweet in tweets if {u'intent': u'commitment'}       in tweet['intents']]
-                tweets_w_try               = [tweet for tweet in tweets if {u'intent': u'try'}              in tweet['intents']]
-                tweets_w_like              = [tweet for tweet in tweets if {u'intent': u'like'}             in tweet['intents']]
+#                tweets_w_dislike           = [tweet for tweet in tweets if {u'intent': u'dislike'}          in tweet['intents']]
+#                tweets_w_question          = [tweet for tweet in tweets if {u'intent': u'question'}         in tweet['intents']]
+#                tweets_w_recommendation    = [tweet for tweet in tweets if {u'intent': u'recommendation'}   in tweet['intents']]
+#                tweets_w_buy               = [tweet for tweet in tweets if {u'intent': u'buy'}              in tweet['intents']]
+#                tweets_w_commitment        = [tweet for tweet in tweets if {u'intent': u'commitment'}       in tweet['intents']]
+#                tweets_w_try               = [tweet for tweet in tweets if {u'intent': u'try'}              in tweet['intents']]
+#                tweets_w_like              = [tweet for tweet in tweets if {u'intent': u'like'}             in tweet['intents']]
 
-                query.question_count        += len(tweets_w_question)
-                query.recommendation_count  += len(tweets_w_recommendation)
-                query.buy_count             += len(tweets_w_buy)
-                query.commitment_count      += len(tweets_w_commitment)
-                query.try_count             += len(tweets_w_try)
-                query.like_count            += len(tweets_w_like)
-                query.dislike_count         += len(tweets_w_dislike)
+#                query.question_count        += len(tweets_w_question)
+#                query.recommendation_count  += len(tweets_w_recommendation)
+#                query.buy_count             += len(tweets_w_buy)
+#                query.commitment_count      += len(tweets_w_commitment)
+#                query.try_count             += len(tweets_w_try)
+#                query.like_count            += len(tweets_w_like)
+#                query.dislike_count         += len(tweets_w_dislike)
 
                 query.last_run              = datetime.utcnow().replace(tzinfo=utc)
                 query.num_times_run         += 1
-                query.count                 += len(tweets)
+                #query.count                 += len(tweets)
                 query.query_exception       = ""
                 query.save()
 
                 daily_stat = get_or_create_todays_daily_stat(query)
 
-                daily_stat.document_count        += len(tweets)
-                daily_stat.question_count        += len(tweets_w_question)
-                daily_stat.recommendation_count  += len(tweets_w_recommendation)
-                daily_stat.buy_count             += len(tweets_w_buy)
-                daily_stat.commitment_count      += len(tweets_w_commitment)
-                daily_stat.try_count             += len(tweets_w_try)
-                daily_stat.like_count            += len(tweets_w_like)
-                daily_stat.dislike_count         += len(tweets_w_dislike)
+#                daily_stat.document_count        += len(tweets)
+#                daily_stat.question_count        += len(tweets_w_question)
+#                daily_stat.recommendation_count  += len(tweets_w_recommendation)
+#                daily_stat.buy_count             += len(tweets_w_buy)
+#                daily_stat.commitment_count      += len(tweets_w_commitment)
+#                daily_stat.try_count             += len(tweets_w_try)
+#                daily_stat.like_count            += len(tweets_w_like)
+#                daily_stat.dislike_count         += len(tweets_w_dislike)
+#
+#                daily_stat.save()
 
-                daily_stat.save()
+                # For each analyzed tweet, add a document
+                for tweet in tweets:
+                    try:
+                        document = Document.objects.get(source_id=tweet['tweet_id'])
+                    except Document.DoesNotExist:
+                        document = None
 
-                if query.vertical_tracker is None:
-                    # For each analyzed tweet, add a document
-                    for tweet in tweets:
-                        try:
-                            document = Document.objects.get(source_id=tweet['tweet_id'])
-                        except Document.DoesNotExist:
-                            document = None
-
-                        if not document:
+                    if not document:
 
                         # for now we are not saving any rules. Just unknowns
-                            buy_rule            = create_unknown_rule(tweet['intents'], {u'intent': u'buy'},           Rule.BUY_GRAMMAR)
-                            recommendation_rule = create_unknown_rule(tweet['intents'], {u'intent': u'recommendation'},Rule.RECOMMENDATION_GRAMMAR)
-                            question_rule       = create_unknown_rule(tweet['intents'], {u'intent': u'question'},      Rule.QUESTION_GRAMMAR)
-                            commitment_rule     = create_unknown_rule(tweet['intents'], {u'intent': u'commitment'},    Rule.COMMITMENT_GRAMMAR)
-                            like_rule           = create_unknown_rule(tweet['intents'], {u'intent': u'like'},          Rule.LIKE_GRAMMAR)
-                            dislike_rule        = create_unknown_rule(tweet['intents'], {u'intent': u'dislike'},       Rule.DISLIKE_GRAMMAR)
-                            try_rule            = create_unknown_rule(tweet['intents'], {u'intent': u'tries'},         Rule.TRY_GRAMMAR)
+                        buy_rule            = create_unknown_rule(tweet['intents'], {u'intent': u'buy'},           Rule.BUY_GRAMMAR)
+                        recommendation_rule = create_unknown_rule(tweet['intents'], {u'intent': u'recommendation'},Rule.RECOMMENDATION_GRAMMAR)
+                        question_rule       = create_unknown_rule(tweet['intents'], {u'intent': u'question'},      Rule.QUESTION_GRAMMAR)
+                        commitment_rule     = create_unknown_rule(tweet['intents'], {u'intent': u'commitment'},    Rule.COMMITMENT_GRAMMAR)
+                        like_rule           = create_unknown_rule(tweet['intents'], {u'intent': u'like'},          Rule.LIKE_GRAMMAR)
+                        dislike_rule        = create_unknown_rule(tweet['intents'], {u'intent': u'dislike'},       Rule.DISLIKE_GRAMMAR)
+                        try_rule            = create_unknown_rule(tweet['intents'], {u'intent': u'tries'},         Rule.TRY_GRAMMAR)
 
-                            if buy_rule or recommendation_rule or question_rule or commitment_rule \
-                               or like_rule or dislike_rule or try_rule:
+                        if buy_rule or recommendation_rule or question_rule or commitment_rule \
+                           or like_rule or dislike_rule or try_rule:
 
-                                try:
-                                    author = Author.objects.get(twitter_handle=tweet['author'])
-                                #except author.DoesNotExist:
-                                except:
-                                    author = Author.objects.create(twitter_handle=tweet['author'],
-                                        name=tweet['author_user_name'],
-                                        profile_image_url=tweet['image'])
+                            try:
+                                author = Author.objects.get(twitter_handle=tweet['author'])
+                            #except author.DoesNotExist:
+                            except:
+                                author = Author.objects.create(twitter_handle=tweet['author'],
+                                    name=tweet['author_user_name'],
+                                    profile_image_url=tweet['image'])
 
-                                document = Document.objects.create(
-                                    result_of           = query,
-                                    source              = Document.TWITTER_SOURCE,
-                                    author              = author,
-                                    source_id           = tweet['tweet_id'],
-                                    date                = tweet['date'],
-                                    text                = tweet['text'],
-                                    analyzed            = True,
-                                    # for now we are not saving any rules. Just unknowns
-                                    buy_rule            = buy_rule,
-                                    recommendation_rule = recommendation_rule,
-                                    question_rule       = question_rule,
-                                    commitment_rule     = commitment_rule,
-                                    like_rule           = like_rule,
-                                    dislike_rule        = dislike_rule,
-                                    try_rule            = try_rule,
+                            document = Document.objects.create(
+                                result_of           = query,
+                                source              = Document.TWITTER_SOURCE,
+                                author              = author,
+                                source_id           = tweet['tweet_id'],
+                                date                = tweet['date'],
+                                text                = tweet['text'],
+                                analyzed            = True,
+                                # for now we are not saving any rules. Just unknowns
+                                buy_rule            = buy_rule,
+                                recommendation_rule = recommendation_rule,
+                                question_rule       = question_rule,
+                                commitment_rule     = commitment_rule,
+                                like_rule           = like_rule,
+                                dislike_rule        = dislike_rule,
+                                try_rule            = try_rule,
 
-                                )
-                                document.save()
-                        else:
-                            # We have already analyzed this tweeet. may be we ran soon. SKIP
-                            task_logger.info(
-                                "    already analyzed tweeet. may be we ran soon. SKIPPING (%s)" % tweet['text'])
+                            )
+                            document.save()
+
+                            daily_stat.document_count += 1
+                            query.count               += 1
+
+                            if buy_rule:
+                                daily_stat.buy_count    += 1
+                                query.buy_count         += 1
+                            if recommendation_rule:
+                                daily_stat.recommendation_count    += 1
+                                query.recommendation_count         += 1
+                            if question_rule:
+                                daily_stat.question_count    += 1
+                                query.question_count         += 1
+                            if commitment_rule:
+                                daily_stat.commitment_count    += 1
+                                query.commitment_count         += 1
+                            if like_rule:
+                                daily_stat.like_count    += 1
+                                query.like_count         += 1
+                            if dislike_rule:
+                                daily_stat.dislike_count    += 1
+                                query.dislike_count         += 1
+                            if try_rule:
+                                daily_stat.try_count    += 1
+                                query.try_count         += 1
+                    else:
+                        # We have already analyzed this tweeet. may be we ran soon. SKIP
+                        task_logger.info("    already analyzed tweeet. may be we ran soon. SKIPPING (%s)" % tweet['text'])
 
                     task_logger.info("    Fetched %d tweets. Daily stat = %s" % (len(tweets), daily_stat.display()))
-                    email_message += '\n\n%s' % daily_stat.display()
+                    #email_message += '\n\n%s' % daily_stat.display()
+
+                query.save()
+                daily_stat.save()
 
             except Exception, e:
                 response = '%s' % e

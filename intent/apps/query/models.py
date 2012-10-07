@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+from __future__ import division
 
 """models.py"""
 
@@ -103,25 +103,25 @@ class Query(models.Model):
     try_count               = models.IntegerField(default=0)
 
     def buy_percentage(self):
-        return self.buy_count * 100 / self.count if self.count else 0
+        return percentage(self.buy_count, self.count)
 
     def recommendation_percentage(self):
-        return self.recommendation_count * 100 / self.count if self.count else 0
+        return percentage(self.recommendation_count, self.count)
 
     def question_percentage(self):
-        return self.question_count * 100 / self.count if self.count else 0
+        return percentage(self.question_count, self.count)
 
     def commitment_percentage(self):
-        return self.commitment_count * 100 / self.count if self.count else 0
+        return percentage(self.commitment_count, self.count)
 
     def like_percentage(self):
-        return self.like_count * 100 / self.count if self.count else 0
+        return percentage(self.like_count, self.count)
 
     def dislike_percentage(self):
-        return self.dislike_count * 100 / self.count if self.count else 0
+        return percentage(self.dislike_count, self.count)
 
     def try_percentage(self):
-        return self.try_count * 100 / self.count if self.count else 0
+        return percentage(self.try_count, self.count)
 
     def __unicode__(self):
         val = self.query
@@ -215,39 +215,42 @@ class DailyStat(models.Model):
         response += 'Query: %s\n' % self.stat_of.query
         response += 'Created by: %s\n' % self.stat_of.created_by
         response += 'Total tweets processed today: %d\n' % self.document_count
-        response += 'Buy: %d%%\n' % self.buy_percentage()
-        response += 'Recommendation: %d%%\n' % self.recommendation_percentage()
-        response += 'Question: %d%%\n' % self.question_percentage()
-        response += 'Commitment: %d%%\n' % self.commitment_percentage()
-        response += 'Like: %d%%\n' % self.like_percentage()
-        response += 'Try: %d%%\n' % self.dislike_percentage()
-        response += 'Dislike: %d%%\n' % self.try_percentage()
+        response += 'Buy: %f%%\n' % self.buy_percentage()
+        response += 'Recommendation: %f%%\n' % self.recommendation_percentage()
+        response += 'Question: %f%%\n' % self.question_percentage()
+        response += 'Commitment: %f%%\n' % self.commitment_percentage()
+        response += 'Like: %f%%\n' % self.like_percentage()
+        response += 'Try: %f%%\n' % self.dislike_percentage()
+        response += 'Dislike: %f%%\n' % self.try_percentage()
 
         return response
 
     def buy_percentage(self):
-        return self.buy_count * 100 / self.document_count if self.document_count else 0
+        return percentage(self.buy_count, self.document_count)
 
     def recommendation_percentage(self):
-        return self.recommendation_count * 100 / self.document_count if self.document_count else 0
+        return percentage(self.recommendation_count, self.document_count)
 
     def question_percentage(self):
-        return self.question_count * 100 / self.document_count if self.document_count else 0
+        return percentage(self.question_count, self.document_count)
 
     def commitment_percentage(self):
-        return self.commitment_count * 100 / self.document_count if self.document_count else 0
+        return percentage(self.commitment_count, self.document_count)
 
     def like_percentage(self):
-        return self.like_count * 100 / self.document_count if self.document_count else 0
+        return percentage(self.like_count, self.document_count)
 
     def dislike_percentage(self):
-        return self.dislike_count * 100 / self.document_count if self.document_count else 0
+        return percentage(self.dislike_count, self.document_count)
 
     def try_percentage(self):
-        return self.try_count * 100 / self.document_count if self.document_count else 0
+        return percentage(self.try_count, self.document_count)
 
     def __unicode__(self):
         return '%s-%s' % (self.stat_for.strftime('%h %d %Y'), self.stat_of.query)
 
     class Meta:
         ordering = ['stat_for']
+
+def percentage(part, whole):
+    return (100 * float(part)/float(whole)) if whole else 0
