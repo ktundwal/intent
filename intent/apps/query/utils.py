@@ -247,7 +247,7 @@ def get_or_create_todays_daily_stat(query):
     return daily_stat
 
 def create_query(kip):
-    terms = kip.product + kip.industryterms
+    terms = ['\"' + term + '\"' for term in kip.product + kip.industryterms]
     return " OR ".join(terms)
 
 def get_kip(key_term, industry_terms_comma_separated):
