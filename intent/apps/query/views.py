@@ -62,6 +62,38 @@ def query_index(request):
              'status_choices': dict(Query.STATUS_CHOICES)},
         context_instance=RequestContext(request))
 
+@login_required
+def download_query_results(request, query_id=None):
+    query = None
+    if query_id:
+        query = get_object_or_404(Query, id=query_id)
+    else:
+        django.contrib.messages.error(request, 'Application error. Need a query id! Please try again.')
+
+    if request.user is not query.created_by and not request.user.is_superuser:
+        return HTTP403Forbidden
+
+    if request.method == 'GET' and query:
+        try:
+            intent = request.GET.get('intent', 'buy')   #default to buy
+            tweets = Document.objects.filter(result_of=query)
+
+            tweets = filter_tweets_for_intent(tweets, intent)
+
+            # Create the HttpResponse object with the appropriate PDF headers.
+            response = HttpResponse(mimetype='plain/text')
+            filename = "cruxly-buy-intent-%s-%s.%s" % (query.query, datetime.now().strftime("%Y_%m_%d_%H_%M_%S_%f"), 'txt')
+            response['Content-Disposition'] = 'attachment; filename="' + filename + '"'
+            for tweet in tweets['tweets']:
+                response.write('[%s] %s\n' % (tweet.author.twitter_handle, tweet.text))
+            return response
+
+        except:
+            log_exception(message='Error processing query id %d' % query_id)
+            django.contrib.messages.error(request, 'Application error. Please try again.')
+    else:
+        django.contrib.messages.error(request, 'Application error. Only GET requests are supported! Please try again.')
+
 
 def filter_tweets_for_intent(docs, intent):
     if intent == 'buy':

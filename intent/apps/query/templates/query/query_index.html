@@ -76,14 +76,16 @@
                 <td>
                     <div class='chart' id="chart_div_{{query.id}}" style="width: 500px; height: 300px;"></div><br>
                     <b>{{ query.buy_count }} potential leads</b>,<br>
-                    <a href="results/{{query.id}}?intent=buy">{{ query.buy_percentage }}% buy intents</a>,
-                    <a href="results/{{query.id}}?intent=like">{{ query.like_percentage }}% likes</a>,
-                    <a href="results/{{query.id}}?intent=try">{{ query.try_percentage }}% try intent</a><br>
-                    <a href="results/{{query.id}}?intent=question">{{ query.question_percentage }}% questions/requests</a>,
-                    <a href="results/{{query.id}}?intent=recommendation">{{ query.recommendation_percentage }}% recommendations</a>,
-                    <a href="results/{{query.id}}?intent=commitment">{{ query.commitment_percentage }}% commitments</a><br>
+                    <a href="results/{{query.id}}?intent=buy">{{ query.buy_percentage|floatformat:"2" }}% buy intents</a>,
+                    <a href="results/{{query.id}}?intent=like">{{ query.like_percentage|floatformat:"2" }}% likes</a>,
+                    <a href="results/{{query.id}}?intent=try">{{ query.try_percentage|floatformat:"2" }}% try intent</a><br>
+                    <a href="results/{{query.id}}?intent=question">{{ query.question_percentage|floatformat:"2" }}% questions/requests</a>,
+                    <a href="results/{{query.id}}?intent=recommendation">{{ query.recommendation_percentage|floatformat:"2" }}% recommendations</a>,
+                    <a href="results/{{query.id}}?intent=commitment">{{ query.commitment_percentage|floatformat:"2" }}% commitments</a><br>
 
-                    <a href="results/{{query.id}}?intent=dislike">{{ query.dislike_percentage }}% dislikes</a><br>
+                    <a href="results/{{query.id}}?intent=dislike">{{ query.dislike_percentage|floatformat:"2" }}% dislikes</a><br>
+
+                    <a href="download/{{query.id}}?intent=buy">Download leads</a>
 
                 </td>
                 <!--
