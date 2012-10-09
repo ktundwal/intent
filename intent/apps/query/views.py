@@ -76,15 +76,13 @@ def download_query_results(request, query_id=None):
     if request.method == 'GET' and query:
         try:
             intent = request.GET.get('intent', 'buy')   #default to buy
-            tweets = Document.objects.filter(result_of=query)
-
-            tweets = filter_tweets_for_intent(tweets, intent)
+            tweets = Document.objects.filter(result_of=query).filter(buy_rule__isnull=False)[:100]
 
             # Create the HttpResponse object with the appropriate PDF headers.
             response = HttpResponse(mimetype='plain/text')
             filename = "cruxly-buy-intent-%s-%s.%s" % (query.query, datetime.now().strftime("%Y_%m_%d_%H_%M_%S_%f"), 'txt')
             response['Content-Disposition'] = 'attachment; filename="' + filename + '"'
-            for tweet in tweets['tweets']:
+            for tweet in tweets:
                 response.write('[%s] %s\n' % (tweet.author.twitter_handle, tweet.text))
             return response
 
