@@ -29,7 +29,7 @@
         {% for tracker in vertical_trackers %}
             var data_buy = new google.visualization.DataTable('{{ tracker.buy|safe }}');
             var options_buy = {
-                title: '{{ tracker.name }} - Buy intents',
+                title: '{{ tracker.name }} - Percent Buy intents',
                 hAxis: {title: name, titleTextStyle: {color: 'red'}},
                 //legend: 'bottom',
                 width: 500, height: 400,
@@ -40,7 +40,7 @@
 
             var data_like = new google.visualization.DataTable('{{ tracker.like|safe }}');
             var options_like = {
-                title: '{{ tracker.name }} - Like intents',
+                title: '{{ tracker.name }} - Percent Like intents',
                 hAxis: {title: name, titleTextStyle: {color: 'red'}},
                 //legend: 'bottom',
                 width: 500, height: 400,
@@ -51,7 +51,7 @@
 
             var data_dislike = new google.visualization.DataTable('{{ tracker.dislike|safe }}');
             var options_dislike = {
-                title: '{{ tracker.name }} - Dislike intents',
+                title: '{{ tracker.name }} - Percent Dislike intents',
                 hAxis: {title: name, titleTextStyle: {color: 'red'}},
                 //legend: 'bottom',
                 width: 500, height: 400,
