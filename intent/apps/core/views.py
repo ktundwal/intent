@@ -26,11 +26,13 @@ def home(request):
         #        list of lists
 
         trackers_chartdata_list = []
-        trackers = VerticalTracker.objects.all()
 
-        for tracker in trackers:
+        try:
+            tracker = VerticalTracker.objects.get(pk=1)
             intent_gviz_json = get_verticaltracker_gvizjson(tracker)
             trackers_chartdata_list.append(intent_gviz_json)
+        except Exception, e:
+            log_exception(message='Error collecting vertical data for home page')
 
         return TemplateResponse(request, 'core/home.html', {
             'vertical_trackers':trackers_chartdata_list,
