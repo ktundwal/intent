@@ -25,17 +25,17 @@ def home(request):
         #        ]);
         #        list of lists
 
-        trackers_chartdata_list = []
-
-        try:
-            tracker = VerticalTracker.objects.get(pk=1)
-            intent_gviz_json = get_verticaltracker_gvizjson(tracker)
-            trackers_chartdata_list.append(intent_gviz_json)
-        except Exception, e:
-            log_exception(message='Error collecting vertical data for home page')
+#        trackers_chartdata_list = []
+#
+#        try:
+#            tracker = VerticalTracker.objects.get(pk=1)
+#            intent_gviz_json = get_verticaltracker_gvizjson(tracker)
+#            trackers_chartdata_list.append(intent_gviz_json)
+#        except Exception, e:
+#            log_exception(message='Error collecting vertical data for home page')
 
         return TemplateResponse(request, 'core/home.html', {
-            'vertical_trackers':trackers_chartdata_list,
+#            'vertical_trackers':trackers_chartdata_list,
             'total_documents_processed': Query.objects.all().aggregate(Sum('count'))['count__sum'],
             'buy_count': Query.objects.all().aggregate(Sum('buy_count'))['buy_count__sum']
         })

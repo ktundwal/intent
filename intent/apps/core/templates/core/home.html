@@ -18,58 +18,7 @@
         <link rel="stylesheet" href="/static/core/css/reminderpin.css">
     </head>
 
-    <!--Load the AJAX API-->
-    <script type="text/javascript" src="https://www.google.com/jsapi"></script>
-
-    <script type="text/javascript">
-        google.load("visualization", "1", {packages:["corechart"]});
-        google.setOnLoadCallback(drawChart);
-        function drawChart() {
-
-        {% for tracker in vertical_trackers %}
-            var data_buy = new google.visualization.DataTable('{{ tracker.buy|safe }}');
-            var options_buy = {
-                title: '{{ tracker.name }} - Percent Buy intents',
-                hAxis: {title: name, titleTextStyle: {color: 'red'}},
-                //legend: 'bottom',
-                width: 500, height: 400,
-                //chartArea:{left:20,top:20,width:"100%",height:"100%"},
-            };
-            var chart_buy = new google.visualization.LineChart(document.getElementById('chart_div_buy_{{tracker.id}}'));
-            chart_buy.draw(data_buy, options_buy);
-
-            var data_like = new google.visualization.DataTable('{{ tracker.like|safe }}');
-            var options_like = {
-                title: '{{ tracker.name }} - Percent Like intents',
-                hAxis: {title: name, titleTextStyle: {color: 'red'}},
-                //legend: 'bottom',
-                width: 500, height: 400,
-                //chartArea:{left:0,top:10,width:"100%"},
-            };
-            var chart_like = new google.visualization.LineChart(document.getElementById('chart_div_like_{{tracker.id}}'));
-            chart_like.draw(data_like, options_like);
-
-            var data_dislike = new google.visualization.DataTable('{{ tracker.dislike|safe }}');
-            var options_dislike = {
-                title: '{{ tracker.name }} - Percent Dislike intents',
-                hAxis: {title: name, titleTextStyle: {color: 'red'}},
-                //legend: 'bottom',
-                width: 500, height: 400,
-                //chartArea:{left:0,top:10,width:"100%"},
-            };
-            var chart_dislike = new google.visualization.LineChart(document.getElementById('chart_div_dislike_{{tracker.id}}'));
-            chart_dislike.draw(data_dislike, options_dislike);
-        {% endfor %}
-
-        }
-    </script>
-
-    <style type="text/css">
-        .carousel-inner { text-align: center; }
-        .carousel .item > div { display: inline-block; }
-    </style>
-
-    <body data-spy="scroll" data-target=".subnav" data-offset="50">
+    <body data-spy="scroll" data-target=".subnav" >
 
         <!-- Navbar
         ================================================== -->
@@ -93,26 +42,12 @@
             <!-- Masthead
            ================================================== -->
             <header class="jumbotron masthead">
-                <div class="inner">
-                    <h1>Find leads on Twitter</h1>
-                    <p>People express intentions in their tweets. What if you could use those to find your next customers? Or find dissatisfied ones.</p>
-
+                <div class="container">
+                    <h1>Find intents that matter</h1>
                     <div class="container">
                         <div class="row">
                             <div class="span12" style="text-align:center; margin: 0 auto;">
-                                <p class="">Tracking <strong>{{  buy_count }}</strong> leads in <strong>{{ total_documents_processed }}</strong> tweets</p><br>
-                                <!--
-                                <form action="{% url query:demo %}" method=post class="form-horizontal"> {% csrf_token %}
-                                    <fieldset>
-                                        <div class="control-group">
-                                            <div class="controls" style="text-align:center; margin: 0 auto;">
-                                                <input id="query" name="query" type="text" value="starbucks"/>
-                                                <button class="btn" type="submit">Try</button>
-                                            </div>
-                                        </div>
-                                    </fieldset>
-                                </form>
-                                -->
+                                <p class="">Found <strong>{{  buy_count }}</strong> intents in <strong>{{ total_documents_processed }}</strong> tweets</p><br>
                             </div>
                         </div>
                     </div>
@@ -120,17 +55,38 @@
                     <div id="myCarousel" class="carousel slide">
                         <!-- Carousel items -->
                         <div class="carousel-inner">
-                            {% for tracker in vertical_trackers %}
-                                <div class="active item">
-                                    <div class='chart' id="chart_div_buy_{{tracker.id}}"></div>
+                            <div class="active item" style="text-align:center; margin: 0 auto;">
+                                <div>
+                                    <img src="/static/core/img/home-page-graphics-tweets-solo-5x3-buy.png">
                                 </div>
-                                <div class="item">
-                                    <div class='chart' id="chart_div_like_{{tracker.id}}"></div>
+                                <div class="carousel-caption">
+                                    <p>Find your <strong>next</strong> customer</p>
                                 </div>
-                                <div class="item">
-                                    <div class='chart' id="chart_div_dislike_{{tracker.id}}"></div>
+                            </div>
+                            <div class="item" style="text-align:center; margin: 0 auto;">
+                                <div>
+                                    <img src="/static/core/img/home-page-graphics-tweets-solo-5x3-like.png">
                                 </div>
-                            {% endfor %}
+                                <div class="carousel-caption">
+                                    <p>Fine tune your <strong>campaign</strong> and engage your advocates</p>
+                                </div>
+                            </div>
+                            <div class="item" style="text-align:center; margin: 0 auto;">
+                                <div>
+                                    <img src="/static/core/img/home-page-graphics-tweets-solo-5x3-dislike.png">
+                                </div>
+                                <div class="carousel-caption">
+                                    <p>Provide <strong>support</strong> and keep your customers happy</p>
+                                </div>
+                            </div>
+                            <div class="item" style="text-align:center; margin: 0 auto;">
+                                <div>
+                                    <img src="/static/core/img/home-page-graphics-tweets-solo-5x3-question.png">
+                                </div>
+                                <div class="carousel-caption">
+                                    <p>Improve your <strong>product</strong> and find what features are desired</p>
+                                </div>
+                            </div>
                         </div>
                         <!-- Carousel nav -->
                         <a class="carousel-control left" href="#myCarousel" data-slide="prev">&lsaquo;</a>
@@ -151,87 +107,20 @@
                     </ul>
                 </div>
 
-                <!--
-                <div class="bs-docs-social">
-                    <div class="container">
-                        <ul class="bs-docs-social-buttons">
-                             <li class="follow-btn">
-                                <a href="https://twitter.com/cruxly" class="twitter-follow-button" data-link-color="#0069D6" data-show-count="true">Follow @cruxly</a>
-                            </li>
-                            <li class="tweet-btn">
-                                <a href="https://twitter.com/share" class="twitter-share-button" data-url="http://www.cruxly.com/" data-count="horizontal" data-via="cruxly" data-related="mdo:Creator of Cruxly">Tweet</a>
-                            </li>
-                        </ul>
-                    </div>
-                </div>
-                -->
-
             </header>
+
+            <hr class="soften">
 
             <div class="row-fluid">
                 <div class="span6">
                     <h2>Why?</h2>
-                    <p>Cruxly can analyze Twitter, Facebook, other social media posts, as well as email messages to detect actionable intent in near real-time. Using proprietary data analytics, Cruxly identifies a Want (<strong>Likes</strong>, <strong>Try</strong> and <strong>Buying Intent</strong>), <strong>Question or Request</strong>, <strong>Promise or Commitment</strong> and <strong>Dislikes</strong>. Cruxly helps businesses in their marketing and sales initiatives including lead generation, product management and research, and customer service.</p>
+                    <p>Cruxly analyzes Twitter, Facebook, other social media posts, as well as email messages to detect actionable intent in near real-time. Cruxly identifies buy, try, like, dislike, question, commitments and recommendation intents </p>
                 </div><!--/span-->
                 <div class="span6">
                     <h2>Patented technology</h2>
-                    <p>Cruxly can analyze the content of any online post or message using patented analytics to detect wants, likes, questions, and promises. The Cruxly team collectively has more than 50 years of NLP experience, and is led by Aloke Guha who holds 6 patents (of 25 issued) related to machine learning and data mining. </p>
+                    <p>The Cruxly team collectively has more than 50 years of NLP experience, and is led by Aloke Guha who holds 6 patents (of 25 issued) related to machine learning and data mining. </p>
                 </div>
             </div>
-
-            <hr class="soften">
-
-            <div class="marketing">
-                <h1>Designed for social media</h1>
-                <p class="marketing-byline">Available in various flavors</p>
-                <div class="row">
-                    <div class="span4">
-                        <img class="bs-icon" src="http://twitter.github.com/bootstrap/assets/img/glyphicons/glyphicons_042_group.png">
-                        <h2>HTTP API</h2>
-                        <p>The easiest and most common usage is to call our HTTP API from your application that receives or send messages. The API will process the message body you provide and return JSON with actionable text, questions or commitments.                            .</p>
-                    </div>
-                    <div class="span4">
-                        <img class="bs-icon" src="http://twitter.github.com/bootstrap/assets/img/glyphicons/glyphicons_079_podium.png">
-                        <h2>Android library</h2>
-                        <p>Worried about security? Integrate Cruxly's core library from your Android app and dont worry about sending personal data to any servers.</p>
-                    </div>
-                    <div class="span4">
-                        <img class="bs-icon" src="http://twitter.github.com/bootstrap/assets/img/glyphicons/glyphicons_163_iphone.png">
-                        <h2>.Net library</h2>
-                        <p>Leverage Cruxly's detection logic by embedding it within your desktop application. To prove it, we are shipping a standalone <a href=="http://www.cruxly.com/technology/clkn/http/www.cruxly.com/clkn/http/cruxly-public.s3.amazonaws.com/installer/alpha/ol-companion/setup.exe">Microsoft Outlook add-in</a> that requires no communication with Cruxly servers.</p>
-                    </div>
-                </div><!--/row-->
-
-                <hr class="soften">
-
-                <div class="hide">
-                <h1>Using Cruxly.</h1>
-                <p class="marketing-byline">For even more companies using Cruxly, <a href="http://tundwal.com/" target="_blank">visit our blog</a>.</p>
-                <ul class="thumbnails example-sites">
-                    <li class="span3">
-                        <a class="thumbnail" href="http://soundready.fm/" target="_blank">
-                            <img src="http://twitter.github.com/bootstrap/assets/img/example-sites/soundready.png" alt="SoundReady.fm">
-                        </a>
-                    </li>
-                    <li class="span3">
-                        <a class="thumbnail" href="http://kippt.com/" target="_blank">
-                            <img src="http://twitter.github.com/bootstrap/assets/img/example-sites/kippt.png" alt="Kippt">
-                        </a>
-                    </li>
-                    <li class="span3">
-                        <a class="thumbnail" href="http://www.fleetio.com/" target="_blank">
-                            <img src="http://twitter.github.com/bootstrap/assets/img/example-sites/fleetio.png" alt="Fleetio">
-                        </a>
-                    </li>
-                    <li class="span3">
-                        <a class="thumbnail" href="http://www.jshint.com/" target="_blank">
-                            <img src="http://twitter.github.com/bootstrap/assets/img/example-sites/jshint.png" alt="JS Hint">
-                        </a>
-                    </li>
-                </ul>
-                </div>
-
-            </div><!-- /.marketing -->
 
             <!-- Footer
            ================================================== -->
