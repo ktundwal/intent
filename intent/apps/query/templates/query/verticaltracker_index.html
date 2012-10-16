@@ -1,0 +1,77 @@
+{% extends 'core/base.html' %}
+{% block javascript %}
+
+    <!--Load the AJAX API-->
+    <script type="text/javascript" src="https://www.google.com/jsapi"></script>
+
+    <script type="text/javascript">
+        google.load("visualization", "1", {packages:["corechart"]});
+        google.setOnLoadCallback(drawChart);
+        function drawChart() {
+
+        {% for tracker in vertical_trackers %}
+            var data_buy = new google.visualization.DataTable('{{ tracker.buy|safe }}');
+            var options_buy = {
+                title: '{{ tracker.name }} - Percent Buy intents',
+                hAxis: {title: name, titleTextStyle: {color: 'red'}},
+                //legend: 'bottom',
+                width: 500, height: 400,
+                //chartArea:{left:20,top:20,width:"100%",height:"100%"},
+            };
+            var chart_buy = new google.visualization.LineChart(document.getElementById('chart_div_buy_{{tracker.id}}'));
+            chart_buy.draw(data_buy, options_buy);
+
+            var data_like = new google.visualization.DataTable('{{ tracker.like|safe }}');
+            var options_like = {
+                title: '{{ tracker.name }} - Percent Like intents',
+                hAxis: {title: name, titleTextStyle: {color: 'red'}},
+                //legend: 'bottom',
+                width: 500, height: 400,
+                //chartArea:{left:0,top:10,width:"100%"},
+            };
+            var chart_like = new google.visualization.LineChart(document.getElementById('chart_div_like_{{tracker.id}}'));
+            chart_like.draw(data_like, options_like);
+
+            var data_dislike = new google.visualization.DataTable('{{ tracker.dislike|safe }}');
+            var options_dislike = {
+                title: '{{ tracker.name }} - Percent Dislike intents',
+                hAxis: {title: name, titleTextStyle: {color: 'red'}},
+                //legend: 'bottom',
+                width: 500, height: 400,
+                //chartArea:{left:0,top:10,width:"100%"},
+            };
+            var chart_dislike = new google.visualization.LineChart(document.getElementById('chart_div_dislike_{{tracker.id}}'));
+            chart_dislike.draw(data_dislike, options_dislike);
+        {% endfor %}
+
+        }
+    </script>
+
+{% endblock %}
+
+{% block title %}Category trackers{% endblock %}
+
+{% block yield %}
+    <h1>Category trackers</h1>
+    <table class="table table-striped table-bordered table-condensed">
+        <thead><tr>
+            <th width='30%'>Category tracker</th>
+            <th >Results</th>
+        </tr></thead>
+        <tbody>
+        {% for tracker in vertical_trackers %}
+            <tr>
+                <td>
+                    {{ tracker.name }}
+                </td>
+                <td>
+                    <div class='chart' id="chart_div_buy_{{tracker.id}}"></div>
+                    <div class='chart' id="chart_div_like_{{tracker.id}}"></div>
+                    <div class='chart' id="chart_div_dislike_{{tracker.id}}"></div>
+                </td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+
+{% endblock %}

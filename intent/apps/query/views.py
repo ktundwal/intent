@@ -63,6 +63,26 @@ def query_index(request):
         context_instance=RequestContext(request))
 
 @login_required
+def verticaltracker_index(request):
+    trackers = []
+
+    if request.user.is_superuser:
+        trackers = VerticalTracker.objects.all()
+    else:
+        trackers = VerticalTracker.objects.filter(created_by=request.user)
+
+    trackers_chartdata_list = []
+
+
+    for tracker in trackers:
+        intent_gviz_json = get_verticaltracker_gvizjson(tracker)
+        trackers_chartdata_list.append(intent_gviz_json)
+
+    return TemplateResponse(request, 'query/verticaltracker_index.html', {
+        'vertical_trackers':trackers_chartdata_list
+    })
+
+@login_required
 def download_query_results(request, query_id=None):
     query = None
     if query_id:
@@ -214,7 +234,7 @@ def new_verticaltracker(request, verticaltracker_id=None):
                 q.vertical_tracker = verticaltracker
                 q.save()
             django.contrib.messages.success(request, 'New vertical tracker successfully added.')
-            return HttpResponseRedirect(reverse('query:recent-queries'))
+            return HttpResponseRedirect(reverse('query:verticaltracker-index'))
         else:
             django.contrib.messages.error(request, 'Vertical tracker did not pass validation!')
             #message = UserMessage("Validation error", "Query did not pass validation!")
