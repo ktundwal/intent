@@ -32,6 +32,7 @@ from .models import *
 from .utils import *
 from .tasks import *
 from django.utils import simplejson
+import csv
 
 from intent.apps.core.utils import *
 
@@ -99,14 +100,17 @@ def download_query_results(request, query_id=None):
             tweets = Document.objects.filter(result_of=query).filter(buy_rule__isnull=False)[:100]
 
             # Create the HttpResponse object with the appropriate PDF headers.
-            response = HttpResponse(mimetype='plain/text')
-            filename = "cruxly-buy-intent-%s-%s.%s" % (query.query, datetime.now().strftime("%Y_%m_%d_%H_%M_%S_%f"), 'txt')
+            response = HttpResponse(mimetype='text/csv')
+            filename = "cruxly-buy-intent-%s-%s.%s" % (query.query, datetime.now().strftime("%Y_%m_%d_%H_%M_%S_%f"), 'csv')
             response['Content-Disposition'] = 'attachment; filename="' + filename + '"'
+
+            writer = csv.writer(response)
+            writer.writerow(['Twitter Handle', 'Tweet'])
             for tweet in tweets:
-                response.write('[%s] %s\n' % (tweet.author.twitter_handle, tweet.text))
+                writer.writerow([tweet.author.twitter_handle, tweet.text])
             return response
 
-        except:
+        except Exception, e:
             log_exception(message='Error processing query id %d' % query_id)
             django.contrib.messages.error(request, 'Application error. Please try again.')
     else:
