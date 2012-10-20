@@ -33,6 +33,8 @@ from .utils import *
 from .tasks import *
 from django.utils import simplejson
 import csv
+import xlwt
+from xlwt import Workbook
 
 from intent.apps.core.utils import *
 
@@ -40,14 +42,6 @@ from pattern import web    # for twitter search
 from pattern.text.en import wordnet, parse, tag, Text, sentiment, modality, mood    # for sentence breaking
 
 from endless_pagination.decorators import page_template
-
-@login_required
-def recent_queries(request):
-    return render_to_response("query/recent_queries.html",
-            {'queries': Query.objects.all(),
-             'status_choices': dict(Query.STATUS_CHOICES)},
-        RequestContext(request))
-
 
 @login_required
 def query_index(request):
@@ -83,6 +77,53 @@ def verticaltracker_index(request):
         'vertical_trackers':trackers_chartdata_list
     })
 
+def xls_to_response(xls, fname):
+    response = HttpResponse(mimetype="application/ms-excel")
+    response['Content-Disposition'] = 'attachment; filename="%s"' % fname
+    xls.save(response)
+    return response
+
+
+def save_query_results_as_excel(query):
+    tweets = Document.objects.filter(result_of=query).filter(buy_rule__isnull=False)[:100]
+    xls = xlwt.Workbook()
+    sheet = xls.add_sheet('cruxly intents')
+    row = 0
+    # Write header
+    sheet.write(0, 0, 'KIP')
+    sheet.write(0, 1, 'BUY')
+    sheet.write(0, 2, 'LIKE')
+    sheet.write(0, 3, 'TRY')
+    sheet.write(0, 4, 'RECOMMENDATION')
+    sheet.write(0, 5, 'QUESTION')
+    sheet.write(0, 6, 'COMMITMENT')
+    sheet.write(0, 7, 'DISLIKE')
+    sheet.write(0, 8, 'TWEET URL')
+    sheet.write(0, 9, 'AUTHOR')
+    sheet.write(0, 10, 'LOCATION')
+    sheet.write(0, 11, 'TWEET')
+    row += 1
+    for tweet in tweets:
+        try:
+            row += 1
+            sheet.write(row, 0, '%s' % query)
+            sheet.write(row, 1, 'Y' if tweet.buy_rule else 'N')
+            sheet.write(row, 2, 'Y' if tweet.like_rule else 'N')
+            sheet.write(row, 3, 'Y' if tweet.try_rule else 'N')
+            sheet.write(row, 4, 'Y' if tweet.recommendation_rule else 'N')
+            sheet.write(row, 5, 'Y' if tweet.question_rule else 'N')
+            sheet.write(row, 6, 'Y' if tweet.commitment_rule else 'N')
+            sheet.write(row, 7, 'Y' if tweet.dislike_rule else 'N')
+            sheet.write(row, 8, xlwt.Formula('HYPERLINK("http://twitter.com/%s/status/%s"; "%s")'
+                                             % (tweet.author, tweet.source_id, pretty_date(time=tweet.date.replace(tzinfo=None)))))
+            sheet.write(row, 9, '%s' % tweet.author)
+            sheet.write(row, 10, 'tbd')
+            sheet.write(row, 11, tweet.text)
+        except UnicodeEncodeError, e:
+            log_exception(message='Exception writing row [%s]' % tweet.text)
+    return xls
+
+
 @login_required
 def download_query_results(request, query_id=None):
     query = None
@@ -97,24 +138,17 @@ def download_query_results(request, query_id=None):
     if request.method == 'GET' and query:
         try:
             intent = request.GET.get('intent', 'buy')   #default to buy
-            tweets = Document.objects.filter(result_of=query).filter(buy_rule__isnull=False)[:100]
-
-            # Create the HttpResponse object with the appropriate PDF headers.
-            response = HttpResponse(mimetype='text/csv')
-            filename = "cruxly-buy-intent-%s-%s.%s" % (query.query, datetime.now().strftime("%Y_%m_%d_%H_%M_%S_%f"), 'csv')
-            response['Content-Disposition'] = 'attachment; filename="' + filename + '"'
-
-            writer = csv.writer(response)
-            writer.writerow(['Twitter Handle', 'Tweet'])
-            for tweet in tweets:
-                writer.writerow([tweet.author.twitter_handle, tweet.text])
-            return response
+            filename = "cruxly-intents-%s-%s.%s" % (query.query, datetime.now().strftime("%Y_%m_%d_%H_%M_%S_%f"), 'xls')
+            xls = save_query_results_as_excel(query)
+            return xls_to_response(xls, filename)
 
         except Exception, e:
-            log_exception(message='Error processing query id %d' % query_id)
-            django.contrib.messages.error(request, 'Application error. Please try again.')
+            log_exception(message='Error processing query id %s' % query)
+            django.contrib.messages.error(request, 'Application error. Please report to support@cruxly.com.')
+            return HttpResponseRedirect(reverse('query:query_index'))
     else:
         django.contrib.messages.error(request, 'Application error. Only GET requests are supported! Please try again.')
+        return HttpResponseRedirect(reverse('query:query_index'))
 
 
 def filter_tweets_for_intent(docs, intent):
@@ -206,7 +240,7 @@ def new_query(request, query_id=None):
             query.created_by = request.user
             query.save() # real save to DB.
             #django.contrib.messages.success(request, 'New query successfully added.') FIXME
-            return HttpResponseRedirect(reverse('query:recent-queries'))
+            return HttpResponseRedirect(reverse('query:query_index'))
         else:
             django.contrib.messages.error(request, 'Query did not pass validation!')
             #message = UserMessage("Validation error", "Query did not pass validation!")

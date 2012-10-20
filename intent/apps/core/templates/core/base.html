@@ -61,7 +61,7 @@
                         <li><a href="#new-verticaltracker" data-toggle="modal">New Category Tracker</a></li>
                         <li><a href="{% url query:verticaltracker_index %}">Category Trackers</a></li>
                         <li><a href="#new-query" data-toggle="modal">New Product Tracker</a></li>
-                        <li><a href="{% url query:recent-queries %}">Product Trackers</a></li>
+                        <li><a href="{% url query:query_index %}">Product Trackers</a></li>
                         <li><a href="{% url core:logout %}">Logout {{ user.username }}</a></li>
                     {% else %}
                         <li><a href="{% url core:login %}">Login</a></li>

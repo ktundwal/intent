@@ -15,7 +15,7 @@ from intent.apps.query.utils import *
 
 def home(request):
     if request.user.is_authenticated():
-        return HttpResponseRedirect(reverse('query:recent-queries'))
+        return HttpResponseRedirect(reverse('query:query_index'))
     else:
         #        Vertical tracker needs following
         #        var data = google.visualization.arrayToDataTable([

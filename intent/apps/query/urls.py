@@ -15,7 +15,7 @@ from django.conf.urls import patterns, url
 from django.contrib.auth.decorators import login_required
 
 urlpatterns = patterns('intent.apps.query.views',
-    url(r'^$', 'query_index', name='recent-queries'),
+    url(r'^$', 'query_index', name='query_index'),
     url(r'^new-query/$', 'new_query', name='new-query'),
     url(r'^edit/(?P<query_id>\d+)', 'new_query', name='edit-query'),
     url(r'^results/(?P<query_id>\d+)', 'query_results', name='query_results'),
