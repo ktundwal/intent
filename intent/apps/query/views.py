@@ -117,7 +117,7 @@ def save_query_results_as_excel(query):
             sheet.write(row, 8, xlwt.Formula('HYPERLINK("http://twitter.com/%s/status/%s"; "%s")'
                                              % (tweet.author, tweet.source_id, pretty_date(time=tweet.date.replace(tzinfo=None)))))
             sheet.write(row, 9, '%s' % tweet.author)
-            sheet.write(row, 10, 'tbd')
+            sheet.write(row, 10, '%s, %s' % (tweet.latitude, tweet.longitude) if tweet.latitude else '')
             sheet.write(row, 11, tweet.text)
         except UnicodeEncodeError, e:
             log_exception(message='Exception writing row [%s]' % tweet.text)

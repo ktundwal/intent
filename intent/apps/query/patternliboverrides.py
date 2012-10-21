@@ -57,6 +57,7 @@ class TwitterEx(SearchEngine):
             r.date              = self.format(x.get("created_at", data.get("as_of")))
             r.author            = self.format(x.get("from_user"))
             r.author_user_id    = self.format(x.get("from_user_id"))
+            r.geo               = x.get("geo")  # {u'coordinates': [28.592513, -96.638065], u'type': u'Point'}
             r.profile           = self.format(x.get("profile_image_url")) # Profile picture URL.
             r.language          = self.format(x.get("iso_language_code"))
             r.tweet_id          = self.format(x.get("id"))

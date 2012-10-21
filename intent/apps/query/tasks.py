@@ -17,6 +17,8 @@ from intent.settings.common import *
 import sys
 import traceback
 
+from geopy import geocoders
+
 # Run this
 # python manage.py celeryd -E -B --loglevel=INFO
 
@@ -119,50 +121,65 @@ def run_and_analyze_queries():
                                     name=tweet['author_user_name'],
                                     profile_image_url=tweet['image'])
 
-                            document = Document.objects.create(
-                                result_of           = query,
-                                source              = Document.TWITTER_SOURCE,
-                                author              = author,
-                                source_id           = tweet['tweet_id'],
-                                date                = tweet['date'],
-                                text                = tweet['text'],
-                                analyzed            = True,
-                                # for now we are not saving any rules. Just unknowns
-                                buy_rule            = buy_rule,
-                                recommendation_rule = recommendation_rule,
-                                question_rule       = question_rule,
-                                commitment_rule     = commitment_rule,
-                                like_rule           = like_rule,
-                                dislike_rule        = dislike_rule,
-                                try_rule            = try_rule,
+#                            if tweet['geo']:
+#                                lat = tweet['geo']['coordinates'][0]
+#                                lng = tweet['geo']['coordinates'][1]
+#                                place = None
+#                            else:
+#                                lat = None
+#                                long = None
+#                                place = None
 
-                            )
-                            document.save()
+                            try:
+                                document = Document.objects.create(
+                                    result_of           = query,
+                                    source              = Document.TWITTER_SOURCE,
+                                    author              = author,
+                                    source_id           = tweet['tweet_id'],
+                                    date                = datetime.strptime(tweet['date'], DATETIME_FORMAT),
+                                    text                = tweet['text'],
+                                    analyzed            = True,
+                                    latitude            = tweet['latitude'],
+                                    longitude           = tweet['longitude'],
+                                    display_location    = None,
+                                    # for now we are not saving any rules. Just unknowns
+                                    buy_rule            = buy_rule,
+                                    recommendation_rule = recommendation_rule,
+                                    question_rule       = question_rule,
+                                    commitment_rule     = commitment_rule,
+                                    like_rule           = like_rule,
+                                    dislike_rule        = dislike_rule,
+                                    try_rule            = try_rule,
 
-                            daily_stat.document_count += 1
-                            query.count               += 1
+                                )
+                                document.save()
 
-                            if buy_rule:
-                                daily_stat.buy_count    += 1
-                                query.buy_count         += 1
-                            if recommendation_rule:
-                                daily_stat.recommendation_count    += 1
-                                query.recommendation_count         += 1
-                            if question_rule:
-                                daily_stat.question_count    += 1
-                                query.question_count         += 1
-                            if commitment_rule:
-                                daily_stat.commitment_count    += 1
-                                query.commitment_count         += 1
-                            if like_rule:
-                                daily_stat.like_count    += 1
-                                query.like_count         += 1
-                            if dislike_rule:
-                                daily_stat.dislike_count    += 1
-                                query.dislike_count         += 1
-                            if try_rule:
-                                daily_stat.try_count    += 1
-                                query.try_count         += 1
+                                daily_stat.document_count += 1
+                                query.count               += 1
+
+                                if buy_rule:
+                                    daily_stat.buy_count    += 1
+                                    query.buy_count         += 1
+                                if recommendation_rule:
+                                    daily_stat.recommendation_count    += 1
+                                    query.recommendation_count         += 1
+                                if question_rule:
+                                    daily_stat.question_count    += 1
+                                    query.question_count         += 1
+                                if commitment_rule:
+                                    daily_stat.commitment_count    += 1
+                                    query.commitment_count         += 1
+                                if like_rule:
+                                    daily_stat.like_count    += 1
+                                    query.like_count         += 1
+                                if dislike_rule:
+                                    daily_stat.dislike_count    += 1
+                                    query.dislike_count         += 1
+                                if try_rule:
+                                    daily_stat.try_count    += 1
+                                    query.try_count         += 1
+                            except Exception, doc_e:
+                                log_exception(task_logger, "Exception while processing document")
                     else:
                         # We have already analyzed this tweeet. may be we ran soon. SKIP
                         task_logger.info("    already analyzed tweeet. may be we ran soon. SKIPPING (%s)" % tweet['text'])

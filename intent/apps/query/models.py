@@ -179,6 +179,10 @@ class Document(models.Model):
     date = models.DateTimeField(auto_now_add=True)
     text = models.CharField(max_length=200, blank=True, default='')
 
+    latitude = models.CharField(max_length=40, blank=True, null=True)
+    longitude = models.CharField(max_length=40, blank=True, null=True)
+    display_location = models.CharField(max_length=40, blank=True, null=True)
+
     # This will be used to query what all needs analysis in background task
     analyzed = models.BooleanField(default=False)
 

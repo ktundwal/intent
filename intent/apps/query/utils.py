@@ -15,6 +15,7 @@ from intent.apps.query.models import Rule, Document, DailyStat
 from .decorators import *
 
 from intent import settings
+import tweepy
 
 import gviz_api
 
@@ -27,6 +28,24 @@ else:
     CRUXLY_SERVER = 'api.cruxly.com'
 
 CRUXLY_API = 'http://' + CRUXLY_SERVER + '/rest/v1/analyze'
+
+DATETIME_FORMAT = '%Y-%m-%d %H:%M:%S'
+
+# == Twitter OAuth Authentication ==
+#
+# This mode of authentication is the new preferred way
+# of authenticating with Twitter.
+
+# The consumer keys can be found on your application's Details
+# page located at https://dev.twitter.com/apps (under "OAuth settings")
+consumer_key="0pupnggdsjb0cNPMpMZpVA"
+consumer_secret="LIp2Im85LQbs8r2kqQdhiD884IrxQ5N1dfLlB6ULPQ"
+
+# The access tokens can be found on your applications's Details
+# page located at https://dev.twitter.com/apps (located
+# under "Your access token")
+access_token="151766004-h72B7fDOTWNHqlJCnTYaQxBs1bdyE588cBXc1qWV"
+access_token_secret="bXMb8uvG9e9ZBtBQnbA3HUKpVk5PI3cXa6K6kT7JQ"
 
 logger.info('ENVIRONMENT = %s. Cruxly API = %s' % (settings.ENVIRONMENT, CRUXLY_API))
 
@@ -56,6 +75,17 @@ def search_twitter(query, query_count):
         log_exception("Exception during twitter search for query: %s" % web.bytestring(query))
         raise type(e)(e.message + ' for query: %s' % web.bytestring(query))
     return tweets
+
+def search_twitter_using_tweepy(query):
+    auth = tweepy.OAuthHandler(consumer_key, consumer_secret)
+    auth.set_access_token(access_token, access_token_secret)
+    api = tweepy.API(auth)
+    return api.search(
+        q=query,
+        rpp=100,
+        result_type="recent",
+        include_entities=True,
+        lang="en")
 
 def clean_tweet(tweet):
     txt1 = web.plaintext(tweet)
@@ -95,6 +125,8 @@ def insert_intents(tweets, caller_logger):
     try:
         #make a request object to hold the POST data and the URL
         #make the request using the request object as an argument, store response in a variable
+        #dthandler = lambda obj: obj.isoformat() if isinstance(obj, datetime.datetime) else None
+        #tweets_json = json.dumps(tweets, default=dthandler)
         tweets_json = json.dumps(tweets)
         headers = {'content-type': 'application/json'}
         r = requests.post(CRUXLY_API, data=tweets_json, headers=headers, timeout=CRUXLY_API_TIMEOUT)
@@ -178,7 +210,8 @@ def run_and_analyze_query(kip, query_count, logger):
 
     query_from_kip = create_query(kip)
     logger.info("Going to search twitter for " + query_from_kip);
-    all_tweets = search_twitter(query_from_kip, query_count)
+    #all_tweets = search_twitter(query_from_kip, query_count)
+    all_tweets = search_twitter_using_tweepy(query_from_kip)
     after_twitter_search = time.time()
 
     chunked_tweets = list(chunks(all_tweets, TWEETS_PER_API))
@@ -186,25 +219,29 @@ def run_and_analyze_query(kip, query_count, logger):
     chunks_done = 0
     for tweets in chunked_tweets:
         try:
-            processed_tweets = []
+            tweets_without_intents = []
             for tweet in tweets:
-                cleaned_tweet = clean_tweet(tweet.description)
-                #cleaned_tweet = Text(parse(clean_tweet(tweet.desciption))).string
-                analyzed_tweet_dict = dict(
-                    text = cleaned_tweet,    # 'content' key is what cruxly api looks for
-                    author = tweet.author,
-                    author_user_name = tweet.author_user_name,
-                    image = tweet.profile,
-                    url = "".join(['http://twitter.com/', tweet.author, '/status/', tweet.tweet_id]),
-                    date = pretty_date(get_timestamp_from_twitter_date(tweet.date)),
-                    tweet_id = tweet.tweet_id,
-                    kip = kip.dict
-                )
-                processed_tweets.append(analyzed_tweet_dict)
+                try:
+                    cleaned_tweet = clean_tweet(tweet.text)
+                    analyzed_tweet_dict = dict(
+                        text = cleaned_tweet,    # 'content' key is what cruxly api looks for
+                        author = tweet.from_user_id_str,
+                        author_user_name = tweet.from_user,
+                        image = tweet.profile_image_url,
+                        url = "".join(['http://twitter.com/', tweet.from_user_id_str, '/status/', tweet.id_str]),
+                        date = tweet.created_at.strftime(DATETIME_FORMAT),
+                        tweet_id = tweet.id_str,
+                        kip = kip.dict,
+                        latitude = tweet.geo['coordinates'][0] if tweet.geo else None,
+                        longitude = tweet.geo['coordinates'][1] if tweet.geo else None,
+                    )
+                    tweets_without_intents.append(analyzed_tweet_dict)
+                except Exception, e:
+                    log_exception(message="Cruxly API failed to process tweet [%s]" % cleaned_tweet)
 
-            if len(processed_tweets) > 0:
-                processed_tweets = insert_intents(processed_tweets, logger)
-                merged_chunked_tweets += processed_tweets
+            if len(tweets_without_intents) > 0:
+                tweets_with_intents = insert_intents(tweets_without_intents, logger)
+                merged_chunked_tweets += tweets_with_intents
 
             chunks_done += 1
         except Exception, e:
