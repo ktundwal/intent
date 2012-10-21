@@ -225,6 +225,45 @@ def query_results(request,
         response = render_to_response(template, context, context_instance=RequestContext(request))
     return response
 
+@login_required
+def query_results_on_map(request,
+                  query_id=None,
+                  template='query/map.html',
+                  ):
+    query = None
+    if query_id:
+        query = get_object_or_404(Query, id=query_id)
+    else:
+        django.contrib.messages.error(request, 'Application error. Need a query id! Please try again.')
+
+    context = {}
+
+    if request.method == 'GET' and query:
+        try:
+            tweets = Document.objects.filter(result_of=query).filter(latitude__isnull=False)[:100]
+            markers = []
+            for tweet in tweets:
+                if len(tweet.latitude) > 0:
+                    markers.append([tweet.latitude, tweet.longitude, tweet.text])
+
+            context = {
+                'query': query,
+                'markers': markers,
+                'intent': intent,
+                }
+        except:
+            log_exception(message='Error processing query id %s' % query.query)
+            django.contrib.messages.error(request, 'Application error. Please try again.')
+    else:
+        django.contrib.messages.error(request, 'Application error. Only GET requests are supported! Please try again.')
+
+    try:
+        response = render_to_response(template, context, context_instance=RequestContext(request))
+    except Exception, ex:
+        django.contrib.messages.error(request, 'Application error.')
+        response = render_to_response(template, context, context_instance=RequestContext(request))
+    return response
+
 
 @login_required
 def new_query(request, query_id=None):
