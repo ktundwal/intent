@@ -225,6 +225,26 @@ def query_results(request,
         response = render_to_response(template, context, context_instance=RequestContext(request))
     return response
 
+
+def get_intent(tweet):
+    intent = ''
+    if tweet.buy_rule:
+        intent += 'buy, '
+    if tweet.like_rule:
+        intent += 'like, '
+    if tweet.try_rule:
+        intent += 'try, '
+    if tweet.question_rule:
+        intent += 'question, '
+    if tweet.recommendation_rule:
+        intent += 'recommendation, '
+    if tweet.commitment_rule:
+        intent += 'commitment, '
+    if tweet.dislike_rule:
+        intent += 'dislike, '
+    return intent
+
+
 @login_required
 def query_results_on_map(request,
                   query_id=None,
@@ -244,7 +264,7 @@ def query_results_on_map(request,
             markers = []
             for tweet in tweets:
                 if len(tweet.latitude) > 0:
-                    markers.append([tweet.latitude, tweet.longitude, tweet.text])
+                    markers.append([float(tweet.latitude), float(tweet.longitude), tweet.text.encode('utf8'), get_intent(tweet)])
 
             context = {
                 'query': query,
