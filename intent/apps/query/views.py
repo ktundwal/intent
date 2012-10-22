@@ -331,7 +331,7 @@ def new_verticaltracker(request, verticaltracker_id=None):
                 q.vertical_tracker = verticaltracker
                 q.save()
             django.contrib.messages.success(request, 'New vertical tracker successfully added.')
-            return HttpResponseRedirect(reverse('query:verticaltracker-index'))
+            return HttpResponseRedirect(reverse('query:verticaltracker_index'))
         else:
             django.contrib.messages.error(request, 'Vertical tracker did not pass validation!')
             #message = UserMessage("Validation error", "Query did not pass validation!")
