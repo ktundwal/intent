@@ -8,7 +8,7 @@
     google.load("visualization", "1", {packages:["corechart"]});
     google.setOnLoadCallback(drawChart);
     function drawChart() {
-
+        console.log('inside draw chart');
         {% for query in queries %}
 
             var data = google.visualization.arrayToDataTable([
