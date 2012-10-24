@@ -39,7 +39,7 @@ def send_status_email(subject, message):
     send_mail(subject, message, DEFAULT_FROM_EMAIL, ['kapil@cruxly.com'])
 
 
-@periodic_task(run_every=timedelta(minutes=5))
+@periodic_task(run_every=timedelta(minutes=15))
 def run_and_analyze_queries():
     response = None
     email_message = ''
