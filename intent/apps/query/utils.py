@@ -11,7 +11,7 @@ import time # to sleep if twitter raises an exception
 from time import gmtime, strftime
 
 from intent.apps.core.utils import *
-from intent.apps.query.models import Rule, Document, DailyStat, Author
+from intent.apps.query.models import Rule, Document, DailyStat, Author, Query
 from .decorators import *
 
 from intent import settings
@@ -21,6 +21,7 @@ import gviz_api
 
 from datetime import date
 from dateutil.relativedelta import relativedelta
+from django.contrib.auth.models import User
 
 CRUXLY_API_TIMEOUT = 120
 TWEETS_PER_API = 100
@@ -448,12 +449,25 @@ def get_verticaltracker_gvizjson(tracker):
     return intent_gviz_json
 
 def delete_data_older_then_two_weeks():
-    two_weeks_ago = date.today() + relativedelta(weeks = -2)
-    docs_older_than_two_weeks = Document.objects.filter(date__lte=two_weeks_ago)
-    doc_count = docs_older_than_two_weeks.count()
-    docs_older_than_two_weeks.delete()
 
-    authors_with_deleted_tweets = Author.objects.filter(documents__isnull=True)
-    author_count = authors_with_deleted_tweets.count()
-    authors_with_deleted_tweets.delete()
-    logger.info('Deleted %d tweets and %d authors that were older than 2 weeks' % (doc_count, author_count))
+    emails_to_exclude = ['@gmail.com', '@yahoo.com', 'aol.com']
+    users = User.objects.all()
+    for exclude_email in emails_to_exclude:
+        users = users.exclude(email__endswith=exclude_email)
+
+    queries = Query.objects.all()
+    for query in queries:
+        for user in users:
+            queries = queries.exclude(created_by=user)
+
+    for query in queries:
+        logger.info('Going to delete data older than 2 weeks for user %s, query %s' % (query.created_by, query))
+        two_weeks_ago = date.today() + relativedelta(weeks = -1)
+        docs_older_than_two_weeks = Document.objects.filter(result_of=query).filter(date__lte=two_weeks_ago)
+        doc_count = docs_older_than_two_weeks.count()
+        docs_older_than_two_weeks.delete()
+
+        authors_with_deleted_tweets = Author.objects.filter(documents__isnull=True)
+        author_count = authors_with_deleted_tweets.count()
+        authors_with_deleted_tweets.delete()
+        logger.info('Deleted %d tweets and %d authors that were older than 2 weeks' % (doc_count, author_count))
