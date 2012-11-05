@@ -11,13 +11,16 @@ import time # to sleep if twitter raises an exception
 from time import gmtime, strftime
 
 from intent.apps.core.utils import *
-from intent.apps.query.models import Rule, Document, DailyStat
+from intent.apps.query.models import Rule, Document, DailyStat, Author
 from .decorators import *
 
 from intent import settings
 import tweepy
 
 import gviz_api
+
+from datetime import date
+from dateutil.relativedelta import relativedelta
 
 CRUXLY_API_TIMEOUT = 120
 TWEETS_PER_API = 100
@@ -100,25 +103,53 @@ def insert_intents(tweets, caller_logger):
     Input:
     [
         {
-            ...
-            "content": "me&maa' was suppose to just go to Starbucks but then endedd up going to Dairy Queen&Popeye's.ha.",
-            ...
-        },
-        {
-            ...
-            "content": "@DethWench they look at me funny in Starbucks... I order coffee, black. They seem....disappointed",
-            ...
+            "author": "14726127",
+            "url": "http://twitter.com/14726127/status/262266293187670016",
+            "author_user_name": "drbuk",
+            "image": "http://a0.twimg.com/profile_images/1291204822/Screen_shot_2011-03-29_at_09.11.20_normal.png",
+            "kip": {
+                "genericterms": [],
+                "competingterms": [],
+                "keyterms": [
+                    "kindle"
+                ]
+            },
+            "longitude": null,
+            "tweet_id": "262266293187670016",
+            "text": "Amazon: $199 Kindle Fire HD had 'biggest day since launch' after iPad mini event http://t.co/RKRFCz4M",
+            "date": "2012-10-27 18:55:31",
+            "latitude": null
         },
     ]
 
     Output
     [
         {
-            ...
-            "content": "me&maa' was suppose to just go to Starbucks but then endedd up going to Dairy Queen&Popeye's.ha.",
-            "intents": [want, promise],
+            u'intents': [
+                {
+                    u'intent': u'question'
+                }
+            ],
+            u'author': u'261471131',
+            u'text': u'My mom calls her Kindle and iPad?! Not exactly mother.',
+            u'image': u'http://a0.twimg.com/profile_images/2771975641/f5d7d1e323ab1b3442c1eca357ab645f_normal.jpeg',
+            u'kip': {
+                u'genericterms': [],
+                u'keyterms': [
+                    u'kindle'
+                ],
+                u'key': u'kindle_',
+                u'competingterms': []
+            },
+            u'longitude': None,
+            u'source': None,
+            u'tweet_id': u'262266595454357504',
+            u'author_user_name': u'kjerstianna',
+            u'date': u'2012-10-27 18:56:43',
+            u'latitude': None,
+            u'type': None,
+            u'id': None
         },
-        ...
     ]
     """
     response = tweets
@@ -415,3 +446,14 @@ def get_verticaltracker_gvizjson(tracker):
         'like': like_json_str,
         'dislike': dislike_json_str, }
     return intent_gviz_json
+
+def delete_data_older_then_two_weeks():
+    two_weeks_ago = date.today() + relativedelta(weeks = -2)
+    docs_older_than_two_weeks = Document.objects.filter(date__lte=two_weeks_ago)
+    doc_count = docs_older_than_two_weeks.count()
+    docs_older_than_two_weeks.delete()
+
+    authors_with_deleted_tweets = Author.objects.filter(documents__isnull=True)
+    author_count = authors_with_deleted_tweets.count()
+    authors_with_deleted_tweets.delete()
+    logger.info('Deleted %d tweets and %d authors that were older than 2 weeks' % (doc_count, author_count))
