@@ -97,6 +97,14 @@ MIDDLEWARE_CLASSES = (
     # 'django.middleware.clickjacking.XFrameOptionsMiddleware',
 )
 
+AUTHENTICATION_BACKENDS = (
+    # Needed to login by username in Django admin, regardless of 'allauth'
+    "django.contrib.auth.backends.ModelBackend",
+
+    # 'allauth' specific authentication methods, such as login by e-mail
+    "allauth.account.auth_backends.AuthenticationBackend",
+)
+
 ROOT_URLCONF = 'intent.urls'
 
 # Python dotted path to the WSGI application used by Django's runserver.
@@ -142,6 +150,12 @@ INSTALLED_APPS = (
     # Uncomment the next line to enable admin documentation:
     'django.contrib.admindocs',
     'endless_pagination',
+
+    'allauth',
+    'allauth.account',
+    'allauth.socialaccount',
+    'allauth.socialaccount.providers.twitter',
+    'bootstrapform',
 )
 
 TEMPLATE_CONTEXT_PROCESSORS = (
@@ -151,7 +165,9 @@ TEMPLATE_CONTEXT_PROCESSORS = (
     "django.core.context_processors.media",
     "django.core.context_processors.static",
     "django.core.context_processors.request",
-    'django.contrib.messages.context_processors.messages'
+    'django.contrib.messages.context_processors.messages',
+    "allauth.account.context_processors.account",
+    "allauth.socialaccount.context_processors.socialaccount",
 )
 
 # django-registration
@@ -227,5 +243,15 @@ LOGGING = {
 
 # Celery configuration
 BROKER_BACKEND = 'django'
+
+
+# == Twitter OAuth Authentication ==
+#
+# The access tokens can be found on your applications's Details
+# page located at https://dev.twitter.com/apps (located
+# under "Your access token")
+
+TWITTER_ACCESS_TOKEN_CRUXLY="151766004-h72B7fDOTWNHqlJCnTYaQxBs1bdyE588cBXc1qWV"
+TWITTER_ACCESS_TOKEN_SECRET_CRUXLY="bXMb8uvG9e9ZBtBQnbA3HUKpVk5PI3cXa6K6kT7JQ"
 
 #AUTH_PROFILE_MODULE = 'reminder.Provider'

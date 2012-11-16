@@ -71,7 +71,7 @@ def register(request):
 @login_required
 def logout_user(request):
     logout(request)
-    messages.success(request, 'You have successfully logged out.')
+    #messages.success(request, 'You have successfully logged out.')
     return HttpResponseRedirect(reverse('core:home'))
 
 def send_invite_email(recipient_name, recipient_email):

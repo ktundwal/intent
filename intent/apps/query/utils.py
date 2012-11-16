@@ -23,6 +23,8 @@ from datetime import date
 from dateutil.relativedelta import relativedelta
 from django.contrib.auth.models import User
 
+from intent.settings import *
+
 CRUXLY_API_TIMEOUT = 120
 TWEETS_PER_API = 100
 
@@ -34,22 +36,6 @@ else:
 CRUXLY_API = 'http://' + CRUXLY_SERVER + '/rest/v1/analyze'
 
 DATETIME_FORMAT = '%Y-%m-%d %H:%M:%S'
-
-# == Twitter OAuth Authentication ==
-#
-# This mode of authentication is the new preferred way
-# of authenticating with Twitter.
-
-# The consumer keys can be found on your application's Details
-# page located at https://dev.twitter.com/apps (under "OAuth settings")
-consumer_key="0pupnggdsjb0cNPMpMZpVA"
-consumer_secret="LIp2Im85LQbs8r2kqQdhiD884IrxQ5N1dfLlB6ULPQ"
-
-# The access tokens can be found on your applications's Details
-# page located at https://dev.twitter.com/apps (located
-# under "Your access token")
-access_token="151766004-h72B7fDOTWNHqlJCnTYaQxBs1bdyE588cBXc1qWV"
-access_token_secret="bXMb8uvG9e9ZBtBQnbA3HUKpVk5PI3cXa6K6kT7JQ"
 
 logger.info('ENVIRONMENT = %s. Cruxly API = %s' % (settings.ENVIRONMENT, CRUXLY_API))
 
@@ -80,9 +66,13 @@ def search_twitter(query, query_count):
         raise type(e)(e.message + ' for query: %s' % web.bytestring(query))
     return tweets
 
+def get_user_twitter_access_token():
+    return TWITTER_ACCESS_TOKEN_CRUXLY, TWITTER_ACCESS_TOKEN_SECRET_CRUXLY
+
 def search_twitter_using_tweepy(query):
-    auth = tweepy.OAuthHandler(consumer_key, consumer_secret)
-    auth.set_access_token(access_token, access_token_secret)
+    auth = tweepy.OAuthHandler(TWITTER_CONSUMER_KEY, TWITTER_CONSUMER_SECRET)
+    token, token_secret = get_user_twitter_access_token()
+    auth.set_access_token(token, token_secret)
     api = tweepy.API(auth)
     return api.search(
         q=query,
