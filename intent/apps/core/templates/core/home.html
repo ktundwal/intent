@@ -29,10 +29,10 @@
                 <ul class="nav pull-right">
                     <li><a href="http://blog.cruxly.com">Blog</a></li>
                     {% if user.is_authenticated %}
-                    <li><a href="{% url core:logout %}">Logout {{ user.username }}</a></li>
+                        <li><a href="{% url account_logout %}">Logout {{ user.username }}</a></li>
                     {% else %}
-                    <li><a href="{% url core:login %}">Login</a></li>
-                    <li><a href="{% url core:register %}">Register</a></li>
+                        <li><a href="{% url account_login %}">Login</a></li>
+                        <li><a href="{% url account_signup %}">Register</a></li>
                     {% endif %}
                 </ul>
             </div>

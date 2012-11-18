@@ -1,5 +1,5 @@
 from django.template.response import TemplateResponse
-from django.http import HttpResponseRedirect
+from django.http import HttpResponseRedirect, Http404
 from django.core.urlresolvers import reverse
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import logout
@@ -9,13 +9,25 @@ from django.core.mail import send_mail
 from intent import settings
 from intent.apps.query.models import Document, Query, VerticalTracker
 from django.db.models import Sum
+from django.shortcuts import get_object_or_404
+from intent.apps.core.models import *
+from django.views.generic.simple import direct_to_template
 
 from intent.apps.query.utils import *
 
 
 def home(request):
     if request.user.is_authenticated():
-        return HttpResponseRedirect(reverse('query:query_index'))
+        try:
+            user = get_object_or_404(UserProfile, user=request.user)
+            user = None #FIXME
+        except Http404, e:
+            user = None
+        if user:
+            return direct_to_template(request, 'profile.html')
+        else:
+            return HttpResponseRedirect(reverse('query:query_index'))
+
     else:
         #        Vertical tracker needs following
         #        var data = google.visualization.arrayToDataTable([
