@@ -28,6 +28,9 @@
 
                 <ul class="nav pull-right">
                     <li><a href="http://blog.cruxly.com">Blog</a></li>
+                    <!--
+                    <li><a href="{% url core:plans %}">Plans</a></li>
+                    -->
                     {% if user.is_authenticated %}
                         <li><a href="{% url account_logout %}">Logout {{ user.username }}</a></li>
                     {% else %}

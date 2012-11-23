@@ -61,6 +61,9 @@
                     <a class="brand" href="{% url core:home %}"> <img width="100px" src="/static/core/img/cruxly-logo-4x2.png"></a>
                     <div class="nav-collapse collapse">
                         <ul class="nav pull-right">
+                            <!--
+                            <li><a href="{% url core:plans %}">Plans</a></li>
+                            -->
                             {% if user.is_authenticated %}
                                 <li class="dropdown">
                                     <a href="#" class="dropdown-toggle" data-toggle="dropdown">Trackers <b class="caret"></b></a>
@@ -97,7 +100,7 @@
             {% if messages %}
                 <ul class="messages">
                     {% for message in messages %}
-                        <li {% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
+                        <li {% if message.tags %} data-alert="alert" class="{{ message.tags }} close alert-message fade in"{% endif %}>{{ message }}</li>
                     {% endfor %}
                 </ul>
             {% endif %}
@@ -116,8 +119,6 @@
                     <a href="http://blog.cruxly.com">Blog</a>
                     <a class="muted">&middot;</a>
                     <a href="{% url core:company %}" class="brand">Company</a>
-                    <a class="muted">&middot;</a>
-                    <a href="{% url query:process %}" class="brand">Process</a>
                     <a class="muted">&middot;</a>
                     <a href="{% url core:terms %}" class="brand">Terms</a>
                     <a class="muted">&middot;</a>

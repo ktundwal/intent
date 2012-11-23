@@ -8,6 +8,7 @@ urlpatterns = patterns('',
     url(r'^register/$', 'intent.apps.core.views.register', name='register'),
     url(r'^logout/$', 'intent.apps.core.views.logout_user', name='logout'),
 
+    url(r'^plans/$', 'intent.apps.core.views.plans', name='plans'),
     url(r'^terms/$', 'intent.apps.core.views.terms', name='terms'),
     url(r'^technology/$', 'intent.apps.core.views.technology', name='technology'),
     url(r'^privacy/$', 'intent.apps.core.views.privacy', name='privacy'),

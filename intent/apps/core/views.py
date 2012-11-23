@@ -3,8 +3,8 @@ from django.http import HttpResponseRedirect, Http404
 from django.core.urlresolvers import reverse
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import logout
-from django.contrib import messages
-from intent.apps.core.forms import UserCreationFormWithEmail
+
+from intent.apps.core.forms import UserCreationFormWithEmail, PlanForm
 from django.core.mail import send_mail
 from intent import settings
 from intent.apps.query.models import Document, Query, VerticalTracker
@@ -12,8 +12,12 @@ from django.db.models import Sum
 from django.shortcuts import get_object_or_404
 from intent.apps.core.models import *
 from django.views.generic.simple import direct_to_template
+from django.shortcuts import render_to_response
+from django.template import RequestContext
 
 from intent.apps.query.utils import *
+
+from django.contrib import messages
 
 
 def home(request):
@@ -51,6 +55,27 @@ def home(request):
             'total_documents_processed': Query.objects.all().aggregate(Sum('count'))['count__sum'],
             'buy_count': Query.objects.all().aggregate(Sum('buy_count'))['buy_count__sum']
         })
+
+def plans(request):
+    # https://docs.djangoproject.com/en/dev/ref/forms/api/#prefixes-for-forms
+    if request.method == 'POST':
+        if 'gold' in request.POST:
+            messages.success(request, "you selected Gold plan", fail_silently=True)
+        elif 'silver' in request.POST:
+            messages.success(request, "you selected Silver plan", fail_silently=True)
+        elif 'bronze' in request.POST:
+            messages.success(request, "you selected Bronze plan", fail_silently=True)
+        elif 'trial' in request.POST:
+            messages.success(request, "you selected trial plan", fail_silently=True)
+        return direct_to_template(request, 'core/profile.html')
+    else:
+        return render_to_response('core/plans.html', {
+            'gold_plan_form': PlanForm(),
+            'silver_plan_form': PlanForm(),
+            'bronze_plan_form': PlanForm(),
+            'trial_plan_form': PlanForm(),
+        }, context_instance=RequestContext(request)
+        )
 
 def terms(request):
     return TemplateResponse(request, 'core/terms.html', {})

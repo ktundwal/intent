@@ -16,7 +16,7 @@ __email__       = "ktundwal@gmail.com"
 __status__      = "Development"
 
 from django.db import models
-from django.forms import ModelForm, EmailField
+from django.forms import ModelForm, EmailField, Form
 from django.contrib.auth.forms import UserCreationForm
 from intent.apps.core.models import *
 
@@ -37,3 +37,6 @@ class UserCreationFormWithEmail(UserCreationForm):
         if commit:
             user.save()
         return user
+
+class PlanForm(Form):
+    pass

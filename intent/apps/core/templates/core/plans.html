@@ -1,0 +1,95 @@
+{% extends 'core/base.html' %}
+
+{% block title %}Plans and Pricing{% endblock %}
+
+{% block yield %}
+    <h3>Plans and Pricing</h3>
+    <!-- source = http://bootsnipp.com/snipps/pricing-table-example# -->
+    <form action="" method="post">
+        <div class="row">
+            <div class="span3">
+                <div class="well">
+
+                    <h2 class="text-warning">Gold</h2>
+                    <p><span class="label">ENTERPRISE</span></p>
+                    <ul>
+                        <li>6 trackers</li>
+                        <li>Unlimited tweets</li>
+                        <li>3 Intent packs</li>
+                    </ul>
+                    <p>Setup 6 trackers for your product and/or brand name and get recent and historical tweets containing all intent packs. Available intent packs are User acquisition, Product Development and Customer service</p>
+                    <hr>
+                    <h3>$599 / month</h3>
+                    <hr>
+                    <p>
+                        <button type="submit" name="gold" class="btn btn-large">
+                            <i class='icon-ok'></i> Select plan
+                        </button>
+                    </p>
+
+                </div>
+            </div>
+            <div class="span3">
+                <div class="well">
+                    <h2 class="muted">Silver</h2>
+                    <p><span class="label label-success">POPULAR</span></p>
+                    <ul>
+                        <li>2 trackers</li>
+                        <li>Unlimited tweets</li>
+                        <li>3 Intent packs</li>
+                    </ul>
+                    <p>Setup 5 trackers for your product and/or brand name and get recent and historical tweets containing all intent packs. Available intent packs are User acquisition, Product Development and Customer service</p>
+                    <hr>
+                    <h3>$299 / month</h3>
+                    <hr>
+                    <p>
+                        <button type="submit" name="silver" class="btn btn-large">
+                            <i class='icon-ok'></i> Select plan
+                        </button>
+                    </p>
+                </div>
+            </div>
+            <div class="span3">
+                <div class="well">
+                    <h2 class="text-error">Bronze</h2>
+                    <p><span class="label label-info">BUDGET</span></p>
+                    <ul>
+                        <li>1 tracker</li>
+                        <li>Unlimited tweets</li>
+                        <li>3 Intent packs</li>
+                    </ul>
+                    <p>Setup 1 tracker for your product and/or brand name and get recent and historical tweets containing all intent packs. Available intent packs are User acquisition, Product Development and Customer service</p>
+                    <hr>
+                    <h3>$49 / month</h3>
+                    <hr>
+                    <p>
+                        <button type="submit" name="bronze" class="btn btn-success btn-large">
+                            <i class='icon-ok'></i> Select plan
+                        </button>
+                    </p>
+                </div>
+            </div>
+            <div class="span3">
+                <div class="well">
+                    <h2 class="text-success">Free</h2>
+                    <p><span class="label label-info">FREE</span></p>
+                    <ul>
+                        <li>1 Tracker</li>
+                        <li>100 tweets</li>
+                        <li>1 Intent pack</li>
+                    </ul>
+                    <p>Setup a tracker for your product or brand name and get most recent 100 tweets containing one of the intent packs. Available intent packs are User acquisition, Product Development and Customer service</p>
+                    <hr>
+                    <h3>Free</h3>
+                    <hr>
+                    <p>
+                        <button type="submit" name="trial" class="btn btn-large">
+                            <i class='icon-ok'></i> Select plan
+                        </button>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </form>
+    <p>For additional trackers or API access, please contact <a href="mailto:aloke@cruxly.com">us</a></p>
+{% endblock %}
