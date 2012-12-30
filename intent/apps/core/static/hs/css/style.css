@@ -1,0 +1,188 @@
+@import "btn.css";
+@import "custom.css";
+@import "font-awesome.css";
+@import "font-awesome-ie7.css";
+.campaignToggle {
+  width: 100%;
+}
+.pinned {
+  background-color: #e3f0f4;
+}
+.remove_search {
+  display: none;
+  text-align: center !important;
+  width: 98% !important;
+  cursor: pointer;
+}
+.atName {
+  float: left !important;
+  clear: none !important;
+  font-size: 13px !important;
+}
+.icon-remove-sign {
+  margin-right: 5px;
+}
+.alert {
+  background-color: #fcf8e3;
+  border: 1px solid #fbeed5;
+  border-radius: 4px 4px 4px 4px;
+  margin-bottom: 18px;
+  padding: 8px 35px 8px 14px;
+  text-shadow: 0 1px 0 rgba(255,255,255,0.5);
+}
+.hs_dropdown .alert {
+  margin-bottom: 0px;
+}
+.error {
+  background-color: #f2dede;
+  border-color: #eed3d7;
+  color: #b94a48;
+}
+.success {
+  background-color: #dff0d8;
+  border-color: #d6e9c6;
+  color: #468847;
+}
+.info {
+  color: #3a87ad;
+  background-color: #d9edf7;
+  border-color: #bce8f1;
+}
+.info a {
+  color: #244d63;
+}
+.info a:hover {
+  color: #244d63;
+}
+.hs_btn-grp {
+  margin-top: 10px;
+  margin-bottom: 10px;
+}
+.hs_dropdown a {
+  display: block;
+  padding: 5px;
+}
+.hs_dropdown a:hover {
+  padding: 5px 10px 5px 5px;
+}
+.hs_dropdown i {
+  float: left;
+}
+a.star {
+  color: #909194;
+}
+.hs_noMessage form {
+  margin-left: auto;
+  margin-right: auto;
+}
+.logo img {
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+  margin-top: 10px;
+}
+a.login,
+a.register {
+  width: 170px;
+  margin-left: auto;
+  margin-right: auto;
+  display: block;
+}
+.splash {
+  margin-top: 20px;
+}
+.splash-text {
+  margin-top: 20px;
+}
+.spin {
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+  width: 17px;
+  height: 15px;
+  background: url("/images/ajax.gif") no-repeat;
+  margin-bottom: 10px;
+}
+.hs_noMessage select {
+  margin-bottom: 10px;
+}
+.hs_message .nomessage {
+  display: none;
+}
+.hs_message.disabled {
+  position: relative;
+}
+.hs_message.disabled .nomessage {
+  display: block;
+  left: 0;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  padding: 18px;
+  height: 41%;
+  position: absolute;
+  z-index: 99;
+  opacity: 0.8;
+}
+a.unstar,
+a.filter .icon-tag {
+  color: #f2d204;
+}
+.hs_message .icon-map-marker {
+  margin-right: 5px;
+}
+select {
+  height: inherit !important;
+}
+input [type=text],
+input [type=password],
+textarea {
+  width: 294px !important;
+}
+.hs_subDesc {
+  width: 285px !important;
+}
+#get-started .navigation button[disabled] {
+  display: none;
+}
+.pull-right {
+  float: right;
+}
+.hs_title .error {
+  display: inline-block;
+}
+.template_info {
+  margin-top: 5px;
+  margin-bottom: 10px;
+}
+.template_info i.on {
+  margin-right: 8px;
+  margin-top: 5px;
+  background-color: #008000;
+  height: 10px;
+  width: 10px;
+  box-shadow: 0 0 5px #008000;
+}
+.template_info i {
+  margin-right: 8px;
+  margin-top: 5px;
+  background-color: #ccc;
+  height: 10px;
+  width: 10px;
+}
+::-webkit-input-placeholder {
+  color: #ccc !important;
+}
+:-moz-placeholder {
+  color: #ccc !important;
+}
+textarea {
+  min-height: 90px;
+}
+input[type="text"],
+input[type="password"] {
+  width: 285px !important;
+}
+a.tool {
+  cursor: help;
+}

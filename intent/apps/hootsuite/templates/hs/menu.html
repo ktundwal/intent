@@ -1,0 +1,76 @@
+<!-- =========== -->
+<!-- = Top Bar = -->
+<!-- =========== -->
+
+<div class="hs_topBar">
+
+    <div class="hs_content">
+
+        <!-- ICONS -->
+        <div class="hs_controls">
+            <!--
+            <a href="my_app.html" dropdown="_writeMessage" title="Write Message"><span class="icon-19 write"></span></a>
+            <a href="my_app.html" dropdown="_search" title="Search"><span class="icon-19 search"></span></a>
+
+            -->
+            <a href="my_app.html" dropdown="_settings" title="Settings"><span class="icon-19 settings"></span></a>
+            <a href="my_app.html" dropdown="_menuList" title="More"><span class="icon-19 dropdown"></span></a>
+        </div>
+
+        <!-- CUSTOM CONTENT -->
+        Cruxly
+
+    </div>
+
+    <!-- DROPDOWNS -->
+    <div class="hs_dropdown">
+
+        <!-- WRITE MESSAGE -->
+        <!--
+        <div class="_writeMessage">
+            <form action="" method="post" id="sendform">
+                <div id="ajaxwrapper">
+                    {% csrf_token %}
+                    {% for field in form %}
+                        <div class="fieldWrapper">
+                            {{ field.errors }}
+                            <label class="hs_title">{{ field.label_tag }}:<br>{{ field }}</label>
+                            <p class="hs_subDesc">{{ field.help_text }}</p>
+                        </div>
+                    {% endfor %}
+                    <p id="sendwrapper"><input type="submit" value="Create" class="hs_btn-cmt" id="sendbutton"/></p>
+                </div>
+            </form>
+            <textarea></textarea>
+            <div class="hs_btns-right">
+                <a class="hs_btn-cmt" href="my_app.html">Send</a>
+            </div>
+        </div>
+        -->
+
+        <!-- SEARCH -->
+        <!--
+        <div class="_search hs_btns-right">
+            <input type="text">&nbsp;<a class="hs_btn-cmt">Search</a>
+        </div>
+        -->
+
+        <!-- SETTINGS -->
+        <div class="_settings hs_btns-right">
+            <a href="{% url hootsuite:update %}">Update keywords</a>
+            <!--
+            <label class="hs_title"><input type="checkbox"> Setting 1</label>
+            <a class="hs_btn-cmt" href="my_app.html">Save</a>
+            -->
+        </div>
+
+        <!-- MENU LIST -->
+        <div class="_menuList hs_btns-right">
+            <a href="mailto:aloke@cruxly.com">Email us</a>
+            <hr>
+            <a href="{% url core:terms %}">Terms & Condition</a>
+        </div>
+
+    </div>
+</div>
+<div class="hs_topBarSpace"></div><!-- Spacer underneath "hs_topBar" to prevent clipping of content -->

@@ -1,29 +1,21 @@
 from pattern import web    # for twitter search
+from intent.settings.common import TWITTER_ACCESS_TOKEN_CRUXLY, TWITTER_ACCESS_TOKEN_SECRET_CRUXLY
+from intent.settings.prod import TWITTER_CONSUMER_KEY, TWITTER_CONSUMER_SECRET
 from patternliboverrides import *   # for twitter class override in pattern lib
 import socket
 import requests
 
-from django.utils.timezone import utc, datetime, timedelta
+from django.utils.timezone import  datetime
 import shlex
 
 import json
 import time # to sleep if twitter raises an exception
-from time import gmtime, strftime
 
 from intent.apps.core.utils import *
-from intent.apps.query.models import Rule, Document, DailyStat, Author, Query
 from .decorators import *
 
 from intent import settings
 import tweepy
-
-import gviz_api
-
-from datetime import date
-from dateutil.relativedelta import relativedelta
-from django.contrib.auth.models import User
-
-from intent.settings import *
 
 CRUXLY_API_TIMEOUT = 120
 TWEETS_PER_API = 100
@@ -277,34 +269,6 @@ def run_and_analyze_query(kip, query_count, logger):
                     int(round(after_twitter_search - start))))
     return merged_chunked_tweets
 
-def create_unknown_rule(intents, intent_str, intent_id):
-    rule = None
-
-    if intent_str in intents:
-        grammar_rule = "Unknown"
-        grammar_version = "1.7"
-        confidence = 1.0
-        rule, created = Rule.objects.get_or_create(
-            grammar=intent_id,
-            grammar_version=grammar_version,
-            rule=grammar_rule,
-            confidence=confidence)
-
-    return rule
-
-def get_or_create_todays_daily_stat(query):
-    try:
-        daily_stat = DailyStat.objects.filter(stat_of=query, stat_for=datetime.utcnow().date())[0]
-    except: # daily_stat.DoesNotExist:
-        daily_stat = None
-
-    if not daily_stat:
-        daily_stat = DailyStat.objects.create(
-            stat_of              = query,
-            stat_for             = datetime.utcnow().replace(tzinfo=utc))
-
-    return daily_stat
-
 def create_query(kip):
     terms = ['\"' + term + '\"' for term in kip.product + kip.industryterms]
     return " OR ".join(terms)
@@ -349,115 +313,3 @@ class Kip():
             "genericterms": self.industryterms,
             "competingterms": self.competitors
         }
-
-def get_verticaltracker_gvizjson(tracker):
-    products = tracker.trackers.all()       # product = Kindle, KindleFire, Kindle Fire HD
-
-    tracker_product_list_of_tuple = [("date", "string")]  # [("date","string"),("kindle","number"),("ipad","number")]
-    for product in products:
-        tracker_product_list_of_tuple.append((product.query, "number"))
-
-    tracker_buy_list_of_tuple = []          # [("Sept 29",10,20),("Sept 30", 30, 35),("Oct 1", 15, 10)]
-    tracker_like_list_of_tuple = []
-    tracker_dislike_list_of_tuple = []
-
-    product_daily_buy_stats_list = []
-    product_daily_like_stats_list = []
-    product_daily_dislike_stats_list = []
-
-    first_dailystat = True
-
-    first_product = products[0]
-    first_product_dailystats = first_product.dailystats.all()
-
-    for first_product_dailystat in first_product_dailystats:
-
-        daily_buy_list = [first_product_dailystat.stat_for.strftime('%h %d %Y')]
-        daily_like_list = [first_product_dailystat.stat_for.strftime('%h %d %Y')]
-        daily_dislike_list = [first_product_dailystat.stat_for.strftime('%h %d %Y')]
-
-        daily_buy_list.append(first_product_dailystat.buy_percentage())
-        daily_like_list.append(first_product_dailystat.like_percentage())
-        daily_dislike_list.append(first_product_dailystat.dislike_percentage())
-
-        other_products_dailystat = DailyStat.objects\
-                                        .filter(stat_of__in=products)\
-                                        .exclude(stat_of=first_product)\
-                                        .filter(stat_for=first_product_dailystat.stat_for)
-
-        for other_product_dailystat in other_products_dailystat:
-
-            daily_buy_list.append(other_product_dailystat.buy_percentage())
-            daily_like_list.append(other_product_dailystat.like_percentage())
-            daily_dislike_list.append(other_product_dailystat.dislike_percentage())
-
-        tracker_buy_list_of_tuple.append(tuple(daily_buy_list))
-        tracker_like_list_of_tuple.append(tuple(daily_like_list))
-        tracker_dislike_list_of_tuple.append(tuple(daily_dislike_list))
-
-#    for product in products:
-#
-#        product_dailystats = product.dailystats.all()
-#
-#        tracker_product_list_of_tuple.append((product.query, "number"))
-#
-#        for product_dailystat in product_dailystats:
-#            if first_dailystat:
-#                product_daily_buy_stats_list.append(product_dailystat.stat_for.strftime('%h %d %Y'))    # date
-#                product_daily_like_stats_list.append(product_dailystat.stat_for.strftime('%h %d %Y'))    # date
-#                product_daily_dislike_stats_list.append(product_dailystat.stat_for.strftime('%h %d %Y'))    # date
-#                first_dailystat = False
-#
-#            product_daily_buy_stats_list.append(product_dailystat.buy_percentage())    # add buy %
-#            product_daily_like_stats_list.append(product_dailystat.like_percentage())    # add like %
-#            product_daily_dislike_stats_list.append(product_dailystat.dislike_percentage())    # add dislike %
-#
-#    tracker_buy_list_of_tuple.append(tuple(product_daily_buy_stats_list))
-#    tracker_like_list_of_tuple.append(tuple(product_daily_like_stats_list))
-#    tracker_dislike_list_of_tuple.append(tuple(product_daily_dislike_stats_list))
-
-
-    #create a DataTable object
-    buy_table = gviz_api.DataTable(tracker_product_list_of_tuple)
-    buy_table.LoadData(tracker_buy_list_of_tuple)
-    buy_json_str = buy_table.ToJSon() #convert to JSON
-    #create a DataTable object
-    like_table = gviz_api.DataTable(tracker_product_list_of_tuple)
-    like_table.LoadData(tracker_like_list_of_tuple)
-    like_json_str = like_table.ToJSon()   #convert to JSON
-    #create a DataTable object
-    dislike_table = gviz_api.DataTable(tracker_product_list_of_tuple)
-    dislike_table.LoadData(tracker_dislike_list_of_tuple)
-    dislike_json_str = dislike_table.ToJSon()   #convert to JSON
-
-    intent_gviz_json = {
-        'id': tracker.id,
-        'name': tracker.name,
-        'buy': buy_json_str,
-        'like': like_json_str,
-        'dislike': dislike_json_str, }
-    return intent_gviz_json
-
-def delete_data_older_then_two_weeks():
-
-    emails_to_exclude = ['@gmail.com', '@yahoo.com', 'aol.com']
-    users = User.objects.all()
-    for exclude_email in emails_to_exclude:
-        users = users.exclude(email__endswith=exclude_email)
-
-    queries = Query.objects.all()
-    for query in queries:
-        for user in users:
-            queries = queries.exclude(created_by=user)
-
-    for query in queries:
-        logger.info('Going to delete data older than 2 weeks for user %s, query %s' % (query.created_by, query))
-        two_weeks_ago = date.today() + relativedelta(weeks = -1)
-        docs_older_than_two_weeks = Document.objects.filter(result_of=query).filter(date__lte=two_weeks_ago)
-        doc_count = docs_older_than_two_weeks.count()
-        docs_older_than_two_weeks.delete()
-
-        authors_with_deleted_tweets = Author.objects.filter(documents__isnull=True)
-        author_count = authors_with_deleted_tweets.count()
-        authors_with_deleted_tweets.delete()
-        logger.info('Deleted %d tweets and %d authors that were older than 2 weeks' % (doc_count, author_count))

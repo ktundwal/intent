@@ -1,0 +1,60 @@
+{% extends 'hs/base.html' %}
+
+{% block javascript %}
+    {{ block.super }}
+
+    <!--Load the AJAX API-->
+    <script type="text/javascript" src="https://www.google.com/jsapi"></script>
+
+    <script type="text/javascript">
+
+        $(document).ready(function() {
+
+            // Notes:
+            // * To prevent conflicts, run hsp.init() either before including jQuery or in $(document).ready().
+            // * In order for hsp.bind() and hsp.updatePlacementSubtitle() to work, you need to set up an
+            //   App Receiver and provide its absolute URL in the receiverPath parameter.
+            //   See https://sites.google.com/site/hootsuiteappdevelopers/jsapi
+
+            hsp.init({
+                apiKey: '5lu5hi519v48ok8o480swss803i94gd1djc',
+                useTheme: true,
+                receiverPath: 'http://localhost:8000{% url hootsuite:receiver %}',
+                callBack: function( message ){ console.log('Error: ' + message); }
+            });
+
+            // hsp.bind() example (requires App Receiver):
+            //
+            // hsp.bind('refresh', function() {
+            // 	window.location.reload();
+            // });
+
+            //hsp.startAppTokenAuth();
+            //hsp.editAppAuth();
+        });
+
+    </script>
+
+{% endblock %}
+
+{% block title %}{{ intent|capfirst }} intents for {{ query.query }}{% endblock %}
+
+{% block yield %}
+    <div class="hs_topBarSpace"></div>
+
+    <div class="logo"><img width="100px" src="/static/core/img/cruxly-logo-4x2.png"></div>
+    <div id="form" class="span6 offset3">
+        <h1>Login</h1>
+        <form action="{% url hootsuite:login %}" method="post" class="form-horizontal">
+            {% csrf_token %}
+            {% for field in form %}
+                {% bootstrap_field field %}
+            {% endfor %}
+            <div class="form-actions">
+                <input type="hidden" name="next" value="{% url query:query_index %}" />
+                <button type="submit" class="btn btn-primary">Login</button>
+                <a href="{% url core:home %}" class="btn">Cancel</a>
+            </div>
+        </form>
+    </div>
+{% endblock %}

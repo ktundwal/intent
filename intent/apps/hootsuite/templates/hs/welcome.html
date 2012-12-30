@@ -1,0 +1,70 @@
+{% extends 'hs/base.html' %}
+
+{% block javascript %}
+    {{ block.super }}
+
+    <!--Load the AJAX API-->
+    <script type="text/javascript" src="https://www.google.com/jsapi"></script>
+
+    <script type="text/javascript">
+
+        $(document).ready(function() {
+
+            // Notes:
+            // * To prevent conflicts, run hsp.init() either before including jQuery or in $(document).ready().
+            // * In order for hsp.bind() and hsp.updatePlacementSubtitle() to work, you need to set up an
+            //   App Receiver and provide its absolute URL in the receiverPath parameter.
+            //   See https://sites.google.com/site/hootsuiteappdevelopers/jsapi
+
+            hsp.init({
+                apiKey: '5lu5hi519v48ok8o480swss803i94gd1djc',
+                useTheme: true,
+                receiverPath: 'http://localhost:8000{% url hootsuite:receiver %}',
+                callBack: function( message ){ console.log('Error: ' + message); }
+            });
+
+            // hsp.bind() example (requires App Receiver):
+            //
+            // hsp.bind('refresh', function() {
+            // 	window.location.reload();
+            // });
+
+            //hsp.startAppTokenAuth();
+            //hsp.editAppAuth();
+        });
+
+    </script>
+
+{% endblock %}
+
+{% block title %}Welcome{% endblock %}
+
+{% block yield %}
+    <div style="text-align:center;"><div style="display:table;"><div style="{display:table-cell;vertical-align:middle;}">
+        <div class="hs_topBarSpace"></div>
+
+        <div class="logo"><img width="100px" src="/static/core/img/cruxly-logo-4x2.png"></div>
+        <div class="hs_noMessage splash">
+            {% if user.is_authenticated %}
+                <div class="hs_networkName">Welcome {% if user.first_name %} {{ user.first_name }} {% else %} HootSuite user {% endif %}</div>
+                <hr>
+                {% if stream %}
+                    <a href="{% url hootsuite:update %}" class="btn btn-info register"">Update setup</a>
+                {% else %}
+                    <a href="{% url hootsuite:setup %}" class="btn btn-info register">Get Started With Cruxly</a>
+                {% endif %}
+                <div class="alert info splash-text">
+                    <p>
+                    Understand user's intent.  Setup only takes a minute – and it’s FREE.
+                    </p>
+                </div>
+            {% else %}
+                <div class="alert error splash-text">
+                    Please add Cruxly app at hootsuite.com to use this service.
+                </div>
+            {% endif %}
+
+        </div>
+
+    </div></div></div>
+{% endblock %}

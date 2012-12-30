@@ -1,0 +1,441 @@
+{% extends 'hs/base.html' %}
+
+{% block javascript %}
+    {{ block.super }}
+
+    <!--Load the AJAX API-->
+    <script type="text/javascript" src="https://www.google.com/jsapi"></script>
+
+
+    <script src="/static/vendor/jquery/1.7.2/jquery.js" type="text/javascript" charset="utf-8"></script>
+    <script src="/static/vendor/endless_pagination/1.1/endless.js" type="text/javascript" charset="utf-8"></script>
+
+    <script type="text/javascript">
+
+        $(document).ready(function() {
+
+
+            // Top bar controls and drop downs
+            //
+            $('.hs_topBar .hs_controls a').click(function(e) {
+
+                var $control = $(this),
+                        $dropdown = $('.hs_topBar .hs_dropdown');
+
+                $dropdown.children().hide();
+
+                if ($control.attr('dropdown').length) {
+                    $dropdown.children('.' + $control.attr('dropdown')).show();
+                }
+
+                if($dropdown.is(':visible') && $control.hasClass('active')) {
+                    $dropdown.hide();
+                } else {
+                    $dropdown.show();
+                    if($control.attr('dropdown') == '_search') {
+                        $dropdown.find('.' + $control.attr('dropdown') + ' input[type="text"]').first().focus();
+                    }
+                    if($control.attr('dropdown') == '_writeMessage') {
+                        $dropdown.find('.' + $control.attr('dropdown') + ' textarea').first().focus();
+                    }
+                }
+
+                $control.siblings('.active').removeClass('active');
+                $control.toggleClass('active');
+
+                e.preventDefault();
+            });
+
+            // Message controls dropdown
+            //
+            $('.hs_stream').delegate('.hs_message .hs_controls a.hs_expand', 'click', function(e) {
+                $(this).parent().find('.hs_moreOptionsMenu').toggle();
+                e.preventDefault();
+            });
+            $('.hs_stream').delegate('.hs_message .hs_controls .hs_moreOptionsMenu', 'mouseleave', function(e) {
+                $(this).hide();
+            });
+
+
+            // Demo functionality
+            //
+            $('.demo_user_info').click(function(a){
+
+                hsp.customUserInfo({
+                    "fullName": "David Chan",
+                    "screenName": "@chandavid",
+                    "avatar": "http://a3.twimg.com/profile_images/1121921263/dc.png",
+                    "profileUrl": "http://twitter.com/chandavid",
+                    "userLocation": "Vancouver, BC",
+                    "bio": "JavaScript/web/martini developer. Working on @HootSuite. Making by breaking.",
+                    "extra": [
+                        {"label": "Age", "value": "Unknown"},
+                        {"label": "Gender", "value": "Male"}
+                    ],
+                    "links": [
+                        {"label": "HootSuite", "url": "http://hootsuite.com"},
+                        {"label": "Blog", "url": "http://blog.hootsuite.com"}
+                    ]
+                });
+
+                e.preventDefault();
+            });
+
+            $('.hs_message .hs_controls a.hs_reply').live('click', function(e) {
+                hsp.composeMessage('pre-defined message text');
+                e.preventDefault();
+            });
+
+            hsp.startAppTokenAuth();
+
+        });
+
+    </script>
+
+    <script type="text/javascript">
+        /*<![CDATA[*/
+
+        // A form's submit event cannot be hijacked until the form exists,
+        // therefore, a callback function is setup to fire once the DOM has been loaded.
+        // This is done by passing a javascript function to jQuery().
+        jQuery(function() {
+
+            // The form object is obtained by passing a CSS-style selector for the form ID to jQuery()
+            // and then stored in a local variable for convenience.
+            var form = jQuery("#sendform");
+
+            // A callback function is attached the form object's submit event.
+            form.submit(function(e) {
+
+                // The submit button is disabled to prevent duplicate requests and a message is prepended
+                // to the container for the submit button that gives the user some visual cue that their
+                // submission is in progress. A real-world implementation might use some sort of modal dialog
+                // or spinning AJAX graphic here.
+                jQuery("#sendbutton").attr('disabled', true)
+                jQuery("#sendwrapper").prepend('<span>Sending message, please wait... </span>')
+
+                // jQuery's load() method is called on the <div> element that wraps the inner contents of the form.
+                // The load method will send an AJAX request to the server and replace the contents of that <div>
+                // with the response.
+
+                // The first argument passed to load() is the URL of the request which is obtained from the
+                // 'action' attribute of the form. However, an additional CSS selector can be added to the URL
+                // to let jQuery know to parse out that element from the response. Thus, the URL in the code below,
+                // depending on your Django URLconf, might evalutate to "/contact/ #ajaxWrapper".
+                // In other words, jQuery will replace <div id="ajaxWrapper"> in the current document with
+                // <div id="ajaxWrapper"> in the response from the AJAX request.
+
+                // The second argument passed to load() is the data. The serializeArray() method is used to serialize
+                // the form data into an array. An array is necessary because an array is an object.
+                // The load() method will send a GET request if the data is a string, such as that returned by
+                // serialize(), and a POST request if the data is an object.
+
+                // The third argument passed to load() is a callback function to call when the response comes back.
+                // Thi is used to re-enable the submit button.
+                jQuery("#ajaxwrapper").load(
+                        form.attr('action') + ' #ajaxwrapper',
+                        form.serializeArray(),
+                        function(responseText, responseStatus) {
+                            jQuery("#sendbutton").attr('disabled', false)
+                        }
+                );
+
+                // The default submit event handler is disabled at the end of the new submit handler.
+                // This way, if there is a syntax error in the javascript before the then which breaks the AJAX request,
+                // the form's default submit event handler will still work.
+                e.preventDefault();
+            });
+        });
+        /*]]>*/
+    </script>
+
+{% endblock %}
+
+{% block title %}{{ intent|capfirst }} intents for {{ query.query }}{% endblock %}
+
+{% block yield %}
+
+    {% include "hs/menu.html" %}
+
+    <div class="hs_noMessage">
+        Tweets containing buy, like and try intents for Accent Windows
+    </div>
+
+    <!-- ==================== -->
+    <!-- = MESSAGE TEMPLATE = -->
+    <!-- ==================== -->
+    <!--
+    NOTE: This template contains all possible elements at once.
+          Re-use only what you need and
+
+          =============================
+          = read the in-line comments =
+          =============================
+
+    API documentation: https://sites.google.com/site/hootsuiteappdevelopers/jsapi
+
+     -->
+    <div class="hs_message">
+
+
+        <!-- MESSAGE CONTROLS -->
+
+        <div class="hs_controls">
+            <!--
+            NOTE: Do not show more than 4 icons. Use the dropdown if you need 5 or more.
+
+            "Share" links should open the Compose Message dialog in the HootSuite dashboard via hsp.composeMessage()
+            -->
+            <a href="my_app.html" class="hs_icon hs_reply" title="Share">Share</a>
+            <a href="my_app.html" class="hs_icon hs_replyAll" title="Reply All">Reply All</a>
+            <a href="my_app.html" class="hs_icon hs_retweet" title="Retweet">RT</a>
+            <a href="my_app.html" class="hs_icon hs_directMessage" title="Direct Message">DM</a>
+            <a href="my_app.html" class="hs_icon hs_email" title="Email">Email</a>
+            <a href="my_app.html" class="hs_icon hs_favorite" title="Favorite">Favorite</a>
+
+            <!-- DROPDOWN: -->
+            <a href="my_app.html" class="hs_icon hs_expand">more...</a>
+            <div class="hs_moreOptionsMenu">
+                <a href="my_app.html">w/o icon</a>
+                <a href="my_app.html" class="hs_padded">padded</a>
+                <a href="my_app.html"><span class="hs_icon hs_reply"></span>Share</a>
+                <a href="my_app.html"><span class="hs_icon hs_replyAll"></span>Reply All</a>
+                <a href="my_app.html"><span class="hs_icon hs_retweet"></span>RT</a>
+                <a href="my_app.html"><span class="hs_icon hs_directMessage"></span>DM</a>
+                <a href="my_app.html"><span class="hs_icon hs_email"></span>Email</a>
+                <a href="my_app.html"><span class="hs_icon hs_favorite"></span>Favorite</a>
+            </div>
+        </div>
+
+
+        <!-- MESSAGE -->
+        <!--
+        Clicking on a username or avatar should open the user's bio via hsp.customUserInfo()
+        or hsp.showUser(twitterHandle) for Twitter users
+        -->
+        <a href="my_app.html" class="hs_networkAvatarLink"></a><img class="hs_networkAvatar" src="../../static/hs/files/%5BAVATAR%20URL%5D" alt="[Username or Heading]">
+
+        <a href="my_app.html" class="hs_networkName">Joe Shmoe</a>
+
+        <!-- This should link out directly to the source message or story -->
+        <a href="http://static.hootsuite.com/jsapi/0-5/[PERMALINK%20/%20SOURCE%20URL]" class="hs_postTime" target="_blank">Jan 01, 12:34am via [Platform or Username]</a>
+
+        <div class="hs_messageContent">
+            Would love to have energy efficient windows in new home #windows
+        </div>
+
+
+
+
+        <!-- COMMENTS -->
+
+        <div class="hs_messageComments">
+            <span class="hs_arrow">☗</span>
+
+            <!-- Likes, # of comments, external links to discussion etc. -->
+            <div class="hs_comment hs_details">
+                <a href="my_app.html">123 people</a> like this
+            </div>
+            <div class="hs_comment hs_details">
+                View all <a href="my_app.html">10 comments</a>
+            </div>
+
+            <!--
+            Clicking on a username or avatar should open the user's bio via hsp.customUserInfo()
+            or hsp.showUser(twitterHandle) for Twitter users
+            -->
+            <div class="hs_comment">
+                <a title="Username" class="hs_networkAvatarLink" href="my_app.html"></a><img class="hs_networkAvatar" src="../../static/hs/files/512px-icon-bb_normal.png" alt="Username">
+                <p class="hs_commentContent">
+                    <a title="Username" class="hs_networkName" href="my_app.html">Username</a>:
+                    Comment
+                    <span class="hs_date">Jan 01, 12:34am [via Platform]</span>
+                </p>
+            </div>
+
+            <div class="hs_comment">
+                <a title="Username" class="hs_networkAvatarLink" href="my_app.html"></a><img class="hs_networkAvatar" src="../../static/hs/files/512px-icon-iheartowl_normal.png" alt="Username">
+                <p class="hs_commentContent">
+                    <a title="Username" class="hs_networkName" href="my_app.html">Username</a>:
+                    Comment
+                    <span class="hs_date">Jan 01, 12:34am [via Platform]</span>
+                </p>
+            </div>
+
+            <div class="hs_comment hs_originalComment">
+                <a title="Username" class="hs_networkAvatarLink" href="my_app.html"></a><img class="hs_networkAvatar" src="../../static/hs/files/hootsuite-help-icon-512px-original_normal.png" alt="Username">
+                <p class="hs_commentContent">
+                    <a title="Username" class="hs_networkName" href="my_app.html">Username</a>:
+                    Comment
+                    <span class="hs_date">Jan 01, 12:34am [via Platform]</span>
+                </p>
+            </div>
+
+            <!-- Post a Comment -->
+            <div class="hs_commentEntry hs_comment">
+                <textarea></textarea>
+                <div class="hs_btns hs_btns-right">
+                    <a class="hs_btn-del" href="my_app.html">Cancel</a>
+                    <a class="hs_btn-cmt" href="my_app.html">Comment</a>
+                </div>
+            </div>
+
+        </div>
+
+    </div>
+
+
+
+    <!-- ======================== -->
+    <!-- = Some Sample Messages = -->
+    <!-- ======================== -->
+
+    <div class="hs_message">
+
+        <div class="hs_controls">
+            <a href="my_app.html" class="hs_icon hs_reply" title="Share">Share</a>
+            <a href="my_app.html" class="hs_icon hs_favorite" title="Favorite">Favorite</a>
+
+            <a href="my_app.html" class="hs_icon hs_expand">more...</a>
+            <div class="hs_moreOptionsMenu">
+                <a href="my_app.html"><span class="hs_icon hs_replyAll"></span>Reply All</a>
+                <a href="my_app.html"><span class="hs_icon hs_retweet"></span>RT</a>
+                <a href="my_app.html"><span class="hs_icon hs_directMessage"></span>DM</a>
+                <a href="my_app.html"><span class="hs_icon hs_email"></span>Email</a>
+            </div>
+        </div>
+
+        <a href="my_app.html" class="hs_networkAvatarLink" title="Username" is-draggable="1"></a><img class="hs_networkAvatar" src="../../static/hs/files/hootsuite-help-icon-512px-original_normal.png">
+        <a href="my_app.html" class="hs_networkName" title="Username">Username</a>
+        <a href="http://twitter.com/HootSuite_Help/status/636825056055297" class="hs_postTime" target="_blank">Sep 29, 11:53am via HootSuite</a>
+        <div class="hs_messageContent">
+            Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vestibulum nec diam quam, et viverra purus. Fusce venenatis tortor sed lacus varius ut aliquet leo vulputate. Integer dui nunc, pellentesque et consequat eget, facilisis non lectus. Curabitur a ligula eget mi vulputate blandit. Ut sed mauris massa, vitae porta turpis.			</div>
+
+        <div class="hs_messageComments">
+            <span class="hs_arrow">☗</span>
+
+            <!-- Compact comments and likes display: add class hs_inlineDetails -->
+
+            <div class="hs_comment hs_details hs_inlineDetails">
+                <a href="my_app.html">0 likes</a>
+                &nbsp;&nbsp;
+                <a href="my_app.html">0 comments</a>
+            </div>
+        </div>
+
+    </div>
+
+    <div class="hs_message">
+        <div class="hs_controls">
+            <a href="my_app.html" class="hs_icon hs_reply" title="Reply">Reply</a>
+            <a href="my_app.html" class="hs_icon hs_favorite" title="Favorite">Favorite</a>
+
+            <a href="my_app.html" class="hs_icon hs_expand">more...</a>
+            <div class="hs_moreOptionsMenu">
+                <a href="my_app.html"><span class="hs_icon hs_replyAll"></span>Reply All</a>
+                <a href="my_app.html"><span class="hs_icon hs_retweet"></span>RT</a>
+                <a href="my_app.html"><span class="hs_icon hs_directMessage"></span>DM</a>
+                <a href="my_app.html"><span class="hs_icon hs_email"></span>Email</a>
+            </div>
+        </div>
+        <a title="Username" href="my_app.html" class="hs_networkAvatarLink"></a><img class="hs_networkAvatar" src="../../static/hs/files/hootsuite-iphone-icon-512px-original_normal.png">
+        <a title="Username" class="hs_networkName" href="my_app.html">Username</a>
+        <a target="_blank" href="http://twitter.com/HootSuiteiPhone/status/1765521028554752" class="hs_postTime">Jan 01, 12:34am via HootSuite</a>
+        <div class="hs_messageContent">For more information on HootSuite, follow @<a title="HootSuite" href="my_app.html">HootSuite</a> and @<a title="HootSuite_Help" href="my_app.html">HootSuite_Help</a></div>
+    </div>
+
+    <div class="hs_message">
+        <div class="hs_controls">
+            <a href="my_app.html" class="hs_icon hs_reply" title="Reply">Reply</a>
+            <a href="my_app.html" class="hs_icon hs_favorite" title="Favorite">Favorite</a>
+
+            <a href="my_app.html" class="hs_icon hs_expand">more...</a>
+            <div class="hs_moreOptionsMenu">
+                <a href="my_app.html"><span class="hs_icon hs_replyAll"></span>Reply All</a>
+                <a href="my_app.html"><span class="hs_icon hs_retweet"></span>RT</a>
+                <a href="my_app.html"><span class="hs_icon hs_directMessage"></span>DM</a>
+                <a href="my_app.html"><span class="hs_icon hs_email"></span>Email</a>
+            </div>
+        </div>
+        <a title="Username" href="my_app.html" class="hs_networkAvatarLink"></a><img class="hs_networkAvatar" src="../../static/hs/files/hootsuite-icon_normal.png">
+        <a title="Username" class="hs_networkName" href="my_app.html">Username</a>
+        <a target="_blank" href="http://twitter.com/HootSuite/status/661876870483969" class="hs_postTime">Jan 01, 12:34am via HootSuite</a>
+        <div class="hs_messageContent">This is sample text for the message body <a href="my_app.html" class="hs_hash" title="HashTagExample">#HashTagExample</a></div>
+    </div>
+
+    <div class="hs_message">
+        <div class="hs_controls">
+            <a href="my_app.html" class="hs_icon hs_reply" title="Reply">Reply</a>
+            <a href="my_app.html" class="hs_icon hs_favorite" title="Favorite">Favorite</a>
+
+            <a href="my_app.html" class="hs_icon hs_expand">more...</a>
+            <div class="hs_moreOptionsMenu">
+                <a href="my_app.html"><span class="hs_icon hs_replyAll"></span>Reply All</a>
+                <a href="my_app.html"><span class="hs_icon hs_retweet"></span>RT</a>
+                <a href="my_app.html"><span class="hs_icon hs_directMessage"></span>DM</a>
+                <a href="my_app.html"><span class="hs_icon hs_email"></span>Email</a>
+            </div>
+        </div>
+        <a title="Username" href="my_app.html" class="hs_networkAvatarLink"></a><img class="hs_networkAvatar" src="../../static/hs/files/512px-icon-bb_normal.png">
+        <a title="Username" class="hs_networkName" href="my_app.html">Username</a>
+        <a target="_blank" href="http://twitter.com/iamgavitron/status/4311897587322880" class="hs_postTime">Jan 01, 12:34am via HootSuite</a>
+        <div class="hs_messageContent">This is sample text for the message body</div>
+
+    </div>
+
+    <div class="hs_message">
+        <div class="hs_controls">
+            <a href="my_app.html" class="hs_icon hs_reply" title="Reply">Reply</a>
+            <a href="my_app.html" class="hs_icon hs_favorite" title="Favorite">Favorite</a>
+
+            <a href="my_app.html" class="hs_icon hs_expand">more...</a>
+            <div class="hs_moreOptionsMenu">
+                <a href="my_app.html"><span class="hs_icon hs_replyAll"></span>Reply All</a>
+                <a href="my_app.html"><span class="hs_icon hs_retweet"></span>RT</a>
+                <a href="my_app.html"><span class="hs_icon hs_directMessage"></span>DM</a>
+                <a href="my_app.html"><span class="hs_icon hs_email"></span>Email</a>
+            </div>
+        </div>
+        <a title="Username" href="my_app.html" class="hs_networkAvatarLink"></a><img class="hs_networkAvatar" src="../../static/hs/files/512px-icon-hootsuite-hsu_normal.png">
+        <a title="Username" class="hs_networkName" href="my_app.html">Username</a>
+        <a target="_blank" href="http://twitter.com/HootSuite/status/661876870483969" class="hs_postTime">Jan 01, 12:34am via HootSuite</a>
+        <div class="hs_messageContent">This is sample text for the message body</div>
+    </div>
+
+
+
+    <!-- ======================== -->
+    <!-- = Sample Form Elements = -->
+    <!-- ======================== -->
+
+    <div class="hs_message">
+
+        <span class="hs_networkName">Sample Form Elements</span>
+        <p>
+            Below are some sample form elements for re-use anywhere in the stream.
+        </p>
+
+        <label class="hs_title">Input:<br><input type="text"></label>
+        <label class="hs_title">Textarea:<br><textarea style="width: 158px;"></textarea></label>
+        <label class="hs_title">Textarea with info below:</label><textarea style="width: 158px;"></textarea><p class="hs_subDesc">Description text or more information</p>
+        <label class="hs_title">Textarea with info above:</label><p class="hs_supDesc">Description text or more information</p><textarea style="width: 158px;"></textarea>
+        <div class="hs_btns">
+            <a class="hs_btn-del" href="my_app.html">Cancel</a>&nbsp;<a class="hs_btn-cmt" href="my_app.html">Submit</a>
+        </div>
+
+    </div>
+
+    <!-- ================== -->
+    <!-- = LOAD MORE LINK = -->
+    <!-- ================== -->
+    <!--
+    This should be triggered automatically when the scroll position nears the
+    the bottom of the stream.
+     -->
+    <div id=""><!-- optional wrapper div -->
+        <a href="hs.html" class="hs_messageMore">Show More</a>
+    </div>
+
+
+
+{% endblock %}

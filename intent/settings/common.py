@@ -97,6 +97,7 @@ MIDDLEWARE_CLASSES = (
     'django.contrib.messages.middleware.MessageMiddleware',
     # Uncomment the next line for simple clickjacking protection:
     # 'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'intent.apps.hootsuite.middleware.TokenMiddleware',
 )
 
 AUTHENTICATION_BACKENDS = (
@@ -105,6 +106,7 @@ AUTHENTICATION_BACKENDS = (
 
     # 'allauth' specific authentication methods, such as login by e-mail
     "allauth.account.auth_backends.AuthenticationBackend",
+    "intent.apps.hootsuite.auth_backends.AuthenticationBackend",
 )
 
 ROOT_URLCONF = 'intent.urls'
@@ -140,6 +142,7 @@ INSTALLED_APPS = (
     'intent.apps.vendor',
     'intent.apps.core',
     'intent.apps.query',
+    'intent.apps.hootsuite',
     'djcelery',
     'django.contrib.humanize',
     # 'indexer',
@@ -158,6 +161,7 @@ INSTALLED_APPS = (
     'allauth.socialaccount',
     'allauth.socialaccount.providers.twitter',
     'bootstrapform',
+    'crispy_forms',
 )
 
 TEMPLATE_CONTEXT_PROCESSORS = (
@@ -255,5 +259,7 @@ BROKER_BACKEND = 'django'
 
 TWITTER_ACCESS_TOKEN_CRUXLY="151766004-h72B7fDOTWNHqlJCnTYaQxBs1bdyE588cBXc1qWV"
 TWITTER_ACCESS_TOKEN_SECRET_CRUXLY="bXMb8uvG9e9ZBtBQnbA3HUKpVk5PI3cXa6K6kT7JQ"
+
+HOOTSUITE_SSO_SHARED_SECRET = 'hootsuitev4m)df7dk^^b&laqdakv7b)d+n3#!7hts+yct1vloz9i2!9cs1sso'
 
 #AUTH_PROFILE_MODULE = 'reminder.Provider'

@@ -25,3 +25,6 @@ class UserMessage():
         self.title = title
         self.text = text if hasattr(text, '__iter__') else [text]
         self.url = url
+
+def percentage(part, whole):
+    return (100 * float(part)/float(whole)) if whole else 0

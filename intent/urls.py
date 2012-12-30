@@ -21,6 +21,8 @@ urlpatterns = patterns('',
 
     url(r'^query/', include('intent.apps.query.urls', namespace='query')),
 
+    url(r'^hootsuite/', include('intent.apps.hootsuite.urls', namespace='hootsuite')),
+
     # url(r'^sentry/', include('sentry.urls')),
     # Examples:
     # url(r'^$', 'intent.views.home', name='home'),

@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<!-- saved from url=(0063)http://static.hootsuite.com/jsapi/0-5/app_stream_template.html# -->
+<html><!--
+
+This App stream template shows how elements and classnames should
+be used in order to maintain a consistent UI across HootSuite.
+
+--><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+	
+	<title>Cruxly - {% block title %}{% endblock %}</title>
+	
+	<!-- 
+	HootSuite API JS Library
+	NOTE: To test themes outside of the dashboard, add '?theme=blue_steel' to your url [blue_steel, magnum, classic]
+	-->
+	<!--script type="text/javascript" src="{{ STATIC_URL }}/hs/js/hsp.js"></script-->
+    <script type="text/javascript" src="http://static.hootsuite.com/jsapi/0-5/hsp.js"></script>
+
+    <link type="text/css" rel="stylesheet" href="{{ STATIC_URL }}hs/css/ad_classic.css">
+    <link rel="stylesheet" href="{{ STATIC_URL }}hs/css/bootstrap_badge_btn.css">
+    <!--
+    <link rel="stylesheet" href="{{ STATIC_URL }}hs/css/style.css">
+    <link rel="stylesheet" href="{{ STATIC_URL }}hs/css/tagit-awesome-blue.css">
+
+    <link rel="stylesheet" href="/static/vendor/bootstrap/2.2.1/css/bootstrap.min.css">
+-->
+	<!-- jQuery -->
+	<script src="{{ STATIC_URL }}hs/js/jquery.min.js"></script>
+
+</head>
+
+<style type="text/css"></style>
+
+<body>
+
+	<!-- Stream -->
+	
+	<div class="hs_stream">
+
+		<!-- EMPTY NODE EXAMPLE --> 
+		<!--
+		<div class="hs_noMessage">
+			Themes:
+			<a class="hs_btn-cmt" href="http://static.hootsuite.com/jsapi/0-5/app_stream_template.html?theme=blue_steel">Blue Steel</a>
+			<a class="hs_btn-cmt" href="http://static.hootsuite.com/jsapi/0-5/app_stream_template.html?theme=magnum">Magnum</a>
+			<a class="hs_btn-cmt" href="http://static.hootsuite.com/jsapi/0-5/app_stream_template.html?theme=classic">Classic</a>
+		</div>
+		-->
+
+        {% block yield %}{% endblock %}
+
+	</div><!-- .hs_stream -->
+
+    {% block javascript %}{% endblock javascript %}
+
+</body></html>

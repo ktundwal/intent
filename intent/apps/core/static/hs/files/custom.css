@@ -1,0 +1,6 @@
+.hs_stream .hs_message .hs_networkName {
+	margin-right: 5px !important;
+}
+::-webkit-input-placeholder { color: #888; }
+:-moz-placeholder { color: #888; }
+:-ms-input-placeholder { color: #888; }

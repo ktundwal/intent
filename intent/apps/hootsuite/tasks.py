@@ -5,8 +5,8 @@ from django.contrib.auth.models import User
 
 from django.utils.timezone import utc, datetime, timedelta
 
-from .utils import *
-from intent.apps.query.models import Rule, Author, Query, Document, DailyStat
+from intent.apps.query.utils import *
+from .models import Stream, Document, Author, DailyStat, Rule
 
 from django.core.mail import send_mail
 from intent.settings.common import *
@@ -40,15 +40,15 @@ def delete_data_older_then_two_weeks():
     for exclude_email in emails_to_exclude:
         users = users.exclude(email__endswith=exclude_email)
 
-    queries = Query.objects.all()
-    for query in queries:
+    streams = Stream.objects.all()
+    for stream in streams:
         for user in users:
-            queries = queries.exclude(created_by=user)
+            streams = streams.exclude(created_by=user)
 
-    for query in queries:
-        logger.info('Going to delete data older than 2 weeks for user %s, query %s' % (query.created_by, query))
+    for stream in streams:
+        logger.info('Going to delete data older than 2 weeks for user %s, stream %s' % (stream.created_by, stream))
         two_weeks_ago = date.today() + relativedelta(weeks = -1)
-        docs_older_than_two_weeks = Document.objects.filter(result_of=query).filter(date__lte=two_weeks_ago)
+        docs_older_than_two_weeks = Document.objects.filter(result_of=stream).filter(date__lte=two_weeks_ago)
         doc_count = docs_older_than_two_weeks.count()
         docs_older_than_two_weeks.delete()
 
@@ -72,71 +72,70 @@ def create_unknown_rule(intents, intent_str, intent_id):
 
     return rule
 
-def get_or_create_todays_daily_stat(query):
+def get_or_create_todays_daily_stat(stream):
     try:
-        daily_stat = DailyStat.objects.filter(stat_of=query, stat_for=datetime.utcnow().date())[0]
+        daily_stat = DailyStat.objects.filter(stat_of=stream, stat_for=datetime.utcnow().date())[0]
     except: # daily_stat.DoesNotExist:
         daily_stat = None
 
     if not daily_stat:
         daily_stat = DailyStat.objects.create(
-            stat_of              = query,
+            stat_of              = stream,
             stat_for             = datetime.utcnow().replace(tzinfo=utc))
 
     return daily_stat
 
-@periodic_task(run_every=timedelta(minutes=8))
+@periodic_task(run_every=timedelta(minutes=5))
 def run_and_analyze_queries():
     response = None
     email_message = ''
     try:
         task_logger = run_and_analyze_queries.get_logger()
 
-        queries = [query for query in Query.objects.filter(status=Query.WAITING_TO_RUN_STATUS) if query.created_by]
-        task_logger.info("    Queries to run = %d" % len(queries))
-        for query in queries:
+        streams = [stream for stream in Stream.objects.filter(status=Stream.WAITING_TO_RUN_STATUS)]
+        task_logger.info("    Queries to run = %d" % len(streams))
+        for stream in streams:
             try:
-                task_logger.info("    Running query %s for user %s" % (query.query, query.created_by))
-                query.status = Query.RUNNING_STATUS
-                query.save()
+                task_logger.info("    Running stream %s for user %s" % (stream.keywords, stream.created_by))
+                stream.status = Stream.RUNNING_STATUS
+                stream.save()
 
-                tweets = run_and_analyze_query(Kip(keyterms=query.query, genericterms_comma_separated=query.industry_terms_comma_separated),
-                    100, task_logger)
+                tweets = run_and_analyze_query(Kip(keyterms=stream.keywords), 100, task_logger)
 
-#                tweets_w_dislike           = [tweet for tweet in tweets if {u'intent': u'dislike'}          in tweet['intents']]
-#                tweets_w_question          = [tweet for tweet in tweets if {u'intent': u'question'}         in tweet['intents']]
-#                tweets_w_recommendation    = [tweet for tweet in tweets if {u'intent': u'recommendation'}   in tweet['intents']]
-#                tweets_w_buy               = [tweet for tweet in tweets if {u'intent': u'buy'}              in tweet['intents']]
-#                tweets_w_commitment        = [tweet for tweet in tweets if {u'intent': u'commitment'}       in tweet['intents']]
-#                tweets_w_try               = [tweet for tweet in tweets if {u'intent': u'try'}              in tweet['intents']]
-#                tweets_w_like              = [tweet for tweet in tweets if {u'intent': u'like'}             in tweet['intents']]
+                #                tweets_w_dislike           = [tweet for tweet in tweets if {u'intent': u'dislike'}          in tweet['intents']]
+                #                tweets_w_question          = [tweet for tweet in tweets if {u'intent': u'question'}         in tweet['intents']]
+                #                tweets_w_recommendation    = [tweet for tweet in tweets if {u'intent': u'recommendation'}   in tweet['intents']]
+                #                tweets_w_buy               = [tweet for tweet in tweets if {u'intent': u'buy'}              in tweet['intents']]
+                #                tweets_w_commitment        = [tweet for tweet in tweets if {u'intent': u'commitment'}       in tweet['intents']]
+                #                tweets_w_try               = [tweet for tweet in tweets if {u'intent': u'try'}              in tweet['intents']]
+                #                tweets_w_like              = [tweet for tweet in tweets if {u'intent': u'like'}             in tweet['intents']]
 
-#                query.question_count        += len(tweets_w_question)
-#                query.recommendation_count  += len(tweets_w_recommendation)
-#                query.buy_count             += len(tweets_w_buy)
-#                query.commitment_count      += len(tweets_w_commitment)
-#                query.try_count             += len(tweets_w_try)
-#                query.like_count            += len(tweets_w_like)
-#                query.dislike_count         += len(tweets_w_dislike)
+                #                stream.question_count        += len(tweets_w_question)
+                #                stream.recommendation_count  += len(tweets_w_recommendation)
+                #                stream.buy_count             += len(tweets_w_buy)
+                #                stream.commitment_count      += len(tweets_w_commitment)
+                #                stream.try_count             += len(tweets_w_try)
+                #                stream.like_count            += len(tweets_w_like)
+                #                stream.dislike_count         += len(tweets_w_dislike)
 
-                query.last_run              = datetime.utcnow().replace(tzinfo=utc)
-                query.num_times_run         += 1
-                #query.count                 += len(tweets)
-                query.query_exception       = ""
-                query.save()
+                stream.last_run              = datetime.utcnow().replace(tzinfo=utc)
+                stream.num_times_run         += 1
+                #stream.count                 += len(tweets)
+                stream.query_exception       = ""
+                stream.save()
 
-                daily_stat = get_or_create_todays_daily_stat(query)
+                daily_stat = get_or_create_todays_daily_stat(stream)
 
-#                daily_stat.document_count        += len(tweets)
-#                daily_stat.question_count        += len(tweets_w_question)
-#                daily_stat.recommendation_count  += len(tweets_w_recommendation)
-#                daily_stat.buy_count             += len(tweets_w_buy)
-#                daily_stat.commitment_count      += len(tweets_w_commitment)
-#                daily_stat.try_count             += len(tweets_w_try)
-#                daily_stat.like_count            += len(tweets_w_like)
-#                daily_stat.dislike_count         += len(tweets_w_dislike)
-#
-#                daily_stat.save()
+                #                daily_stat.document_count        += len(tweets)
+                #                daily_stat.question_count        += len(tweets_w_question)
+                #                daily_stat.recommendation_count  += len(tweets_w_recommendation)
+                #                daily_stat.buy_count             += len(tweets_w_buy)
+                #                daily_stat.commitment_count      += len(tweets_w_commitment)
+                #                daily_stat.try_count             += len(tweets_w_try)
+                #                daily_stat.like_count            += len(tweets_w_like)
+                #                daily_stat.dislike_count         += len(tweets_w_dislike)
+                #
+                #                daily_stat.save()
 
                 # For each analyzed tweet, add a document
                 for tweet in tweets:
@@ -156,7 +155,7 @@ def run_and_analyze_queries():
                         dislike_rule        = create_unknown_rule(tweet['intents'], {u'intent': u'dislike'},       Rule.DISLIKE_GRAMMAR)
                         try_rule            = create_unknown_rule(tweet['intents'], {u'intent': u'tries'},         Rule.TRY_GRAMMAR)
 
-                        if buy_rule or recommendation_rule or question_rule or commitment_rule \
+                        if buy_rule or recommendation_rule or question_rule or commitment_rule\
                            or like_rule or dislike_rule or try_rule:
 
                             try:
@@ -167,18 +166,18 @@ def run_and_analyze_queries():
                                     name=tweet['author_user_name'],
                                     profile_image_url=tweet['image'])
 
-#                            if tweet['geo']:
-#                                lat = tweet['geo']['coordinates'][0]
-#                                lng = tweet['geo']['coordinates'][1]
-#                                place = None
-#                            else:
-#                                lat = None
-#                                long = None
-#                                place = None
+                            #                            if tweet['geo']:
+                            #                                lat = tweet['geo']['coordinates'][0]
+                            #                                lng = tweet['geo']['coordinates'][1]
+                            #                                place = None
+                            #                            else:
+                            #                                lat = None
+                            #                                long = None
+                            #                                place = None
 
                             try:
                                 document = Document.objects.create(
-                                    result_of           = query,
+                                    result_of           = stream,
                                     source              = Document.TWITTER_SOURCE,
                                     author              = author,
                                     source_id           = tweet['tweet_id'],
@@ -201,29 +200,29 @@ def run_and_analyze_queries():
                                 document.save()
 
                                 daily_stat.document_count += 1
-                                query.count               += 1
+                                stream.count               += 1
 
                                 if buy_rule:
                                     daily_stat.buy_count    += 1
-                                    query.buy_count         += 1
+                                    stream.buy_count         += 1
                                 if recommendation_rule:
                                     daily_stat.recommendation_count    += 1
-                                    query.recommendation_count         += 1
+                                    stream.recommendation_count         += 1
                                 if question_rule:
                                     daily_stat.question_count    += 1
-                                    query.question_count         += 1
+                                    stream.question_count         += 1
                                 if commitment_rule:
                                     daily_stat.commitment_count    += 1
-                                    query.commitment_count         += 1
+                                    stream.commitment_count         += 1
                                 if like_rule:
                                     daily_stat.like_count    += 1
-                                    query.like_count         += 1
+                                    stream.like_count         += 1
                                 if dislike_rule:
                                     daily_stat.dislike_count    += 1
-                                    query.dislike_count         += 1
+                                    stream.dislike_count         += 1
                                 if try_rule:
                                     daily_stat.try_count    += 1
-                                    query.try_count         += 1
+                                    stream.try_count         += 1
                             except Exception, doc_e:
                                 log_exception(task_logger, "Exception while processing document")
                     else:
@@ -233,36 +232,36 @@ def run_and_analyze_queries():
                     task_logger.info("    Fetched %d tweets. Daily stat = %s" % (len(tweets), daily_stat.display()))
                     #email_message += '\n\n%s' % daily_stat.display()
 
-                query.save()
+                stream.save()
                 daily_stat.save()
 
             except Exception, e:
                 response = '%s' % e
                 log_exception(task_logger,
-                    "Exception while processing query %s for user %s" % (query.query, query.created_by))
-                query.query_exception = e.message
-                query.save()
+                    "Exception while processing stream %s for user %s" % (stream.keywords, stream.created_by))
+                stream.query_exception = e.message
+                stream.save()
 
                 try:
                     send_status_email('cruxly prod - background process failure',
-                        'exception processing %s for user %s\n\n %s' % (query.query, query.created_by, e))
+                        'exception processing %s for user %s\n\n %s' % (stream.keywords, stream.created_by, e))
                 except Exception, email_ex:
                     #log_exception(task_logger, "Exception sending status via email. %s" % email_ex)
                     pass
             finally:
                 try:
-                    query.status = Query.WAITING_TO_RUN_STATUS
-                    query.save()
+                    stream.status = Stream.WAITING_TO_RUN_STATUS
+                    stream.save()
                 except:
-                    log_exception(task_logger, "Exception setting query to in queue")
-            task_logger.info("    Processed query %s for user %s" % (query.query, query.created_by))
+                    log_exception(task_logger, "Exception setting stream to in queue")
+            task_logger.info("    Processed stream %s for user %s" % (stream.keywords, stream.created_by))
 
-#        try:
-#            send_status_email('cruxly prod - background process success',
-#                'successfully processed %d queries.\n\n%s' % (len(queries), email_message))
-#        except Exception, email_ex:
-#            #log_exception(task_logger, "Exception sending status via email \n%s" % email_ex)
-#            pass
+        #        try:
+        #            send_status_email('cruxly prod - background process success',
+        #                'successfully processed %d queries.\n\n%s' % (len(queries), email_message))
+        #        except Exception, email_ex:
+        #            #log_exception(task_logger, "Exception sending status via email \n%s" % email_ex)
+        #            pass
 
     except Exception, e:
         response = '%s' % e

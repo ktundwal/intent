@@ -1,0 +1,48 @@
+{% load endless %}
+{% load twitter_tags %}
+{% load humanize %}
+
+{% paginate tweets %}
+
+{% for tweet in tweets %}
+{# your code to show the entry #}
+
+    <div class="hs_message">
+        <div class="hs_controls">
+            <a href="https://twitter.com/intent/tweet?in_reply_to={{ tweet.source_id }}" class="hs_icon hs_reply" title="Reply">Reply</a>
+            <a href="https://twitter.com/intent/favorite?tweet_id={{ tweet.source_id }}" class="hs_icon hs_favorite" title="Favorite">Favorite</a>
+
+            <a href="my_app.html" class="hs_icon hs_expand">more...</a>
+            <div class="hs_moreOptionsMenu">
+                <a href="https://twitter.com/intent/tweet?in_reply_to={{ tweet.source_id }}"><span class="hs_icon hs_replyAll"></span>Reply All</a>
+                <a href="https://twitter.com/intent/retweet?tweet_id={{ tweet.source_id }}"><span class="hs_icon hs_retweet"></span>RT</a>
+                <a href="https://twitter.com/intent/retweet?tweet_id={{ tweet.source_id }}"><span class="hs_icon hs_directMessage"></span>DM</a>
+                <a href="https://twitter.com/intent/favorite?tweet_id={{ tweet.source_id }}"><span class="hs_icon hs_email"></span>Email</a>
+            </div>
+        </div>
+        <a title="Username" href="my_app.html" class="hs_networkAvatarLink"></a>
+        <img class="hs_networkAvatar" src="{{ tweet.author.profile_image_url }}">
+        <a title="Username" class="hs_networkName" href="my_app.html">{{ tweet.author.name }}</a>
+        <a target="_blank" href="http://twitter.com/{{ tweet.author.twitter_handle }}/status/{{ tweet.source_id }}" class="hs_postTime">{{ tweet.date|date:'Y-m-d H:i' }}</a>
+        <div class="hs_messageContent">{{ tweet.text|tweet }}</div>
+        {% if tweet.buy_rule %}<div class="label label-success">BUY</div>{% endif %}
+        {% if tweet.recommendation_rule %}<div class="label label-warning">RECOMMENDATION</div>{% endif %}
+        {% if tweet.question_rule %}<span class="label label-important">QUESTION</span>{% endif %}
+        {% if tweet.commitment_rule %}<div class="label label-info">COMMITMENT</div>{% endif %}
+        {% if tweet.like_rule %}<div class="label label-inverse">LIKE</div>{% endif %}
+        {% if tweet.dislike_rule %}<div class="label">DISLIKE</div>{% endif %}
+        {% if tweet.try_rule %}<div class="label label-success">TRY</div>{% endif %}
+    </div>
+
+{% endfor %}
+
+<!-- ================== -->
+<!-- = LOAD MORE LINK = -->
+<!-- ================== -->
+<!--
+This should be triggered automatically when the scroll position nears the
+the bottom of the stream.
+ -->
+<div id=""><!-- optional wrapper div -->
+    <a class="hs_messageMore">{% show_more %}</a>
+</div>

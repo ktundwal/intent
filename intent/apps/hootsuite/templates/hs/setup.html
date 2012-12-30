@@ -1,0 +1,26 @@
+{% extends 'hs/base.html' %}
+{% load crispy_forms_tags %}
+
+{% block javascript %}
+    {{ block.super }}
+
+    <!--Load the AJAX API-->
+    <script type="text/javascript" src="https://www.google.com/jsapi"></script>
+
+
+    <script src="/static/vendor/jquery/1.7.2/jquery.js" type="text/javascript" charset="utf-8"></script>
+    <script src="/static/vendor/endless_pagination/1.1/endless.js" type="text/javascript" charset="utf-8"></script>
+
+{% endblock %}
+
+{% block title %}{{ intent|capfirst }} intents for {{ query.query }}{% endblock %}
+
+{% block yield %}
+    <div class="hs_topBarSpace"></div>
+
+    <div class="hs_noMessage">
+        <div class="hs_title">Hello {% if user.first_name %} {{ user.first_name }} {% else %} HootSuite user {% endif %}. Setup a tracker and let us find tweets with relevant intents.</div>
+        {% crispy form form.helper %}
+
+    </div>
+{% endblock %}
