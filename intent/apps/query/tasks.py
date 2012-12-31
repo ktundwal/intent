@@ -85,7 +85,7 @@ def get_or_create_todays_daily_stat(query):
 
     return daily_stat
 
-@periodic_task(run_every=timedelta(minutes=8))
+@periodic_task(run_every=timedelta(minutes=60))
 def run_and_analyze_queries():
     response = None
     email_message = ''
