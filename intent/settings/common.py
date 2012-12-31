@@ -174,6 +174,7 @@ TEMPLATE_CONTEXT_PROCESSORS = (
     'django.contrib.messages.context_processors.messages',
     "allauth.account.context_processors.account",
     "allauth.socialaccount.context_processors.socialaccount",
+    "intent.apps.core.context_processors.baseurl",
 )
 
 # django-registration
