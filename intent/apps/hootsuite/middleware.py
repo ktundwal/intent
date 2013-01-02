@@ -23,18 +23,6 @@ class TokenMiddleware( object ):
                 " 'django.contrib.auth.middleware.AuthenticationMiddleware'"
                 " before the RemoteUserMiddleware class.")
 
-        # If the user is already authenticated and that user is the user we are
-        # getting passed in the headers, then the correct user is already
-        # persisted in the session and we don't need to continue.
-        if request.user.is_authenticated():
-            if request.REQUEST.get('uid', ''):
-                if request.user.username == 'hs_%s' % request.REQUEST.get('uid'):
-                    return
-                else:
-                    logout(request)
-            else:
-                return
-
         pid = request.REQUEST.get('pid', '')
         if pid:
             request.session['hootsuite_pid'] = pid
@@ -50,6 +38,18 @@ class TokenMiddleware( object ):
         theme = request.REQUEST.get('theme', '')
         if theme:
             request.session['hootsuite_theme'] = theme
+
+        # If the user is already authenticated and that user is the user we are
+        # getting passed in the headers, then the correct user is already
+        # persisted in the session and we don't need to continue.
+        if request.user.is_authenticated():
+            if request.REQUEST.get('uid', ''):
+                if request.user.username == 'hs_%s' % request.REQUEST.get('uid'):
+                    return
+                else:
+                    logout(request)
+            else:
+                return
 
         # request contains <QueryDict: {u'lang': [u'en'], u'uid': [u'5048335'], u'i': [u'5048335'], u'pid': [u'695620'],
         # u'ts': [u'1356556883'], u'theme': [u'classic'], u'token': [u'7d59cb8ef43c5c8aa6c95cfc26d87758b4c9bdb8'],

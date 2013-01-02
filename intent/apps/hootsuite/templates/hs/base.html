@@ -24,8 +24,51 @@ be used in order to maintain a consistent UI across HootSuite.
 
     <link rel="stylesheet" href="/static/vendor/bootstrap/2.2.1/css/bootstrap.min.css">
 -->
-	<!-- jQuery -->
-	<script src="{{ STATIC_URL }}hs/js/jquery.min.js"></script>
+
+    <!-- jQuery -->
+    <script src="{{ STATIC_URL }}hs/js/jquery.min.js"></script>
+
+    <script type="text/javascript">
+        // Notes:
+        // * To prevent conflicts, run hsp.init() either before including jQuery or in $(document).ready().
+        // * In order for hsp.bind() and hsp.updatePlacementSubtitle() to work, you need to set up an
+        //   App Receiver and provide its absolute URL in the receiverPath parameter.
+        //   See https://sites.google.com/site/hootsuiteappdevelopers/jsapi
+
+        $(document).ready(function() {
+            console.log('BEFORE hsp: apiKey = ' + hsp.apiKey + ' apiKeyIsVerified = ' + hsp.apiKeyIsVerified
+                    + ' pid = ' + hsp.pid + ' receiverPath = ' + hsp.receiverPath + ' url = ' + window.location.pathname);
+            if (!hsp.apiKeyIsVerified) {
+
+                // =======
+                // = hsp =
+                // =======
+                var hsp_params = {
+                    apiKey: '5lu5hi519v48ok8o480swss803i94gd1djc',
+                    useTheme: true,
+                    receiverPath: '{{ BASE_URL }}{% url hootsuite:receiver %}',
+                    callBack: function( message ){ console.log('Error: ' + message); }
+                };
+
+            {% if user.is_authenticated %}
+                hsp_params.subtitle = '{{ user.first_name }}'
+            {% endif %}
+
+                hsp.init(hsp_params);
+
+                // hsp.bind() example (requires App Receiver):
+                hsp.bind('refresh', function() {
+                    window.location.reload();
+                });
+
+                console.log('AFTER INIT hsp: apiKey = ' + hsp.apiKey + ' apiKeyIsVerified = ' + hsp.apiKeyIsVerified
+                        + ' pid = ' + hsp.pid + ' receiverPath = ' + hsp.receiverPath + ' url = ' + window.location.pathname);
+            }
+
+            //hsp.startAppTokenAuth();
+            //hsp.editAppAuth();
+        });
+    </script>
 
 </head>
 
