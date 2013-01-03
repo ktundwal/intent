@@ -57,7 +57,7 @@
 
         <!-- SETTINGS -->
         <div class="_settings hs_btns-right">
-            <a href="{% url hootsuite:update %}">Update keywords</a>
+            <a href="{% url hootsuite:update %}?{{ request.GET.urlencode }}">Update keywords</a>
             <!--
             <label class="hs_title"><input type="checkbox"> Setting 1</label>
             <a class="hs_btn-cmt" href="my_app.html">Save</a>
