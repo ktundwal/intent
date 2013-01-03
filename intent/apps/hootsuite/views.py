@@ -14,12 +14,10 @@ __status__ = "Development"
 import time
 import django
 from endless_pagination.decorators import page_template
-import simplejson
 from intent.apps.core.utils import log_exception
 from intent.apps.hootsuite.tasks import run_and_analyze_queries
 from django.template import RequestContext
-
-
+from django.utils import simplejson
 
 from django.http import HttpResponseRedirect, Http404, HttpResponse
 from django.core.urlresolvers import reverse
