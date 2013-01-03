@@ -1,4 +1,5 @@
 from pattern import web    # for twitter search
+from tweepy.error import TweepError
 from intent.settings.common import TWITTER_ACCESS_TOKEN_CRUXLY, TWITTER_ACCESS_TOKEN_SECRET_CRUXLY
 from intent.settings.prod import TWITTER_CONSUMER_KEY, TWITTER_CONSUMER_SECRET
 from patternliboverrides import *   # for twitter class override in pattern lib
@@ -61,17 +62,23 @@ def search_twitter(query, query_count):
 def get_user_twitter_access_token():
     return TWITTER_ACCESS_TOKEN_CRUXLY, TWITTER_ACCESS_TOKEN_SECRET_CRUXLY
 
-def search_twitter_using_tweepy(query):
-    auth = tweepy.OAuthHandler(TWITTER_CONSUMER_KEY, TWITTER_CONSUMER_SECRET)
-    token, token_secret = get_user_twitter_access_token()
-    auth.set_access_token(token, token_secret)
-    api = tweepy.API(auth)
-    return api.search(
-        q=query,
-        rpp=100,
-        result_type="recent",
-        include_entities=True,
-        lang="en")
+def search_twitter_using_tweepy(query, logger=None):
+    try:
+        auth = tweepy.OAuthHandler(TWITTER_CONSUMER_KEY, TWITTER_CONSUMER_SECRET)
+        token, token_secret = get_user_twitter_access_token()
+        auth.set_access_token(token, token_secret)
+        api = tweepy.API(auth)
+        return api.search(
+            q=query,
+            rpp=100,
+            result_type="recent",
+            include_entities=True,
+            lang="en")
+    except TweepError, te:
+        log_exception(logger,
+            "TWITTER ERROR! reason = %s, response = %s, keywords = %s, consumer_key = %s, consumer_secret = %s" %
+                (te.reason, te.response, query, TWITTER_CONSUMER_KEY, TWITTER_CONSUMER_SECRET))
+        raise
 
 def clean_tweet(tweet):
     txt1 = web.plaintext(tweet)
@@ -225,7 +232,7 @@ def run_and_analyze_query(kip, query_count, logger):
     query_from_kip = create_query(kip)
     logger.info("Going to search twitter for " + query_from_kip);
     #all_tweets = search_twitter(query_from_kip, query_count)
-    all_tweets = search_twitter_using_tweepy(query_from_kip)
+    all_tweets = search_twitter_using_tweepy(query_from_kip, logger=logger)
     after_twitter_search = time.time()
 
     chunked_tweets = list(chunks(all_tweets, TWEETS_PER_API))

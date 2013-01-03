@@ -36,8 +36,6 @@ be used in order to maintain a consistent UI across HootSuite.
         //   See https://sites.google.com/site/hootsuiteappdevelopers/jsapi
 
         $(document).ready(function() {
-            console.log('BEFORE hsp: apiKey = ' + hsp.apiKey + ' apiKeyIsVerified = ' + hsp.apiKeyIsVerified
-                    + ' pid = ' + hsp.pid + ' receiverPath = ' + hsp.receiverPath + ' url = ' + window.location);
             if (!hsp.apiKeyIsVerified) {
 
                 // =======
@@ -47,22 +45,25 @@ be used in order to maintain a consistent UI across HootSuite.
                     apiKey: '5lu5hi519v48ok8o480swss803i94gd1djc',
                     useTheme: true,
                     receiverPath: '{{ BASE_URL }}{% url hootsuite:receiver %}',
-                    callBack: function( message ){ console.log('Error: ' + message); }
+                    callBack: function( message ){
+                        console.log('Error: ' + message);
+                    }
                 };
 
-            {% if user.is_authenticated %}
-                hsp_params.subtitle = '{{ user.first_name }}'
-            {% endif %}
+                {% if user.is_authenticated %}
+                    hsp_params.subtitle = '{{ user.first_name }}'
+                {% endif %}
 
                 hsp.init(hsp_params);
 
                 // hsp.bind() example (requires App Receiver):
                 hsp.bind('refresh', function() {
+                    console.log('hsp refresh event received')
                     window.location.reload();
                 });
 
-                console.log('AFTER INIT hsp: apiKey = ' + hsp.apiKey + ' apiKeyIsVerified = ' + hsp.apiKeyIsVerified
-                        + ' pid = ' + hsp.pid + ' receiverPath = ' + hsp.receiverPath + ' url = ' + window.location);
+                console.log('URL = ' + window.location + '\napiKeyIsVerified = ' + hsp.apiKeyIsVerified
+                        + '\npid = ' + hsp.pid + '\napiKey = ' + hsp.apiKey + '\nreceiverPath = ' + hsp.receiverPath);
             }
 
             //hsp.startAppTokenAuth();

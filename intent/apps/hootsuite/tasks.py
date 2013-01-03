@@ -234,7 +234,6 @@ def run_and_analyze_queries():
 
                 stream.save()
                 daily_stat.save()
-
             except Exception, e:
                 response = '%s' % e
                 log_exception(task_logger,
