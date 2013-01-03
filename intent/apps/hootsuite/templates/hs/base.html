@@ -37,7 +37,7 @@ be used in order to maintain a consistent UI across HootSuite.
 
         $(document).ready(function() {
             console.log('BEFORE hsp: apiKey = ' + hsp.apiKey + ' apiKeyIsVerified = ' + hsp.apiKeyIsVerified
-                    + ' pid = ' + hsp.pid + ' receiverPath = ' + hsp.receiverPath + ' url = ' + window.location.pathname);
+                    + ' pid = ' + hsp.pid + ' receiverPath = ' + hsp.receiverPath + ' url = ' + window.location);
             if (!hsp.apiKeyIsVerified) {
 
                 // =======
@@ -62,7 +62,7 @@ be used in order to maintain a consistent UI across HootSuite.
                 });
 
                 console.log('AFTER INIT hsp: apiKey = ' + hsp.apiKey + ' apiKeyIsVerified = ' + hsp.apiKeyIsVerified
-                        + ' pid = ' + hsp.pid + ' receiverPath = ' + hsp.receiverPath + ' url = ' + window.location.pathname);
+                        + ' pid = ' + hsp.pid + ' receiverPath = ' + hsp.receiverPath + ' url = ' + window.location);
             }
 
             //hsp.startAppTokenAuth();
