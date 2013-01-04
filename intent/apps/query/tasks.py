@@ -37,8 +37,8 @@ def delete_data_older_then_two_weeks():
 
     emails_to_exclude = ['@gmail.com', '@yahoo.com', 'aol.com']
     users = User.objects.all()
-    for exclude_email in emails_to_exclude:
-        users = users.exclude(email__endswith=exclude_email)
+    #for exclude_email in emails_to_exclude:
+    #    users = users.exclude(email__endswith=exclude_email)
 
     queries = Query.objects.all()
     for query in queries:

@@ -14,12 +14,12 @@ __status__ = "Development"
 import time
 import django
 from endless_pagination.decorators import page_template
-from intent.apps.core.utils import log_exception
+from intent.apps.core.utils import log_exception, logger
 from intent.apps.hootsuite.tasks import run_and_analyze_queries
 from django.template import RequestContext
 from django.utils import simplejson
 
-from django.http import HttpResponseRedirect, Http404, HttpResponse
+from django.http import HttpResponseRedirect, Http404, HttpResponse, HttpResponseBadRequest, HttpResponseServerError, HttpResponseNotAllowed
 from django.core.urlresolvers import reverse
 from django.views.generic.edit import FormView, ProcessFormView
 from django.views.generic import TemplateView, UpdateView
@@ -183,22 +183,26 @@ class StreamView(TemplateView):
         context = self.get_context_data(**kwargs)
         return self.render_to_response(context)
 
-class DeleteStreamFormView(ProcessFormView):
+class DeleteStreamView(ProcessFormView):
     """
     A mixin that processes a form on POST.
     """
     def get(self, request, *args, **kwargs):
-        form_class = self.get_form_class()
-        form = self.get_form(form_class)
-        return self.render_to_response(self.get_context_data(form=form))
+        return HttpResponseNotAllowed()
 
     def post(self, request, *args, **kwargs):
-        form_class = self.get_form_class()
-        form = self.get_form(form_class)
-        if form.is_valid():
-            return self.form_valid(form)
-        else:
-            return self.form_invalid(form)
+        try:
+            stream_to_delete = Stream.objects.get(hootsuite_pid = request.POST['pid'])
+            stream_to_delete.delete()
+            logger.info('Successfully deleted stream with hootsuite pid = %s for user %s' % (request.POST['pid'], request.user))
+        except django.core.exceptions.DoesNotExist:
+            log_exception(message='Request to delete stream with hootsuite pid = %s. No stream found which matches this pid' % request.POST['pid'])
+        except KeyError:
+            log_exception(message='Request to delete stream with unknown hootsuite pid')
+            return HttpResponseBadRequest()
+        except:
+            return HttpResponseServerError()
+        return HttpResponse('success')
 
 def tokenexchange(request):
     # Django converts Authorization header in HTTP_AUTHORIZATION

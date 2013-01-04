@@ -27,7 +27,7 @@
         <div class="hs_messageContent">{{ tweet.text|tweet }}</div>
         {% if tweet.buy_rule %}<div class="label label-success">BUY</div>{% endif %}
         {% if tweet.recommendation_rule %}<div class="label label-warning">RECOMMENDATION</div>{% endif %}
-        {% if tweet.question_rule %}<span class="label label-important">QUESTION</span>{% endif %}
+        {% if tweet.question_rule %}<span class="label label-important">QUESTION/REQUEST</span>{% endif %}
         {% if tweet.commitment_rule %}<div class="label label-info">COMMITMENT</div>{% endif %}
         {% if tweet.like_rule %}<div class="label label-inverse">LIKE</div>{% endif %}
         {% if tweet.dislike_rule %}<div class="label">DISLIKE</div>{% endif %}

@@ -13,7 +13,7 @@ __status__      = "Development"
 
 from django.conf.urls import patterns, url
 from django.views.generic import TemplateView
-from .views import LoginView, StreamFormCreateView, StreamView, tokenexchange, WelcomeView, StreamFormUpdateView
+from .views import LoginView, StreamFormCreateView, StreamView, tokenexchange, WelcomeView, StreamFormUpdateView, DeleteStreamView
 
 urlpatterns = patterns('intent.apps.hootsuite.views',
     url(r'^welcome/$', WelcomeView.as_view(), name='welcome'),
@@ -30,4 +30,6 @@ urlpatterns = patterns('intent.apps.hootsuite.views',
     url(r'^process/$', 'process', name='process'),
 
     url(r'^results/$', 'query_results', name='query_results'),
+
+    url(r'^delete/$', DeleteStreamView.as_view(), name='delete'),
 )
