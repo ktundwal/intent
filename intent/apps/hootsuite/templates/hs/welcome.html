@@ -10,31 +10,65 @@
 {% block title %}Welcome{% endblock %}
 
 {% block yield %}
-    <div style="text-align:center;"><div style="display:table;"><div style="{display:table-cell;vertical-align:middle;}">
-        <div class="hs_topBarSpace"></div>
+    <div>
+        <div style="display:table;margin-left: auto; margin-right: auto;">
+            <div style="{display:table-cell;vertical-align:middle;}">
+                <div class="hs_topBarSpace"></div>
+                <div class="logo" style="text-align:center;">
+                    <img width="100px" src="/static/core/img/cruxly-logo-4x2.png"/>
+                </div>
+            </div>
 
-        <div class="logo"><img width="100px" src="/static/core/img/cruxly-logo-4x2.png"></div>
-        <div class="hs_noMessage splash">
+            <div class="spacer50"></div>
+
             {% if user.is_authenticated %}
-                <div class="hs_networkName">Welcome {% if user.first_name %} {{ user.first_name }} {% else %} HootSuite user {% endif %}</div>
-                <hr>
                 {% if stream %}
-                    <a href="{% url hootsuite:update %}?{{ request.GET.urlencode }}" class="btn btn-info register">Update setup</a>
+                    <div style="{display:table-cell}">
+                        <div class="hs_message">
+                            <div class="hs_messageContent">
+                                <div class="hs_networkName">Welcome {% if user.first_name %} {{ user.first_name }} {% else %} HootSuite user {% endif %},</div>
+                            </div>
+                            <div class="spacer15"></div>
+                            <div class="hs_messageContent">
+                                <p>Since your last visit, {{ stat.tweets_analyzed }} tweets have been analyzed for {{ stat.keywords }}. </p>
+                                <p>{{ stat.num_users_w_single_buy }} people have expressed <strong>Buy</strong> intent of which {{ stat.num_users_w_mulitple_buy }} are strong leads.</p>
+                                <p>{{ stat.num_users_w_single_try }} would like to try.</p>
+                                <p>{{ stat.num_users_w_like }} like it, of which {{ stat.num_inflential_users_w_like }} are influential.</p>
+                                <p>{{ stat.num_users_w_dislike }} dislike it, of which {{ stat.num_inflential_users_w_dislike }} are influential.</p>
+                                <p>{{ stat.num_users_w_question }} have questions, of which {{ stat.num_inflential_users_w_question }} are influential.</p>
+                                <p>Over 2 week period, popularity of {{ stat.keywords }} has increased by {{ stat.popularity_gain }}% </p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="spacer30"></div>
+
+                    <div style="{display:table-cell;vertical-align:middle;}">
+                        <div style="text-align:center;">
+                            <a href="{% url hootsuite:query_results %}?{{ request.GET.urlencode }}" class="btn btn-info register">Review tweets</a>
+                            <a href="{% url hootsuite:update %}?{{ request.GET.urlencode }}" class="btn btn-info register">Update setup</a>
+                        </div>
+                    </div>
                 {% else %}
-                    <a href="{% url hootsuite:setup %}?{{ request.GET.urlencode }}" class="btn btn-info register">Get Started With Cruxly</a>
+                    <div style="{display:table-cell;vertical-align:middle;}">
+                        <div class="hs_noMessage splash" style="text-align:center;">
+                            <div class="hs_networkName">Welcome {% if user.first_name %} {{ user.first_name }} {% else %} HootSuite user {% endif %}</div>
+                            <hr>
+                            <a href="{% url hootsuite:setup %}?{{ request.GET.urlencode }}" class="btn btn-info register">Get Started With Cruxly</a>
+                            <div class="alert info splash-text">
+                                <p>
+                                    Understand user's intent.  Setup only takes a minute – and it’s FREE.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
                 {% endif %}
-                <div class="alert info splash-text">
-                    <p>
-                    Understand user's intent.  Setup only takes a minute – and it’s FREE.
-                    </p>
                 </div>
             {% else %}
                 <div class="alert error splash-text">
                     Please add Cruxly app at hootsuite.com to use this service.
                 </div>
             {% endif %}
-
         </div>
-
-    </div></div></div>
+    </div>
 {% endblock %}

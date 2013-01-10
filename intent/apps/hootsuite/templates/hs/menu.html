@@ -66,6 +66,8 @@
 
         <!-- MENU LIST -->
         <div class="_menuList hs_btns-right">
+            <a href="{% url hootsuite:welcome %}?{{ request.GET.urlencode }}">Statistics</a>
+            <hr>
             <a href="mailto:aloke@cruxly.com">Email us</a>
             <hr>
             <a href="{% url core:terms %}">Terms & Condition</a>

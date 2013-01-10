@@ -43,8 +43,36 @@ class WelcomeView(TemplateView):
 
     def get(self, request, *args, **kwargs):
         # Do something with GET.
+
+        if not request.user.is_authenticated():
+            return PermissionDenied
+
         context = self.get_context_data(**kwargs)
+        context['stream'] = get_user_stream_config(request)
+        stat = self.user_stat(request, request.user)
+        context['stat'] = stat
         return self.render_to_response(context)
+
+    def user_stat(self, request, user):
+        stream = get_user_stream_config(self.request)
+        tweets = Document.objects.filter(
+            result_of=stream,
+            date__gte=user.last_login)
+        stat = {
+            'tweets_analyzed':                  tweets.count(),
+            'keywords':                         stream.keywords,
+            'num_users_w_single_buy':           tweets.filter(buy_rule__isnull=False).count(),
+            'num_users_w_mulitple_buy':         'tbd',
+            'num_users_w_single_try':           tweets.filter(try_rule__isnull=False).count(),
+            'num_users_w_like':                 tweets.filter(like_rule__isnull=False).count(),
+            'num_inflential_users_w_like':      'tbd',
+            'num_users_w_dislike':              tweets.filter(dislike_rule__isnull=False).count(),
+            'num_inflential_users_w_dislike':   'tbd',
+            'num_users_w_question':             tweets.filter(question_rule__isnull=False).count(),
+            'num_inflential_users_w_question':  'tbd',
+            'popularity_gain':                  'tbd',
+        }
+        return stat
 
     @method_decorator(login_required)
     def post(self, request, *args, **kwargs):
@@ -55,6 +83,8 @@ class WelcomeView(TemplateView):
 
         context = self.get_context_data(**kwargs)
         context['stream'] = get_user_stream_config(request)
+        stat = self.user_stat(request, request.user)
+        context['stat'] = stat
         return self.render_to_response(context)
 
 class LoginView(TemplateView):
