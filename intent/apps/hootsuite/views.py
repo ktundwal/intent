@@ -82,9 +82,11 @@ class WelcomeView(TemplateView):
             return PermissionDenied
 
         context = self.get_context_data(**kwargs)
-        context['stream'] = get_user_stream_config(request)
-        stat = self.user_stat(request, request.user)
-        context['stat'] = stat
+        stream = get_user_stream_config(request)
+        if stream:
+            context['stream'] = stream
+            stat = self.user_stat(request, request.user)
+            context['stat'] = stat
         return self.render_to_response(context)
 
 class LoginView(TemplateView):
