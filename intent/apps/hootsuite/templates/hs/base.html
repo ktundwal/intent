@@ -13,7 +13,10 @@ be used in order to maintain a consistent UI across HootSuite.
 	HootSuite API JS Library
 	NOTE: To test themes outside of the dashboard, add '?theme=blue_steel' to your url [blue_steel, magnum, classic]
 	-->
-	<!--script type="text/javascript" src="{{ STATIC_URL }}/hs/js/hsp.js"></script-->
+	<script type="text/javascript" src="{{ STATIC_URL }}/hs/js/hsp.js"></script>
+    <script type="text/javascript" src="{{ STATIC_URL }}/hs/js/scroll.js"></script>
+    <!-- <script type="text/javascript" src="http://static.hootsuite.com/jsapi/0-5/hsp.js"></script> -->
+
     <script type="text/javascript" src="http://static.hootsuite.com/jsapi/0-5/hsp.js"></script>
 
     <link type="text/css" rel="stylesheet" href="{{ STATIC_URL }}hs/css/ad_classic.css">
@@ -75,7 +78,7 @@ be used in order to maintain a consistent UI across HootSuite.
 
 <style type="text/css"></style>
 
-<body>
+<body onload="loadScroll()" onunload="saveScroll()">
 
 	<!-- Stream -->
 	
