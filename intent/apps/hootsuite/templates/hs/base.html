@@ -59,12 +59,6 @@ be used in order to maintain a consistent UI across HootSuite.
 
                 hsp.init(hsp_params);
 
-                // hsp.bind() example (requires App Receiver):
-                hsp.bind('refresh', function() {
-                    console.log('hsp refresh event received')
-                    window.location.reload();
-                });
-
                 console.log('URL = ' + window.location + '\napiKeyIsVerified = ' + hsp.apiKeyIsVerified
                         + '\npid = ' + hsp.pid + '\napiKey = ' + hsp.apiKey + '\nreceiverPath = ' + hsp.receiverPath);
             }

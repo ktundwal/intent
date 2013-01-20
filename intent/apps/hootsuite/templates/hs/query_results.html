@@ -57,6 +57,32 @@
                 $(this).hide();
             });
 
+            refresh_stream_button = $("#new_intent_notification");
+            refresh_stream_button.hide();
+
+            // hsp.bind() example (requires App Receiver):
+            if (hsp.apiKeyIsVerified) {
+                hsp.bind('refresh', function() {
+                    console.log('hsp refresh event received')
+                    // Find if we have more tweets to report. If yes, prompt user to reload.
+                    $.getJSON("{% url hootsuite:num_docs_since_given_time_api %}?page_load_timestamp={{ page_load_timestamp }}",
+                        function(json) {
+                            num_new_intents = json['num_docs'];
+                            console.log("number of new documents = " + num_new_intents);
+                            if (num_new_intents) {
+                                refresh_stream_button.text(num_new_intents + ' unread intents');
+                                refresh_stream_button.show();
+                            } else {
+                                refresh_stream_button.hide();
+                            }
+                        })
+                        .success(function() { console.log("second success"); })
+                        .error(function() { console.log("error"); })
+                        .complete(function() { console.log("complete"); });
+                });
+            } else {
+                console.log('Error: hsp.apiKeyIsVerified = ' + hsp.apiKeyIsVerified)
+            }
 
             // Demo functionality
             //
@@ -152,16 +178,25 @@
 
 {% block yield %}
 
-    {% include "hs/menu.html" %}
+    <div class="hs_stream" style="overflow: hidden;">
 
-    <div class="hs_noMessage">
-        {% if tweets.count %}
-            Tweets containing buy, like and try intents for {{ query.keywords }}
-        {% else %}
-            Please wait while we search and analyze tweets for {{ query.keywords }}
-        {% endif %}
+        {% include "hs/menu.html" %}
+
+        <div class="hs_noMessage" id='app-stream-heading'>
+            {% if tweets.count %}
+                Tweets containing buy, like and try intents for {{ query.keywords }}
+            {% else %}
+                Please wait while we search and analyze tweets for {{ query.keywords }}
+            {% endif %}
+            <a href="{% url hootsuite:query_results %}?{{ request.GET.urlencode }}" id="new_intent_notification" class="hs_btn-dbl"></a>
+        </div>
+
+        <div id="app_stream" class="hs_stream-scroll">
+            {% include page_template %}
+        </div>
+
     </div>
 
-    {% include page_template %}
+
 
 {% endblock %}

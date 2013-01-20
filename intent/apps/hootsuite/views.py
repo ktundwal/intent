@@ -11,24 +11,31 @@ __maintainer__ = "Kapil Tundwal"
 __email__ = "ktundwal@gmail.com"
 __status__ = "Development"
 
+# Stdlib imports
 import time
 import django
-from endless_pagination.decorators import page_template
-from intent.apps.core.utils import log_exception, logger
-from intent.apps.hootsuite.tasks import run_and_analyze_queries
+from datetime import datetime
+
+# Core Django imports
 from django.template import RequestContext
 from django.utils import simplejson
-
 from django.http import HttpResponseRedirect, Http404, HttpResponse, HttpResponseBadRequest, HttpResponseServerError, HttpResponseNotAllowed
 from django.core.urlresolvers import reverse
 from django.views.generic.edit import FormView, ProcessFormView
-from django.views.generic import TemplateView, UpdateView
+from django.views.generic import TemplateView, UpdateView, View
 from django.shortcuts import redirect, get_object_or_404, render_to_response
 from django.core.exceptions import PermissionDenied
 from django.contrib.auth.decorators import login_required
 from django.utils.decorators import method_decorator
-from intent.apps.hootsuite.models import Stream, Document
 
+# Third-party app imports
+from endless_pagination.decorators import page_template
+from braces.views import JSONResponseMixin
+
+# Imports from your apps
+from intent.apps.core.utils import log_exception, logger
+from intent.apps.hootsuite.tasks import run_and_analyze_queries
+from intent.apps.hootsuite.models import Stream, Document
 from intent.apps.hootsuite.forms import StreamForm, StreamUpdateForm
 
 def get_user_stream_config(request):
@@ -325,6 +332,7 @@ def query_results(request,
                 'query': query,
                 'status_choices': dict(Stream.STATUS_CHOICES),
                 'tweets': tweets,
+                'page_load_timestamp': datetime.now().strftime("%Y%m%d%H%M%S"),
                 }
 
             if extra_context is not None:
@@ -342,3 +350,25 @@ def query_results(request,
         django.contrib.messages.error(request, 'Pagination error. Please try again.')
         response = render_to_response(template, context, context_instance=RequestContext(request))
     return response
+
+
+class NumDocumentsSinceGivenTimeApiView(JSONResponseMixin, View):
+
+    def get(self, *args, **kwargs):
+        """ Returns a single JSON object in a JSON list
+                representing the Flavor
+        """
+        query = get_user_stream_config(self.request)
+        page_load_timestamp = self.request.GET.get('page_load_timestamp', '')
+        if query and page_load_timestamp:
+            timeobj = datetime.strptime(page_load_timestamp, "%Y%m%d%H%M%S")
+            print 'NumDocumentsSinceGivenTimeApiView called with page_load_timestamp = %s' % timeobj
+            return self.render_json_response({
+                'page_load_timestamp': timeobj,
+                'num_docs': Document.objects.filter(result_of=query).filter(date__gte=timeobj).count()
+                })
+        else:
+            return HttpResponseBadRequest()
+
+    def post(self, *args, **kwargs):
+        return HttpResponseNotAllowed()
