@@ -2,7 +2,7 @@
 {% load twitter_tags %}
 {% load humanize %}
 
-{% paginate tweets %}
+{% lazy_paginate tweets %}
 
 {% for tweet in tweets %}
 {# your code to show the entry #}
@@ -36,6 +36,8 @@
 
 {% endfor %}
 
+<!-- {% show_pages %} -->
+
 <!-- ================== -->
 <!-- = LOAD MORE LINK = -->
 <!-- ================== -->
@@ -43,6 +45,4 @@
 This should be triggered automatically when the scroll position nears the
 the bottom of the stream.
  -->
-<div id=""><!-- optional wrapper div -->
-    <a class="hs_messageMore">{% show_more %}</a>
-</div>
+{% show_more %}
