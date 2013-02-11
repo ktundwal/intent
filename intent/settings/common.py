@@ -264,3 +264,6 @@ TWITTER_ACCESS_TOKEN_SECRET_CRUXLY="bXMb8uvG9e9ZBtBQnbA3HUKpVk5PI3cXa6K6kT7JQ"
 HOOTSUITE_SSO_SHARED_SECRET = 'hootsuitev4m)df7dk^^b&laqdakv7b)d+n3#!7hts+yct1vloz9i2!9cs1sso'
 
 #AUTH_PROFILE_MODULE = 'reminder.Provider'
+
+# allauth settings https://github.com/pennersr/django-allauth
+ACCOUNT_EMAIL_REQUIRED = True
