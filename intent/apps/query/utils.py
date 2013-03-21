@@ -18,10 +18,10 @@ from .decorators import *
 from intent import settings
 import tweepy
 
-CRUXLY_API_TIMEOUT = 120
-TWEETS_PER_API = 100
+CRUXLY_API_TIMEOUT = 240
+TWEETS_PER_API = 20
 
-if settings.ENVIRONMENT == 'mbp':
+if settings.ENVIRONMENT == 'mbp' or False:
     CRUXLY_SERVER = 'localhost:8080/api'
 else:
     CRUXLY_SERVER = 'api.cruxly.com'
@@ -75,7 +75,7 @@ def search_twitter_using_tweepy(query, logger=None):
             include_entities=True,
             lang="en")
     except TweepError, te:
-        log_exception(logger,
+        log_exception(
             "TWITTER ERROR! reason = %s, response = %s, keywords = %s, consumer_key = %s, consumer_secret = %s" %
                 (te.reason, te.response, query, TWITTER_CONSUMER_KEY, TWITTER_CONSUMER_SECRET))
         raise
