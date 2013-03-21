@@ -6,7 +6,7 @@ class AuthenticationBackend(ModelBackend):
     def authenticate(self, **credentials):
         user = None
 
-        app_username = self._make_username(credentials['hootsuite_uid'])
+        app_username = self._make_username(credentials['hootsuite_uid'] if 'hootsuite_uid' in credentials else credentials['username'])
 
         # Check if the user exists, if not, create it.
         user, created = User.objects.get_or_create(username=app_username)
