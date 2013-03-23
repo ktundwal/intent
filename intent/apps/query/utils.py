@@ -62,7 +62,7 @@ def search_twitter(query, query_count):
 def get_user_twitter_access_token():
     return TWITTER_ACCESS_TOKEN_CRUXLY, TWITTER_ACCESS_TOKEN_SECRET_CRUXLY
 
-def search_twitter_using_tweepy(query, logger=None):
+def search_twitter_using_tweepy(query, query_count, logger=None):
     try:
         auth = tweepy.OAuthHandler(TWITTER_CONSUMER_KEY, TWITTER_CONSUMER_SECRET)
         token, token_secret = get_user_twitter_access_token()
@@ -70,7 +70,7 @@ def search_twitter_using_tweepy(query, logger=None):
         api = tweepy.API(auth)
         return api.search(
             q=query,
-            rpp=100,
+            rpp=query_count,
             result_type="recent",
             include_entities=True,
             lang="en")
@@ -232,7 +232,7 @@ def run_and_analyze_query(kip, query_count, logger):
     query_from_kip = create_query(kip)
     logger.info("Going to search twitter for " + query_from_kip);
     #all_tweets = search_twitter(query_from_kip, query_count)
-    all_tweets = search_twitter_using_tweepy(query_from_kip, logger=logger)
+    all_tweets = search_twitter_using_tweepy(query_from_kip, query_count, logger=logger)
     after_twitter_search = time.time()
 
     chunked_tweets = list(chunks(all_tweets, TWEETS_PER_API))

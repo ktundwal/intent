@@ -473,7 +473,7 @@ def demo(request):
 
     try:
         tweets = run_and_analyze_query(Kip(keyterms=key_term, genericterms_comma_separated=industry_terms_comma_separated),
-            100, logger)
+                                       query_count, logger)
 
 #        logger.debug('Going to run twitter search for %s' % " OR ".join(kip))
 #        search_results = search_twitter(" OR ".join(kip), query_count)
@@ -521,6 +521,7 @@ def demo(request):
 
         context = {
             'form': QueryForm(),
+            'key_term': key_term,
             'tweets': tweets,
             'query': query,
             'count': query_count,
