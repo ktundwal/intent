@@ -20,6 +20,6 @@ if ENVIRONMENT == 'prod':
 # The consumer keys can be found on your application's Details
 # page located at https://dev.twitter.com/apps (under "OAuth settings")
 
-TWITTER_CONSUMER_KEY="0pupnggdsjb0cNPMpMZpVA"
-TWITTER_CONSUMER_SECRET="LIp2Im85LQbs8r2kqQdhiD884IrxQ5N1dfLlB6ULPQ"
+TWITTER_CONSUMER_KEY="ILoiNE36ajsgZyb8428Sdw"
+TWITTER_CONSUMER_SECRET="BecIXwOQXtwlyFsXScHbp6eoWnf0SghjhZGKclfzbA"
 # ... etc.

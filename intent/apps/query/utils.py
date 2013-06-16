@@ -67,10 +67,10 @@ def search_twitter_using_tweepy(query, query_count, logger=None):
         auth = tweepy.OAuthHandler(TWITTER_CONSUMER_KEY, TWITTER_CONSUMER_SECRET)
         token, token_secret = get_user_twitter_access_token()
         auth.set_access_token(token, token_secret)
-        api = tweepy.API(auth)
+        api = tweepy.API(auth, search_root='/1.1')
         return api.search(
             q=query,
-            rpp=query_count,
+            count=query_count,
             result_type="recent",
             include_entities=True,
             lang="en")
@@ -246,10 +246,10 @@ def run_and_analyze_query(kip, query_count, logger):
                     cleaned_tweet = clean_tweet(tweet.text)
                     analyzed_tweet_dict = dict(
                         text = cleaned_tweet,    # 'content' key is what cruxly api looks for
-                        author = tweet.from_user_id_str,
-                        author_user_name = tweet.from_user,
-                        image = tweet.profile_image_url,
-                        url = "".join(['http://twitter.com/', tweet.from_user_id_str, '/status/', tweet.id_str]),
+                        author = tweet.author.id_str,
+                        author_user_name = tweet.author.name,
+                        image = tweet.author.profile_image_url,
+                        url = "".join(['http://twitter.com/', tweet.author.id_str, '/status/', tweet.id_str]),
                         date = tweet.created_at.strftime(DATETIME_FORMAT),
                         tweet_id = tweet.id_str,
                         kip = kip.dict,
@@ -258,7 +258,7 @@ def run_and_analyze_query(kip, query_count, logger):
                     )
                     tweets_without_intents.append(analyzed_tweet_dict)
                 except Exception, e:
-                    log_exception(message="Cruxly API failed to process tweet [%s]" % cleaned_tweet)
+                    log_exception(message="Twitter sent unexpected response [%s]" % cleaned_tweet)
 
             if len(tweets_without_intents) > 0:
                 tweets_with_intents = insert_intents(tweets_without_intents, logger)
