@@ -2,28 +2,30 @@
 {% load twitter_tags %}
 {% load humanize %}
 
-{% paginate tweets %}
-{% for tweet in tweets %}
-{# your code to show the entry #}
-    <div class="container-fluid well">
-        <div class="row-fluid">
-            <div class="span2">
-                <div align="center" class="row"><img src="{{ tweet.author.profile_image_url }}" alt="" width='50' height='50' class='img-rounded'></div>
-                <div align="center" class="row">{{ tweet.author.name }}</div>
-            </div>
-            <div class="span8">
-                <!--Body content-->
-                <table class="table-condensed" >
-                    <tr><td>{{ tweet.text|tweet }}</td></tr>
-                    <tr><td>
-                        <a href="http://twitter.com/{{ tweet.author.twitter_handle }}/status/{{ tweet.source_id }}">{{ tweet.date|date:'Y-m-d H:i' }}</a>
-                        <a href="https://twitter.com/intent/tweet?in_reply_to={{ tweet.source_id }}">Reply</a>
-                        <a href="https://twitter.com/intent/retweet?tweet_id={{ tweet.source_id }}">Retweet</a>
-                        <a href="https://twitter.com/intent/favorite?tweet_id={{ tweet.source_id }}">Favorite</a>
-                    </td></tr>
-                </table>
+{% if tweets %}
+    {% paginate tweets %}
+    {% for tweet in tweets %}
+    {# your code to show the entry #}
+        <div class="container-fluid well">
+            <div class="row-fluid">
+                <div class="span2">
+                    <div align="center" class="row"><img src="{{ tweet.author.profile_image_url }}" alt="" width='50' height='50' class='img-rounded'></div>
+                    <div align="center" class="row">{{ tweet.author.name }}</div>
+                </div>
+                <div class="span8">
+                    <!--Body content-->
+                    <table class="table-condensed" >
+                        <tr><td>{{ tweet.text|tweet }}</td></tr>
+                        <tr><td>
+                            <a href="http://twitter.com/{{ tweet.author.twitter_handle }}/status/{{ tweet.source_id }}">{{ tweet.date|date:'Y-m-d H:i' }}</a>
+                            <a href="https://twitter.com/intent/tweet?in_reply_to={{ tweet.source_id }}">Reply</a>
+                            <a href="https://twitter.com/intent/retweet?tweet_id={{ tweet.source_id }}">Retweet</a>
+                            <a href="https://twitter.com/intent/favorite?tweet_id={{ tweet.source_id }}">Favorite</a>
+                        </td></tr>
+                    </table>
+                </div>
             </div>
         </div>
-    </div>
-{% endfor %}
-{% show_more %}
+    {% endfor %}
+    {% show_more %}
+{% endif %}

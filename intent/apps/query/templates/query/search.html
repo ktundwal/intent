@@ -1,0 +1,65 @@
+{% extends 'core/base.html' %}
+
+{% block javascript %}
+{{ block.super }}
+
+<!--Load the AJAX API-->
+<script type="text/javascript" src="https://www.google.com/jsapi"></script>
+
+
+<script src="/static/vendor/jquery/1.7.2/jquery.js" type="text/javascript" charset="utf-8"></script>
+<script src="/static/vendor/endless_pagination/1.1/endless.js" type="text/javascript" charset="utf-8"></script>
+
+{% endblock %}
+
+{% block title %}{{ intent|capfirst }} intents for {{ search_term }}{% endblock %}
+
+{% block yield %}
+
+    <form method="get" action="/query/search/">
+      <input type="text" name="q" id="id_q" placeholder="iPhone" value="{{ search_term }}"/>
+        <div class="well well-small">
+        <label class="radio inline">
+          <input type="radio" name="intent" id="optionsRadios1" value="buy" checked>
+          Buy
+        </label>
+        <label class="radio inline">
+          <input type="radio" name="intent" id="optionsRadios2" value="try">
+          Try
+        </label>
+          <label class="radio inline">
+          <input type="radio" name="intent" id="optionsRadios2" value="like">
+          Like
+        </label>
+          <label class="radio inline">
+          <input type="radio" name="intent" id="optionsRadios2" value="dislike">
+          Dislike
+        </label>
+          <label class="radio inline">
+          <input type="radio" name="intent" id="optionsRadios2" value="question">
+          Question
+        </label>
+          <label class="radio inline">
+          <input type="radio" name="optionsRadios" id="optionsRadios2" value="recommendation">
+          Recommendation
+        </label>
+          <label class="radio inline">
+          <input type="radio" name="optionsRadios" id="optionsRadios2" value="commitment">
+          Commitment
+        </label>
+            </div>
+      <input type="submit" value="Search" /></p>
+     </form>
+
+<h3>{{ intent_to_filter_for|capfirst }} intents for {{ search_term }}</h3>
+
+<div class='container'>
+{% include page_template %}
+</div>
+
+
+<a href="{% url query:query_index %}">Go to dashboard</a>
+
+<p>
+
+{% endblock %}
