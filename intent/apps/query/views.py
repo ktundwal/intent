@@ -597,6 +597,12 @@ def get_query(query_string, search_fields):
             query = query & or_query
     return query
 
+
+def process_has_influencer_phrase(query_string):
+    return query_string, True
+    pass
+
+
 @login_required
 @page_template('query/query_results_item.html')
 def search(request,
@@ -612,6 +618,7 @@ def search(request,
     if request.method == 'GET':
         if ('q' in request.GET) and request.GET['q'].strip() and request.GET['intent']:
             query_string = request.GET['q']
+            query_string, influencer = process_has_influencer_phrase(query_string)
             intent_to_filter_for = request.GET['intent']
             try:
                 intent = request.GET.get('intent', 'buy')   #default to buy

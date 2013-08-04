@@ -35,6 +35,68 @@
             var chart = new google.visualization.LineChart(document.getElementById('chart_div_{{query.id}}'));
             chart.draw(data, options);
 
+            // pie chart
+
+            // Create the data table.
+{#            var pie_chart_data = null;#}
+{#            var pie_chart_data = new google.visualization.DataTable();#}
+{#            pie_chart_data.addColumn('string', 'Buy');#}
+{#            pie_chart_data.addColumn('string', 'Like');#}
+{#            pie_chart_data.addColumn('string', 'Try');#}
+{#            pie_chart_data.addColumn('string', 'Question');#}
+{#            pie_chart_data.addColumn('string', 'Recommendation');#}
+{#            pie_chart_data.addColumn('string', 'Commitment');#}
+{#            pie_chart_data.addColumn('string', 'Dislike');#}
+{#            pie_chart_data.addColumn('number', 'Rest');#}
+{#            pie_chart_data.addRows([#}
+{#                ['Buy', {{ query.buy_percentage|floatformat:"0" }}],#}
+{#                ['Like', {{ query.like_percentage|floatformat:"0" }}],#}
+{#                ['Try', {{ query.try_percentage|floatformat:"0" }}],#}
+{#                ['Question', {{ query.question_percentage|floatformat:"0" }}],#}
+{#                ['Recommendation', {{ query.recommendation_percentage|floatformat:"0" }}],#}
+{#                ['Commitment', {{ query.commitment_percentage|floatformat:"0" }}],#}
+{#                ['Dislike', {{ query.dislike_percentage|floatformat:"0" }}],#}
+{#                ['Rest', 100 - ({{ query.buy_percentage|floatformat:"0" }} + {{ query.like_percentage|floatformat:"0" }}#}
+{#                        + {{ query.try_percentage|floatformat:"0" }}#}
+{#                        + {{ query.dislike_percentage|floatformat:"0" }})]#}
+{#            ]);#}
+
+            var pie_chart_data = google.visualization.arrayToDataTable([
+                ['Buy',             {{ query.buy_percentage|floatformat:"0" }}],
+                ['Like',            {{ query.like_percentage|floatformat:"0" }}],
+                ['Try',             {{ query.try_percentage|floatformat:"0" }}],
+                ['Question',        {{ query.question_percentage|floatformat:"0" }}],
+                ['Recommendation',  {{ query.recommendation_percentage|floatformat:"0" }}],
+                ['Commitment',      {{ query.commitment_percentage|floatformat:"0" }}],
+                ['Dislike',         {{ query.dislike_percentage|floatformat:"0" }}],
+{#                ['Rest',            100 - ({{ query.buy_percentage|floatformat:"0" }}#}
+{#                        + {{ query.like_percentage|floatformat:"0" }}#}
+{#                        + {{ query.try_percentage|floatformat:"0" }}#}
+{#                        + {{ query.dislike_percentage|floatformat:"0" }})]#}
+            ]);
+
+            function selectHandler(e) {
+                console.log('selectHandler called with ' + e);
+                var selectedItem = pie_chart.getSelection()[0];
+                console.log('selectedItem: ' + selectedItem);
+                if (selectedItem) {
+                    var topping = pie_chart_data.getValue(selectedItem.row, 0);
+                    alert('The user selected ' + topping);
+                }
+            }
+
+            // Instantiate and draw our chart, passing in some options.
+            var pie_chart = null;
+            var pie_chart = new google.visualization.PieChart(document.getElementById('pie_chart_div_{{query.id}}'));
+
+            pie_chart.draw(pie_chart_data, {
+                'width':300, 'height':200, 'is3D': false, legend : 'none',
+                title : 'Intents',
+                backgroundColor: { fill:'transparent' }
+                //colors: ['0191C8', '74C2E1']
+            });
+            google.visualization.events.addListener(pie_chart, 'select', selectHandler);
+
         {% endfor %}
 
     }
@@ -75,6 +137,8 @@
                 </td>
                 <td>
                     <div class='chart' id="chart_div_{{query.id}}" style="width: 500px; height: 300px;"></div><br>
+                    <!--Div that will hold the pie chart-->
+                    <div class="span3" id="pie_chart_div_{{query.id}}"></div><br>
                     <b>{{ query.buy_count }} potential leads</b>,<br>
                     <a href="results/{{query.id}}?intent=buy">{{ query.buy_percentage|floatformat:"2" }}% buy intents</a>,
                     <a href="results/{{query.id}}?intent=like">{{ query.like_percentage|floatformat:"2" }}% likes</a>,

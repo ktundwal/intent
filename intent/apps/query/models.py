@@ -140,6 +140,9 @@ class Author(models.Model):
     twitter_handle = models.CharField(max_length=40, blank=False)
     name = models.CharField(max_length=40, default='', blank=False)
     profile_image_url = models.URLField(default='http://i.stack.imgur.com/TDbOb.png')
+    followers_count = models.IntegerField(blank=False, default=0)
+    friends_count = models.IntegerField(blank=False, default=0)
+    author_listed_count = models.IntegerField(blank=False, default=0)
 
     def __unicode__(self):
         return self.twitter_handle
@@ -183,6 +186,10 @@ class Document(models.Model):
     latitude = models.CharField(max_length=40, blank=True, null=True)
     longitude = models.CharField(max_length=40, blank=True, null=True)
     display_location = models.CharField(max_length=40, blank=True, null=True)
+
+    favorite_count = models.IntegerField(blank=False, default=0)
+    retweet_count = models.IntegerField(blank=False, default=0)
+    place = models.CharField(max_length=200, blank=True, default='')
 
     # This will be used to query what all needs analysis in background task
     analyzed = models.BooleanField(default=False)

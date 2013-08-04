@@ -155,6 +155,15 @@ def insert_intents(tweets, caller_logger):
             #store request response in a string
             response = unicode(r.content, 'utf8')
             response = json.loads(response)
+            i = 0
+            for tweet in tweets:
+                response[i]['author_followers_count'] = tweet['author_followers_count']
+                response[i]['author_friends_count'] = tweet['author_friends_count']
+                response[i]['author_listed_count'] = tweet['author_listed_count']
+                response[i]['favorite_count'] = tweet['favorite_count']
+                response[i]['place'] = tweet['place']
+                response[i]['retweet_count'] = tweet['retweet_count']
+                i += 1
         else:
             raise Exception("Got " + r.status_code + " from Cruxly API")
 
@@ -248,6 +257,9 @@ def run_and_analyze_query(kip, query_count, logger):
                         text = cleaned_tweet,    # 'content' key is what cruxly api looks for
                         author = tweet.author.id_str,
                         author_user_name = tweet.author.name,
+                        author_followers_count = tweet.author.followers_count,
+                        author_friends_count = tweet.author.friends_count,
+                        author_listed_count = tweet.author.listed_count,
                         image = tweet.author.profile_image_url,
                         url = "".join(['http://twitter.com/', tweet.author.id_str, '/status/', tweet.id_str]),
                         date = tweet.created_at.strftime(DATETIME_FORMAT),
@@ -255,6 +267,10 @@ def run_and_analyze_query(kip, query_count, logger):
                         kip = kip.dict,
                         latitude = tweet.geo['coordinates'][0] if tweet.geo else None,
                         longitude = tweet.geo['coordinates'][1] if tweet.geo else None,
+                        favorite_count = tweet.favorite_count,
+                        place = tweet.place.full_name if tweet.place else '',
+                        retweet_count = tweet.retweet_count
+
                     )
                     tweets_without_intents.append(analyzed_tweet_dict)
                 except Exception, e:

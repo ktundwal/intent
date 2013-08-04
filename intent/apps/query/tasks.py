@@ -163,9 +163,14 @@ def run_and_analyze_queries():
                                 author = Author.objects.get(twitter_handle=tweet['author'])
                             #except author.DoesNotExist:
                             except:
-                                author = Author.objects.create(twitter_handle=tweet['author'],
-                                    name=tweet['author_user_name'],
-                                    profile_image_url=tweet['image'])
+                                author = Author.objects.create(
+                                    twitter_handle      = tweet['author'],
+                                    name                = tweet['author_user_name'],
+                                    profile_image_url   = tweet['image'],
+                                    followers_count     = tweet['author_followers_count'],
+                                    friends_count       = tweet['author_friends_count'],
+                                    author_listed_count = tweet['author_listed_count'],
+                                    )
 
 #                            if tweet['geo']:
 #                                lat = tweet['geo']['coordinates'][0]
@@ -188,6 +193,8 @@ def run_and_analyze_queries():
                                     latitude            = tweet['latitude'],
                                     longitude           = tweet['longitude'],
                                     display_location    = None,
+                                    favorite_count      = tweet['favorite_count'],
+                                    #place               = tweet['place'],
                                     # for now we are not saving any rules. Just unknowns
                                     buy_rule            = buy_rule,
                                     recommendation_rule = recommendation_rule,
@@ -198,6 +205,7 @@ def run_and_analyze_queries():
                                     try_rule            = try_rule,
 
                                 )
+                                document.place = tweet['place']
                                 document.save()
 
                                 daily_stat.document_count += 1
