@@ -17,37 +17,7 @@
 {% block yield %}
 
     <form method="get" action="/query/search/">
-      <input type="text" name="q" id="id_q" placeholder="iPhone" value="{{ search_term }}"/>
-        <div class="well well-small">
-        <label class="radio inline">
-          <input type="radio" name="intent" id="optionsRadios1" value="buy" checked>
-          Buy
-        </label>
-        <label class="radio inline">
-          <input type="radio" name="intent" id="optionsRadios2" value="try">
-          Try
-        </label>
-          <label class="radio inline">
-          <input type="radio" name="intent" id="optionsRadios2" value="like">
-          Like
-        </label>
-          <label class="radio inline">
-          <input type="radio" name="intent" id="optionsRadios2" value="dislike">
-          Dislike
-        </label>
-          <label class="radio inline">
-          <input type="radio" name="intent" id="optionsRadios2" value="question">
-          Question
-        </label>
-          <label class="radio inline">
-          <input type="radio" name="optionsRadios" id="optionsRadios2" value="recommendation">
-          Recommendation
-        </label>
-          <label class="radio inline">
-          <input type="radio" name="optionsRadios" id="optionsRadios2" value="commitment">
-          Commitment
-        </label>
-            </div>
+      <input type="text" name="q" id="id_q" class="input-xxlarge search-query" placeholder="'samsung galaxy' iphone followers:200 in:denver retweeted:2 from:mobile show:map within:14 intent:buy" value="{{ search_term }}"/>
       <input type="submit" value="Search" /></p>
      </form>
 

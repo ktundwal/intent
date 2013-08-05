@@ -10,7 +10,7 @@
             <div class="row-fluid">
                 <div class="span2">
                     <div align="center" class="row"><img src="{{ tweet.author.profile_image_url }}" alt="" width='50' height='50' class='img-rounded'></div>
-                    <div align="center" class="row">{{ tweet.author.name }}</div>
+                    <div align="center" class="row">{{ tweet.author.name }}<br>{{ tweet.author.followers_count }} followers</div>
                 </div>
                 <div class="span8">
                     <!--Body content-->
@@ -18,6 +18,7 @@
                         <tr><td>{{ tweet.text|tweet }}</td></tr>
                         <tr><td>
                             <a href="http://twitter.com/{{ tweet.author.twitter_handle }}/status/{{ tweet.source_id }}">{{ tweet.date|date:'Y-m-d H:i' }}</a>
+                            Retweeted {{ tweet.retweet_count }} times
                             <a href="https://twitter.com/intent/tweet?in_reply_to={{ tweet.source_id }}">Reply</a>
                             <a href="https://twitter.com/intent/retweet?tweet_id={{ tweet.source_id }}">Retweet</a>
                             <a href="https://twitter.com/intent/favorite?tweet_id={{ tweet.source_id }}">Favorite</a>

@@ -598,8 +598,34 @@ def get_query(query_string, search_fields):
     return query
 
 
-def process_has_influencer_phrase(query_string):
-    return query_string, True
+def process_qualifiers(query_string):
+    followers = None
+    place = None
+    retweeted = None
+    within = None
+    intent = None
+    device = None
+    showmap = None
+    search_term = ''
+    words = query_string.split()
+    for word in words:
+        if word.startswith('followers:'):
+            followers = int('0' + word.replace('followers:', ''))
+        elif word.startswith('in:'):
+            place = word.replace('in:', '')
+        elif word.startswith('retweeted:'):
+            retweeted = int('0' + word.replace('retweeted:', ''))
+        elif word.startswith('within:'):
+            within = int('0' + word.replace('within:', ''))
+        elif word.startswith('intent:'):
+            intent = word.replace('intent:', '')
+        elif word.startswith('from:'):
+            device = word.replace('from:', '')
+        elif word.startswith('show:'):
+            showmap = word.replace('show:', '')
+        else:
+            search_term += word + ' '
+    return search_term, followers, place, retweeted, within, device, intent, device, showmap
     pass
 
 
@@ -616,23 +642,31 @@ def search(request,
         context.update(extra_context)
 
     if request.method == 'GET':
-        if ('q' in request.GET) and request.GET['q'].strip() and request.GET['intent']:
+        if ('q' in request.GET) and request.GET['q'].strip():
             query_string = request.GET['q']
-            query_string, influencer = process_has_influencer_phrase(query_string)
-            intent_to_filter_for = request.GET['intent']
+            # iphone follower_count:200 in:denver retweeted:100 from:mobile show:map within:14 intent:buy
+            search_term, followers, place, retweeted, within, device, intent, device, showmap = process_qualifiers(query_string)
             try:
-                intent = request.GET.get('intent', 'buy')   #default to buy
+                intent = 'buy' if intent is None else intent
                 #tweets = Document.objects.filter(text__icontains=search_term)
-                entry_query = get_query(query_string, ['text'])
+                entry_query = get_query(search_term, ['text'])
                 tweets = Document.objects.filter(entry_query)
+                if retweeted:
+                    tweets = tweets.filter(retweet_count__gte=retweeted)
+                if place:
+                    tweets = tweets.filter(place__icontains=place)
+                if within:
+                    tweets = tweets.filter(date__gte=date.today() + timedelta(days=within))
+                if followers:
+                    tweets = tweets.filter(author__followers_count__gte=followers)
 
                 context.update({
                     'search_term': query_string,
                     'status_choices': dict(Query.STATUS_CHOICES),
-                    'intent_to_filter_for' : intent_to_filter_for,
+                    'intent_to_filter_for' : intent,
                     })
 
-                context.update(filter_tweets_for_intent(tweets, intent_to_filter_for))
+                context.update(filter_tweets_for_intent(tweets, intent))
 
             except:
                 log_exception(message='Error processing query id %d' % query_string)
