@@ -503,13 +503,19 @@ def demo(request):
         tweets_w_try               = [tweet for tweet in tweets if {u'intent': u'try'}              in tweet['intents']]
         tweets_w_like              = [tweet for tweet in tweets if {u'intent': u'like'}             in tweet['intents']]
 
-        question_percentage        = len(tweets_w_question) * 100 / len(tweets) if len(tweets) > 0 else 1
-        recommendation_percentage  = len(tweets_w_recommendation) * 100 / len(tweets) if len(tweets) > 0 else 1
-        buy_percentage             = len(tweets_w_buy) * 100 / len(tweets) if len(tweets) > 0 else 1
-        commitment_percentage      = len(tweets_w_commitment) * 100 / len(tweets) if len(tweets) > 0 else 1
-        try_percentage             = len(tweets_w_try) * 100 / len(tweets) if len(tweets) > 0 else 1
-        like_percentage            = len(tweets_w_like) * 100 / len(tweets) if len(tweets) > 0 else 1
-        dislike_percentage         = len(tweets_w_dislike) * 100 / len(tweets) if len(tweets) > 0 else 1
+        total_intents = len(tweets_w_dislike) + len(tweets_w_question) + len(tweets_w_recommendation) + len(tweets_w_buy) \
+                        + len(tweets_w_try) + len(tweets_w_commitment) + len(tweets_w_like)
+
+        denominator = total_intents if total_intents >=1 else len(tweets)
+        denominator = len(tweets) if len(tweets) > 1 else 1
+
+        question_percentage        = len(tweets_w_question) * 100 / denominator
+        recommendation_percentage  = len(tweets_w_recommendation) * 100 / denominator
+        buy_percentage             = len(tweets_w_buy) * 100 / denominator
+        commitment_percentage      = len(tweets_w_commitment) * 100 / denominator
+        try_percentage             = len(tweets_w_try) * 100 / denominator
+        like_percentage            = len(tweets_w_like) * 100 / denominator
+        dislike_percentage         = len(tweets_w_dislike) * 100 / denominator
 
         for tweet in tweets:
             intent_list = []

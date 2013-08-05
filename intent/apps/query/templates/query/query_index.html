@@ -62,6 +62,7 @@
 {#            ]);#}
 
             var pie_chart_data = google.visualization.arrayToDataTable([
+                    ['Intent',          'Percentage'],
                 ['Buy',             {{ query.buy_percentage|floatformat:"0" }}],
                 ['Like',            {{ query.like_percentage|floatformat:"0" }}],
                 ['Try',             {{ query.try_percentage|floatformat:"0" }}],
