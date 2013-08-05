@@ -656,7 +656,7 @@ def search(request,
                 if place:
                     tweets = tweets.filter(place__icontains=place)
                 if within:
-                    tweets = tweets.filter(date__gte=date.today() + timedelta(days=within))
+                    tweets = tweets.filter(date__gte=date.today() - timedelta(days=within))
                 if followers:
                     tweets = tweets.filter(author__followers_count__gte=followers)
 
